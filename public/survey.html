@@ -135,13 +135,13 @@
 </div>
 
 <script>
-  // scroll header effect
+
   window.addEventListener('scroll', () => {
     document.getElementById('stickyHeader')
       .classList.toggle('scrolled', window.scrollY > 30);
   });
 
-  // language toggle
+
   document.getElementById('language-toggle').onclick = function() {
     const showingEnglish = this.textContent === 'English';
     this.textContent = showingEnglish ? 'العربية' : 'English';
@@ -152,7 +152,6 @@
   };
 
 
-  // load questions from your GET endpoint
   async function loadQuestions(){
     const form = document.getElementById('survey-form');
     try {
@@ -176,7 +175,6 @@
         lbl.htmlFor=`q${i+1}`;
         wrap.appendChild(lbl);
         const id=`q${i+1}`;
-        // input types...
         if(q.type==='paragraph'){
           const ta=document.createElement('textarea'); ta.id=id; wrap.appendChild(ta);
         }
@@ -232,7 +230,6 @@
         }
         form.appendChild(wrap);
       });
-      // submit
       const btn=document.createElement('button');
       btn.type='submit'; btn.textContent='Submit';
       form.appendChild(btn);
@@ -257,20 +254,52 @@
           data[key]=inp.value;
         }
       });
-      // POST as JSON
-      await fetch(
-        'https://script.google.com/macros/s/AKfycbzV4XC-4EPLEjoG6XW69-U0d46NorKaH-83GDWyhO6PP0R3YjBT-7FKdnNaLEDaf6g3/exec',
-        {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify(data)
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    loadQuestions();
+
+    document.getElementById('survey-form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const data = {};
+      document.querySelectorAll(
+        '#survey-form select, #survey-form textarea, #survey-form input:checked'
+      ).forEach(inp => {
+        const key = inp.name || inp.id;
+        if (inp.type === 'checkbox') {
+          data[key] = data[key] || [];
+          data[key].push(inp.value);
+        } else {
+          data[key] = inp.value;
         }
-      );
-      // redirect to thank-you page
-      window.location.href = 'thankyou.html';
+      });
+      try {
+        const response = await fetch(
+          'https://script.google.com/macros/s/AKfycbzV4XC-4EPLEjoG6XW69-U0d46NorKaH-83GDWyhO6PP0R3YjBT-7FKdnNaLEDaf6g3/exec',
+          {
+            method: 'POST',
+            mode: 'cors',                                     
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          }
+        );
+
+        const text = await response.text();
+        console.log('Sheet response:', text);
+
+        if (response.ok) {
+          window.location.href = 'thankyou.html';
+        } else {
+          alert('Submission failed: ' + text);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        alert('Error submitting: ' + err.message);
+      }
     });
   });
 </script>
+
 
 </body>
 </html>

@@ -194,7 +194,7 @@
   async function loadQuestions() {
     const form = document.getElementById('survey-form');
     try {
-      const res = await fetch("https://script.google.com/macros/s/AKfycbwKYXOMPTP4gvjf5fx8bSsm-tK6JL4syP9uyDgJRFbtzAS1kByQPo9ton0GVRkflBSmvA/exec?filename=survey-001");
+      const res = await fetch("https://script.google.com/macros/s/AKfycbxpIoJ3YJoosRrJh1KF21XpassU-kSSi_uXhEPbDYbzAxrqPJMt_GFEwzRCuTKXT066VQ/exec?filename=survey-001");
       const data = await res.json();
 
       if (!data.questions) {

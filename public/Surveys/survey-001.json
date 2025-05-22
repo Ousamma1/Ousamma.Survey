@@ -1,0 +1,35 @@
+{
+  "questions": [
+    {
+      "type": "multiple_choice",
+      "question_en": "How would you rate our website design?",
+      "question_ar": "كيف تقيم تصميم موقعنا الإلكتروني؟",
+      "options_en": ["Excellent", "Good", "Average", "Poor"],
+      "options_ar": ["ممتاز", "جيد", "متوسط", "ضعيف"]
+    },
+    {
+      "type": "multiple_choice",
+      "question_en": "Are you satisfied with our digital services?",
+      "question_ar": "هل أنت راضٍ عن خدماتنا الرقمية؟",
+      "options_en": ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied"],
+      "options_ar": ["راضٍ جداً", "راضٍ", "محايد", "غير راضٍ"]
+    },
+    {
+      "type": "paragraph",
+      "question_en": "What can we improve?",
+      "question_ar": "ما الذي يمكننا تحسينه؟"
+    },
+    {
+      "type": "dropdown",
+      "question_en": "How often do you visit our platform?",
+      "question_ar": "كم مرة تزور منصتنا؟",
+      "options_en": ["Daily", "Weekly", "Monthly", "Rarely"],
+      "options_ar": ["يوميًا", "أسبوعيًا", "شهريًا", "نادراً"]
+    },
+    {
+      "type": "paragraph",
+      "question_en": "Any additional comments or suggestions?",
+      "question_ar": "هل لديك أي تعليقات أو اقتراحات إضافية؟"
+    }
+  ]
+}

@@ -85,16 +85,13 @@
 </div>
 
 <script>
-  const GET_URL  = 'https://script.google.com/macros/s/AKfycbymRJKxSdA0CZacyFM1Y_NuTlxkOEOPWHpR1IkRBbps2jPcc3ahxMHewm-ED7zQmtx6RA/exec?filename=survey-001';
-  const POST_URL = 'https://script.google.com/macros/s/AKfycbznaEVv5M3RCSzgdFCT7jgI5hq-VeomPm5lv3g5ILJGX9L_ndWNCRrGzDCq_LwArbVZ/exec';
+  const GET_URL  = 'https://script.google.com/macros/s/AKfycbzu1Bx0XSj8DMRyBGX71BoJvlvG9XBBe6Pzv2YpCp0zkAcQlNGCmI4lOZLczwh1QdUkHQ/exec?filename=survey-001';
+  const POST_URL = 'https://script.google.com/macros/s/AKfycbyWixDnAsIy8I9jsLPjEX4OOa0UrAGd8M5YE3BQ4_7T7Va5BDGZG6qcxTCj6sXy5_c8/exec';
+const FILENAME = 'survey-001';
 
-  // 1) sticky header
-  window.addEventListener('scroll', () => {
-    document.getElementById('stickyHeader')
-      .classList.toggle('scrolled', window.scrollY > 30);
-  });
+  let questionsList = [];
 
-  // 2) language toggle
+  // language toggle (unchanged)
   document.getElementById('language-toggle').onclick = function() {
     const showingEN = this.textContent === 'English';
     this.textContent = showingEN ? 'العربية' : 'English';
@@ -108,16 +105,20 @@
   async function loadQuestions() {
     const form = document.getElementById('survey-form');
     try {
-      const res = await fetch(GET_URL, { mode:'cors' });
+      const res  = await fetch(GET_URL, { mode: 'cors' });
       const json = await res.json();
       if (!json.questions) {
         form.innerHTML = '<p style="color:red;">No questions found</p>';
         return;
       }
+      questionsList = json.questions;   // save for later
+
       form.innerHTML = '';
-      json.questions.forEach((q,i) => {
+      questionsList.forEach((q, i) => {
         const wrap = document.createElement('div');
         wrap.className = 'question-card';
+
+        // label
         const lbl = document.createElement('label');
         lbl.innerHTML = `
           <span class="lang-en">${q.question_en}</span>
@@ -126,15 +127,19 @@
         wrap.appendChild(lbl);
 
         const id = `q${i+1}`;
+
+        // inputs by type
         if (q.type === 'paragraph') {
           const ta = document.createElement('textarea');
-          ta.id = id; wrap.appendChild(ta);
+          ta.id = id;
+          wrap.appendChild(ta);
         }
         else if (q.type === 'multiple_choice') {
-          q.options_en.forEach((opt,j) => {
+          q.options_en.forEach((opt, j) => {
             const d = document.createElement('div');
             d.innerHTML = `
-              <label><input type="radio" name="${id}" value="${opt}">
+              <label>
+                <input type="radio" name="${id}" value="${opt}">
                 <span class="lang-en">${opt}</span>
                 <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>
               </label>`;
@@ -142,10 +147,11 @@
           });
         }
         else if (q.type === 'checkboxes') {
-          q.options_en.forEach((opt,j) => {
+          q.options_en.forEach((opt, j) => {
             const d = document.createElement('div');
             d.innerHTML = `
-              <label><input type="checkbox" name="${id}" value="${opt}">
+              <label>
+                <input type="checkbox" name="${id}" value="${opt}">
                 <span class="lang-en">${opt}</span>
                 <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>
               </label>`;
@@ -155,10 +161,9 @@
         else if (q.type === 'dropdown') {
           const sel = document.createElement('select');
           sel.id = id;
-          q.options_en.forEach((opt,j) => {
+          q.options_en.forEach(opt => {
             const o = document.createElement('option');
-            o.value = opt;
-            o.textContent = opt;
+            o.value = o.textContent = opt;
             sel.appendChild(o);
           });
           wrap.appendChild(sel);
@@ -167,11 +172,11 @@
           const ctr = document.createElement('div');
           ctr.style.display = 'flex';
           ctr.style.justifyContent = 'space-between';
-          q.options_en.forEach((opt,j) => {
+          q.options_en.forEach((opt, j) => {
             const rad = document.createElement('input');
             rad.type = 'radio'; rad.name = id; rad.value = opt; rad.id = `${id}_${j}`;
             const lab = document.createElement('label');
-            lab.htmlFor = `${id}_${j}`;
+            lab.htmlFor = rad.id;
             lab.innerHTML = `
               <span class="lang-en">${opt}</span>
               <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>`;
@@ -184,14 +189,14 @@
           wrap.appendChild(ctr);
         }
 
-        document.getElementById('survey-form').appendChild(wrap);
+        form.appendChild(wrap);
       });
 
-      // add submit button
+      // submit button
       const btn = document.createElement('button');
       btn.type = 'submit';
       btn.textContent = 'Submit';
-      document.getElementById('survey-form').appendChild(btn);
+      form.appendChild(btn);
 
     } catch (err) {
       document.getElementById('survey-form').innerHTML =
@@ -199,33 +204,41 @@
     }
   }
 
-  // 4) hook up submit (POST x-www-form-urlencoded)
+  // 4) hook up submit (POST x-www-form-urlencoded with question_en keys)
   document.addEventListener('DOMContentLoaded', () => {
     loadQuestions();
+
     document.getElementById('survey-form').addEventListener('submit', async e => {
       e.preventDefault();
-      // collect all answers
-      const data = {};
-      document.querySelectorAll(
-        '#survey-form select, #survey-form textarea, #survey-form input:checked'
-      ).forEach(inp => {
-        const key = inp.name || inp.id;
-        if (inp.type === 'checkbox') {
-          data[key] = data[key] || [];
-          data[key].push(inp.value);
-        } else {
-          data[key] = inp.value;
+
+      // build a map of question_en → answer(s)
+      const data = { filename: FILENAME };
+      questionsList.forEach((q, i) => {
+        const key = q.question_en;
+        const id  = `q${i+1}`;
+
+        if (q.type === 'checkboxes') {
+          // collect all checked boxes
+          const vals = Array.from(document.querySelectorAll(`input[name="${id}"]:checked`))
+                            .map(inp => inp.value);
+          data[key] = vals;
+        }
+        else if (q.type === 'multiple_choice' || q.type === 'scale') {
+          const inp = document.querySelector(`input[name="${id}"]:checked`);
+          data[key] = inp ? inp.value : '';
+        }
+        else { 
+          // textarea or select
+          const elm = document.getElementById(id);
+          data[key] = elm ? elm.value : '';
         }
       });
 
-      // build URLSearchParams
+      // encode form
       const params = new URLSearchParams();
-      Object.entries(data).forEach(([k,v]) => {
-        if (Array.isArray(v)) {
-          v.forEach(val => params.append(k, val));
-        } else {
-          params.append(k, v);
-        }
+      Object.entries(data).forEach(([k, v]) => {
+        if (Array.isArray(v)) v.forEach(val => params.append(k, val));
+        else params.append(k, v);
       });
 
       try {

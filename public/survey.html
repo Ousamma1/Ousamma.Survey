@@ -295,6 +295,54 @@
 </script>
 
 
+<script>
+  window.addEventListener('scroll', function () {
+    const header = document.getElementById('stickyHeader');
+    header.classList.toggle('scrolled', window.scrollY > 30);
+  });
+
+  document.getElementById('language-toggle').addEventListener('click', function () {
+    const isArabic = this.textContent.includes('English');
+    this.textContent = isArabic ? 'العربية' : 'English';
+    document.querySelectorAll('.lang-en').forEach(el => el.style.display = isArabic ? 'block' : 'none');
+    document.querySelectorAll('.lang-ar').forEach(el => el.style.display = isArabic ? 'none' : 'block');
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadQuestions();
+
+    document.getElementById('survey-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = {};
+      const inputs = document.querySelectorAll('#survey-form select, #survey-form textarea, #survey-form input[type="radio"]:checked, #survey-form input[type="checkbox"]:checked');
+      
+      inputs.forEach(input => {
+        if (formData[input.name || input.id]) {
+          // If already present and it's a checkbox, append values
+          if (Array.isArray(formData[input.name || input.id])) {
+            formData[input.name || input.id].push(input.value);
+          } else {
+            formData[input.name || input.id] = [formData[input.name || input.id], input.value];
+          }
+        } else {
+          formData[input.name || input.id] = input.value;
+        }
+      });
+
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbwKYXOMPTP4gvjf5fx8bSsm-tK6JL4syP9uyDgJRFbtzAS1kByQPo9ton0GVRkflBSmvA/exec", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const result = await response.text();
+        alert("Thank you for your feedback!");
+      } catch (error) {
+        alert("Submission failed: " + error.message);
+      }
+    });
+  });
+</script>
 
 </body>
 </html>

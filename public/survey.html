@@ -8,88 +8,50 @@
   <link rel="stylesheet" href="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/css/style-ltr.css">
   <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Dubai', sans-serif;
-      background-color: #1C2654;
-      margin:0; padding:0; color:#333;
-    }
-    header.sticky-header {
-      position:sticky; top:0; z-index:999;
-      background:#1DB1EC; padding:10px 20px;
-      display:flex; align-items:center;
-      max-width:800px; margin:0 auto;
-      border-bottom-left-radius:12px;
-      border-bottom-right-radius:12px;
-      transition:background-color .3s ease;
+    body { font-family: 'Dubai', sans-serif; background-color: #1C2654; margin:0; padding:0; color:#333; }
+    header.sticky-header { position:sticky; top:0; z-index:999; background:#1DB1EC; padding:10px 20px;
+      display:flex; align-items:center; max-width:800px; margin:0 auto;
+      border-bottom-left-radius:12px; border-bottom-right-radius:12px; transition:background-color .3s ease;
     }
     header.sticky-header.scrolled {
-      background:#fff;
-      box-shadow: inset 0 -2px 0 #1DB1EC;
+      background:#fff; box-shadow: inset 0 -2px 0 #1DB1EC;
     }
     .logo-left, .logo-right {
-      height:45px;
-      filter:brightness(0) invert(1);
-      transition:filter .3s ease;
+      height:45px; filter:brightness(0) invert(1); transition:filter .3s ease;
     }
-    header.scrolled .logo-left,
-    header.scrolled .logo-right {
+    header.scrolled .logo-left, header.scrolled .logo-right {
       filter:none;
     }
     .header-logos {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
     }
     .form-title {
-      flex-grow:1;
-      text-align:center;
-      color:#fff;
-      font-size:20pt;
-      font-weight:600;
-      word-break:break-word;
-      margin:0 10px;
+      flex-grow:1; text-align:center; color:#fff; font-size:20pt; font-weight:600;
+      word-break:break-word; margin:0 10px;
     }
-    header.scrolled .form-title {
-      color:#1DB1EC;
-    }
-    .language-toggle,
-    .home-btn {
-      background:#1DB1EC;
-      color:#fff;
-      border:none;
-      padding:5px 10px;
-      border-radius:5px;
-      cursor:pointer;
-      font-size:12px;
+    header.scrolled .form-title { color:#1DB1EC; }
+    .language-toggle, .home-btn {
+      background:#1DB1EC; color:#fff; border:none; padding:5px 10px;
+      border-radius:5px; cursor:pointer; font-size:12px;
     }
     .dda-survey-wrapper { max-width:800px; margin:0 auto; padding:20px; }
     .dda-survey-header {
-      background:#fff;
-      color:#1DB1EC;
-      padding:30px;
-      border-radius:12px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.05);
-      margin-top:20px;
+      background:#fff; color:#1DB1EC; padding:30px; border-radius:12px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05); margin-top:20px;
     }
     .dda-survey-header h1 { margin:0; font-size:24pt; }
     .question-card {
-      background:#fff; padding:25px;
-      border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.06);
-      margin-top:20px;
+      background:#fff; padding:25px; border-radius:12px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.06); margin-top:20px;
     }
     .question-card label { font-weight:600; margin-bottom:10px; display:block; }
     input, textarea, select {
-      width:100%; padding:10px;
-      border:1px solid #ccc; border-radius:8px;
-      font-size:14px; box-sizing:border-box;
+      width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; font-size:14px;
+      box-sizing:border-box;
     }
     button[type="submit"] {
-      background:#1DB1EC; color:#fff;
-      border:none; padding:12px 24px;
-      font-size:16px; border-radius:6px;
-      cursor:pointer; margin-top:20px;
+      background:#1DB1EC; color:#fff; border:none; padding:12px 24px;
+      font-size:16px; border-radius:6px; cursor:pointer; margin-top:20px;
     }
     button[type="submit"]:hover { background:#149dd3; }
     @media(max-width:600px) {
@@ -105,9 +67,7 @@
     <img src="https://tec.gov.ae/documents/d/tec/logo-god" alt="TEC Logo" class="logo-left">
     <button class="home-btn" onclick="window.location.href='survey.html'">Home</button>
   </div>
-
   <div class="form-title">Digital Dubai Survey</div>
-
   <div class="header-logos">
     <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png" alt="Digital Dubai Logo" class="logo-right">
     <button id="language-toggle" class="language-toggle">العربية</button>
@@ -125,36 +85,37 @@
 </div>
 
 <script>
-  // Header scroll effect
+  const GET_URL  = 'https://script.google.com/macros/s/AKfycbymRJKxSdA0CZacyFM1Y_NuTlxkOEOPWHpR1IkRBbps2jPcc3ahxMHewm-ED7zQmtx6RA/execfilename=survey-001';
+  const POST_URL = 'https://script.google.com/macros/s/AKfycbznaEVv5M3RCSzgdFCT7jgI5hq-VeomPm5lv3g5ILJGX9L_ndWNCRrGzDCq_LwArbVZ/exec';
+
+  // 1) sticky header
   window.addEventListener('scroll', () => {
     document.getElementById('stickyHeader')
       .classList.toggle('scrolled', window.scrollY > 30);
   });
 
-  // Language toggle
+  // 2) language toggle
   document.getElementById('language-toggle').onclick = function() {
-    const showEng = this.textContent === 'English';
-    this.textContent = showEng ? 'العربية' : 'English';
+    const showingEN = this.textContent === 'English';
+    this.textContent = showingEN ? 'العربية' : 'English';
     document.querySelectorAll('.lang-en')
-      .forEach(el => el.style.display = showEng ? 'none' : 'block');
+      .forEach(el => el.style.display = showingEN ? 'none' : 'block');
     document.querySelectorAll('.lang-ar')
-      .forEach(el => el.style.display = showEng ? 'block' : 'none');
+      .forEach(el => el.style.display = showingEN ? 'block' : 'none');
   };
 
-  // Load survey questions
+  // 3) load questions (GET)
   async function loadQuestions() {
     const form = document.getElementById('survey-form');
     try {
-      const res = await fetch(
-        'https://script.google.com/macros/s/AKfycbymRJKxSdA0CZacyFM1Y_NuTlxkOEOPWHpR1IkRBbps2jPcc3ahxMHewm-ED7zQmtx6RA/exec?filename=survey-001'
-      );
+      const res = await fetch(GET_URL, { mode:'cors' });
       const json = await res.json();
       if (!json.questions) {
         form.innerHTML = '<p style="color:red;">No questions found</p>';
         return;
       }
       form.innerHTML = '';
-      json.questions.forEach((q, i) => {
+      json.questions.forEach((q,i) => {
         const wrap = document.createElement('div');
         wrap.className = 'question-card';
         const lbl = document.createElement('label');
@@ -163,19 +124,17 @@
           <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
         lbl.htmlFor = `q${i+1}`;
         wrap.appendChild(lbl);
-        const id = `q${i+1}`;
 
+        const id = `q${i+1}`;
         if (q.type === 'paragraph') {
           const ta = document.createElement('textarea');
-          ta.id = id;
-          wrap.appendChild(ta);
+          ta.id = id; wrap.appendChild(ta);
         }
         else if (q.type === 'multiple_choice') {
-          q.options_en.forEach((opt, j) => {
+          q.options_en.forEach((opt,j) => {
             const d = document.createElement('div');
             d.innerHTML = `
-              <label>
-                <input type="radio" name="${id}" value="${opt}">
+              <label><input type="radio" name="${id}" value="${opt}">
                 <span class="lang-en">${opt}</span>
                 <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>
               </label>`;
@@ -183,11 +142,10 @@
           });
         }
         else if (q.type === 'checkboxes') {
-          q.options_en.forEach((opt, j) => {
+          q.options_en.forEach((opt,j) => {
             const d = document.createElement('div');
             d.innerHTML = `
-              <label>
-                <input type="checkbox" name="${id}" value="${opt}">
+              <label><input type="checkbox" name="${id}" value="${opt}">
                 <span class="lang-en">${opt}</span>
                 <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>
               </label>`;
@@ -197,10 +155,10 @@
         else if (q.type === 'dropdown') {
           const sel = document.createElement('select');
           sel.id = id;
-          q.options_en.forEach((opt, j) => {
+          q.options_en.forEach((opt,j) => {
             const o = document.createElement('option');
+            o.value = opt;
             o.textContent = opt;
-            o.dataset.ar = q.options_ar[j];
             sel.appendChild(o);
           });
           wrap.appendChild(sel);
@@ -209,12 +167,9 @@
           const ctr = document.createElement('div');
           ctr.style.display = 'flex';
           ctr.style.justifyContent = 'space-between';
-          q.options_en.forEach((opt, j) => {
+          q.options_en.forEach((opt,j) => {
             const rad = document.createElement('input');
-            rad.type = 'radio';
-            rad.name = id;
-            rad.value = opt;
-            rad.id = `${id}_${j}`;
+            rad.type = 'radio'; rad.name = id; rad.value = opt; rad.id = `${id}_${j}`;
             const lab = document.createElement('label');
             lab.htmlFor = `${id}_${j}`;
             lab.innerHTML = `
@@ -229,23 +184,27 @@
           wrap.appendChild(ctr);
         }
 
-        form.appendChild(wrap);
+        document.getElementById('survey-form').appendChild(wrap);
       });
-      // Submit button
+
+      // add submit button
       const btn = document.createElement('button');
       btn.type = 'submit';
       btn.textContent = 'Submit';
-      form.appendChild(btn);
-    } catch(err) {
-      form.innerHTML = `<p style="color:red;">Failed to load: ${err.message}</p>`;
+      document.getElementById('survey-form').appendChild(btn);
+
+    } catch (err) {
+      document.getElementById('survey-form').innerHTML =
+        `<p style="color:red;">Failed to load: ${err.message}</p>`;
     }
   }
 
-  // Initialize
+  // 4) hook up submit (POST x-www-form-urlencoded)
   document.addEventListener('DOMContentLoaded', () => {
     loadQuestions();
     document.getElementById('survey-form').addEventListener('submit', async e => {
       e.preventDefault();
+      // collect all answers
       const data = {};
       document.querySelectorAll(
         '#survey-form select, #survey-form textarea, #survey-form input:checked'
@@ -259,25 +218,32 @@
         }
       });
 
+      // build URLSearchParams
+      const params = new URLSearchParams();
+      Object.entries(data).forEach(([k,v]) => {
+        if (Array.isArray(v)) {
+          v.forEach(val => params.append(k, val));
+        } else {
+          params.append(k, v);
+        }
+      });
+
       try {
-        const response = await fetch(
-          'https://script.google.com/macros/s/AKfycbw6VE2I3zNF-VVXiHE2AuDyo4yBmQLKU0Yfo95tDoT1jpQhUKHMfYUBLeP6oT-qJC_0/exec',
-          {
-            method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          }
-        );
-        const text = await response.text();
+        const resp = await fetch(POST_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString()
+        });
+        const text = await resp.text();
         console.log('Sheet response:', text);
-        if (response.ok) {
+        if (resp.ok) {
           window.location.href = 'thankyou.html';
         } else {
           alert('Submission failed: ' + text);
         }
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error(err);
         alert('Error submitting: ' + err.message);
       }
     });

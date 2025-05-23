@@ -8,260 +8,302 @@
   <link rel="stylesheet" href="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/css/style-ltr.css">
   <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Dubai', sans-serif; background-color: #1C2654; margin:0; padding:0; color:#333; }
-    header.sticky-header { position:sticky; top:0; z-index:999; background:#1DB1EC; padding:10px 20px;
-      display:flex; align-items:center; max-width:800px; margin:0 auto;
-      border-bottom-left-radius:12px; border-bottom-right-radius:12px; transition:background-color .3s ease;
+    body {
+      font-family: 'Dubai', sans-serif;
+      background-color: #1C2654;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header.sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: #1DB1EC;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      max-width: 800px;
+      margin: 0 auto;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      transition: background-color .3s ease, box-shadow .3s ease;
     }
     header.sticky-header.scrolled {
-      background:#fff; box-shadow: inset 0 -2px 0 #1DB1EC;
+      background: #fff;
+      box-shadow: inset 0 -2px 0 #1DB1EC;
     }
+
     .logo-left, .logo-right {
-      height:45px; filter:brightness(0) invert(1); transition:filter .3s ease;
+      height: 45px;
+      filter: brightness(0) invert(1);
+      transition: filter .3s ease;
     }
-    header.scrolled .logo-left, header.scrolled .logo-right {
-      filter:none;
+    header.sticky-header.scrolled .logo-left,
+    header.sticky-header.scrolled .logo-right {
+      filter: none;
     }
+
     .header-logos {
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
+
     .form-title {
-      flex-grow:1; text-align:center; color:#fff; font-size:20pt; font-weight:600;
-      word-break:break-word; margin:0 10px;
+      flex-grow: 1;
+      text-align: center;
+      color: #fff;
+      font-size: 20pt;
+      font-weight: 600;
+      word-break: break-word;
+      margin: 0 10px;
+      transition: color .3s ease;
     }
-    header.scrolled .form-title { color:#1DB1EC; }
+    header.sticky-header.scrolled .form-title {
+      color: #1DB1EC;
+    }
+
     .language-toggle, .home-btn {
-      background:#1DB1EC; color:#fff; border:none; padding:5px 10px;
-      border-radius:5px; cursor:pointer; font-size:12px;
+      background: #1DB1EC;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background .3s ease, color .3s ease, border .3s ease;
     }
-    .dda-survey-wrapper { max-width:800px; margin:0 auto; padding:20px; }
+    header.sticky-header.scrolled .language-toggle,
+    header.sticky-header.scrolled .home-btn {
+      background: transparent;
+      color: #1DB1EC;
+      border: 2px solid #1DB1EC;
+    }
+
+    .dda-survey-wrapper { max-width: 800px; margin: 0 auto; padding: 20px; }
     .dda-survey-header {
-      background:#fff; color:#1DB1EC; padding:30px; border-radius:12px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.05); margin-top:20px;
+      background: #fff;
+      color: #1DB1EC;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-top: 20px;
     }
-    .dda-survey-header h1 { margin:0; font-size:24pt; }
+    .dda-survey-header h1 { margin: 0; font-size: 24pt; }
     .question-card {
-      background:#fff; padding:25px; border-radius:12px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.06); margin-top:20px;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      margin-top: 20px;
     }
-    .question-card label { font-weight:600; margin-bottom:10px; display:block; }
+    .question-card label {
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: block;
+    }
     input, textarea, select {
-      width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; font-size:14px;
-      box-sizing:border-box;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
     }
     button[type="submit"] {
-      background:#1DB1EC; color:#fff; border:none; padding:12px 24px;
-      font-size:16px; border-radius:6px; cursor:pointer; margin-top:20px;
+      background: #1DB1EC;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
     }
-    button[type="submit"]:hover { background:#149dd3; }
-    @media(max-width:600px) {
-      .form-title { font-size:16pt; }
-      .logo-left, .logo-right { height:35px; }
+    button[type="submit"]:hover {
+      background: #149dd3;
+    }
+
+    @media (max-width: 600px) {
+      .form-title { font-size: 16pt; }
+      .logo-left, .logo-right { height: 35px; }
     }
   </style>
 </head>
 <body>
 
-<header id="stickyHeader" class="sticky-header">
-  <div class="header-logos">
-    <img src="https://tec.gov.ae/documents/d/tec/logo-god" alt="TEC Logo" class="logo-left">
-    <button class="home-btn" onclick="window.location.href='survey.html'">Home</button>
+  <header id="stickyHeader" class="sticky-header">
+    <div class="header-logos">
+      <img src="https://tec.gov.ae/documents/d/tec/logo-god" alt="TEC Logo" class="logo-left">
+      <button class="home-btn" onclick="window.location.href='survey.html'">Home</button>
+    </div>
+    <div class="form-title">Digital Dubai Survey</div>
+    <div class="header-logos">
+      <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png" alt="Digital Dubai Logo" class="logo-right">
+      <button id="language-toggle" class="language-toggle">العربية</button>
+    </div>
+  </header>
+
+  <div class="dda-survey-wrapper">
+    <div class="dda-survey-header">
+      <h1 class="lang-en">Help Us Improve</h1>
+      <h1 class="lang-ar" style="display:none">ساعدنا في التحسين</h1>
+      <p class="lang-en">Please complete this short survey to provide feedback on our digital services.</p>
+      <p class="lang-ar" style="display:none">يرجى إكمال هذا الاستبيان القصير لتقديم ملاحظاتك حول خدماتنا الرقمية.</p>
+    </div>
+    <form id="survey-form"></form>
   </div>
-  <div class="form-title">Digital Dubai Survey</div>
-  <div class="header-logos">
-    <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png" alt="Digital Dubai Logo" class="logo-right">
-    <button id="language-toggle" class="language-toggle">العربية</button>
-  </div>
-</header>
 
-<div class="dda-survey-wrapper">
-  <div class="dda-survey-header">
-    <h1 class="lang-en">Help Us Improve</h1>
-    <h1 class="lang-ar" style="display:none">ساعدنا في التحسين</h1>
-    <p class="lang-en">Please complete this short survey to provide feedback on our digital services.</p>
-    <p class="lang-ar" style="display:none">يرجى إكمال هذا الاستبيان القصير لتقديم ملاحظاتك حول خدماتنا الرقمية.</p>
-  </div>
-  <form id="survey-form"></form>
-</div>
+  <script>
+    const GET_URL  = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
+    const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
+    const FILENAME = 'survey-001';
 
-<script>
-  const GET_URL  = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
-  const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
-const FILENAME = 'survey-001';
+    let questionsList = [];
 
-  let questionsList = [];
-
-  // language toggle (unchanged)
-  document.getElementById('language-toggle').onclick = function() {
-    const showingEN = this.textContent === 'English';
-    this.textContent = showingEN ? 'العربية' : 'English';
-    document.querySelectorAll('.lang-en')
-      .forEach(el => el.style.display = showingEN ? 'none' : 'block');
-    document.querySelectorAll('.lang-ar')
-      .forEach(el => el.style.display = showingEN ? 'block' : 'none');
-  };
-
-  // 3) load questions (GET)
-  async function loadQuestions() {
-    const form = document.getElementById('survey-form');
-    try {
-      const res  = await fetch(GET_URL, { mode: 'cors' });
-      const json = await res.json();
-      if (!json.questions) {
-        form.innerHTML = '<p style="color:red;">No questions found</p>';
-        return;
-      }
-      questionsList = json.questions;   // save for later
-
-      form.innerHTML = '';
-      questionsList.forEach((q, i) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'question-card';
-
-        // label
-        const lbl = document.createElement('label');
-        lbl.innerHTML = `
-          <span class="lang-en">${q.question_en}</span>
-          <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
-        lbl.htmlFor = `q${i+1}`;
-        wrap.appendChild(lbl);
-
-        const id = `q${i+1}`;
-
-        // inputs by type
-        if (q.type === 'paragraph') {
-          const ta = document.createElement('textarea');
-          ta.id = id;
-          wrap.appendChild(ta);
-        }
-        else if (q.type === 'multiple_choice') {
-          q.options_en.forEach((opt, j) => {
-            const d = document.createElement('div');
-            d.innerHTML = `
-              <label>
-                <input type="radio" name="${id}" value="${opt}">
-                <span class="lang-en">${opt}</span>
-                <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>
-              </label>`;
-            wrap.appendChild(d);
-          });
-        }
-        else if (q.type === 'checkboxes') {
-          q.options_en.forEach((opt, j) => {
-            const d = document.createElement('div');
-            d.innerHTML = `
-              <label>
-                <input type="checkbox" name="${id}" value="${opt}">
-                <span class="lang-en">${opt}</span>
-                <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>
-              </label>`;
-            wrap.appendChild(d);
-          });
-        }
-        else if (q.type === 'dropdown') {
-          const sel = document.createElement('select');
-          sel.id = id;
-          q.options_en.forEach(opt => {
-            const o = document.createElement('option');
-            o.value = o.textContent = opt;
-            sel.appendChild(o);
-          });
-          wrap.appendChild(sel);
-        }
-        else if (q.type === 'scale') {
-          const ctr = document.createElement('div');
-          ctr.style.display = 'flex';
-          ctr.style.justifyContent = 'space-between';
-          q.options_en.forEach((opt, j) => {
-            const rad = document.createElement('input');
-            rad.type = 'radio'; rad.name = id; rad.value = opt; rad.id = `${id}_${j}`;
-            const lab = document.createElement('label');
-            lab.htmlFor = rad.id;
-            lab.innerHTML = `
-              <span class="lang-en">${opt}</span>
-              <span class="lang-ar" style="display:none">${q.options_ar[j]}</span>`;
-            const box = document.createElement('div');
-            box.style.textAlign = 'center';
-            box.appendChild(rad);
-            box.appendChild(lab);
-            ctr.appendChild(box);
-          });
-          wrap.appendChild(ctr);
-        }
-
-        form.appendChild(wrap);
-      });
-
-      // submit button
-      const btn = document.createElement('button');
-      btn.type = 'submit';
-      btn.textContent = 'Submit';
-      form.appendChild(btn);
-
-    } catch (err) {
-      document.getElementById('survey-form').innerHTML =
-        `<p style="color:red;">Failed to load: ${err.message}</p>`;
-    }
-  }
-
-  // 4) hook up submit (POST x-www-form-urlencoded with question_en keys)
-  document.addEventListener('DOMContentLoaded', () => {
-    loadQuestions();
-
-    document.getElementById('survey-form').addEventListener('submit', async e => {
-      e.preventDefault();
-
-      // build a map of question_en → answer(s)
-      const data = { filename: FILENAME };
-      questionsList.forEach((q, i) => {
-        const key = q.question_en;
-        const id  = `q${i+1}`;
-
-        if (q.type === 'checkboxes') {
-          // collect all checked boxes
-          const vals = Array.from(document.querySelectorAll(`input[name="${id}"]:checked`))
-                            .map(inp => inp.value);
-          data[key] = vals;
-        }
-        else if (q.type === 'multiple_choice' || q.type === 'scale') {
-          const inp = document.querySelector(`input[name="${id}"]:checked`);
-          data[key] = inp ? inp.value : '';
-        }
-        else { 
-          // textarea or select
-          const elm = document.getElementById(id);
-          data[key] = elm ? elm.value : '';
-        }
-      });
-
-      // encode form
-      const params = new URLSearchParams();
-      Object.entries(data).forEach(([k, v]) => {
-        if (Array.isArray(v)) v.forEach(val => params.append(k, val));
-        else params.append(k, v);
-      });
-
-      try {
-        const resp = await fetch(POST_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: params.toString()
-        });
-        const text = await resp.text();
-        console.log('Sheet response:', text);
-        if (resp.ok) {
-          window.location.href = 'thankyou.html';
-        } else {
-          alert('Submission failed: ' + text);
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Error submitting: ' + err.message);
-      }
+    // 1) Sticky-header scroll toggle
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('stickyHeader');
+      if (window.scrollY > 10) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
     });
-  });
-</script>
+
+    // 2) Language toggle
+    document.getElementById('language-toggle').onclick = function() {
+      const showingEN = this.textContent === 'English';
+      this.textContent = showingEN ? 'العربية' : 'English';
+      document.querySelectorAll('.lang-en')
+        .forEach(el => el.style.display = showingEN ? 'none' : 'block');
+      document.querySelectorAll('.lang-ar')
+        .forEach(el => el.style.display = showingEN ? 'block' : 'none');
+    };
+
+    // 3) Load questions from your GET endpoint
+    async function loadQuestions() {
+      const form = document.getElementById('survey-form');
+      try {
+        const res  = await fetch(GET_URL, { mode: 'cors' });
+        const json = await res.json();
+        if (!json.questions) {
+          form.innerHTML = '<p style="color:red;">No questions found</p>';
+          return;
+        }
+        questionsList = json.questions;
+        form.innerHTML = '';
+
+        questionsList.forEach((q, i) => {
+          const wrap = document.createElement('div');
+          wrap.className = 'question-card';
+
+          // Label
+          const lbl = document.createElement('label');
+          lbl.htmlFor = `q${i+1}`;
+          lbl.innerHTML = `
+            <span class="lang-en">${q.question_en}</span>
+            <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
+          wrap.appendChild(lbl);
+
+          const id = `q${i+1}`;
+
+          // Input types
+          if (q.type === 'paragraph') {
+            const ta = document.createElement('textarea');
+            ta.id = id;
+            wrap.appendChild(ta);
+          } else if (['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)) {
+            if (q.type === 'dropdown') {
+              const sel = document.createElement('select');
+              sel.id = id;
+              q.options_en.forEach(opt => {
+                const o = document.createElement('option');
+                o.value = o.textContent = opt;
+                sel.appendChild(o);
+              });
+              wrap.appendChild(sel);
+
+            } else {
+              q.options_en.forEach((opt, j) => {
+                const d = document.createElement('div');
+                let inputType = q.type === 'multiple_choice' || q.type === 'scale' ? 'radio' : 'checkbox';
+                let idWithIndex = q.type === 'scale' ? `${id}_${j}` : id;
+                d.innerHTML = `
+                  <label>
+                    <input type="${inputType}" name="${id}" id="${idWithIndex}" value="${opt}">
+                    <span class="lang-en">${opt}</span>
+                    <span class="lang-ar" style="display:none">${q.options_ar[j]||''}</span>
+                  </label>`;
+                wrap.appendChild(d);
+              });
+            }
+          }
+
+          form.appendChild(wrap);
+        });
+
+        // Submit button
+        const btn = document.createElement('button');
+        btn.type = 'submit';
+        btn.textContent = 'Submit';
+        form.appendChild(btn);
+
+      } catch (err) {
+        form.innerHTML = `<p style="color:red;">Failed to load: ${err.message}</p>`;
+      }
+    }
+
+    // 4) Form submission
+    document.addEventListener('DOMContentLoaded', () => {
+      loadQuestions();
+
+      document.getElementById('survey-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const data = { filename: FILENAME };
+
+        questionsList.forEach((q, i) => {
+          const key = q.question_en;
+          const id  = `q${i+1}`;
+          let value;
+
+          if (q.type === 'checkboxes') {
+            value = Array.from(document.querySelectorAll(`input[name="${id}"]:checked`))
+                         .map(inp => inp.value);
+          } else if (q.type === 'multiple_choice' || q.type === 'scale') {
+            const inp = document.querySelector(`input[name="${id}"]:checked`);
+            value = inp ? inp.value : '';
+          } else {
+            const elm = document.getElementById(id);
+            value = elm ? elm.value : '';
+          }
+
+          data[key] = value;
+        });
+
+        const params = new URLSearchParams();
+        Object.entries(data).forEach(([k,v]) => {
+          if (Array.isArray(v)) v.forEach(val => params.append(k,val));
+          else params.append(k,v);
+        });
+
+        try {
+          const resp = await fetch(POST_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          const text = await resp.text();
+          if (resp.ok) window.location.href = 'thankyou.html';
+          else alert('Submission failed: ' + text);
+        } catch (err) {
+          alert('Error submitting: ' + err.message);
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>

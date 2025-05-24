@@ -102,9 +102,9 @@
       border-radius: 8px; resize: none;
       font-size: 14px; box-sizing: border-box;
     }
+    .question-card input[type="text"],
     .question-card select,
     .question-card input[type="range"],
-    .question-card input[type="text"],
     .question-card input[type="number"] {
       width: 100%; margin-top: 8px;
       padding: 10px; border: 1px solid #ccc;
@@ -159,17 +159,13 @@
       <img src="https://tec.gov.ae/documents/d/tec/logo-god"
            alt="TEC Logo" class="logo-left">
       <button class="home-btn"
-              onclick="window.location.href='survey.html'">
-        Home
-      </button>
+              onclick="window.location.href='survey.html'">Home</button>
     </div>
     <div class="form-title">Dubai Surveys</div>
     <div class="header-logos">
       <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png"
            alt="Digital Dubai Logo" class="logo-right">
-      <button id="language-toggle" class="language-toggle">
-        العربية
-      </button>
+      <button id="language-toggle" class="language-toggle">العربية</button>
     </div>
   </header>
 
@@ -180,249 +176,236 @@
       <h1 class="lang-ar" style="display:none">إدارة جمع البيانات</h1>
       <p class="lang-en">
         We kindly invite you to participate in this survey to help us improve our services.
-        Your feedback is highly valuable. Thank you for taking the time to share your opinion.
       </p>
       <p class="lang-ar" style="display:none">
         ندعوك للمشاركة في هذا الاستبيان لمساعدتنا على تحسين خدماتنا.
-        ملاحظاتك ذات قيمة كبيرة. شكرًا لك على تخصيص وقتك لمشاركة رأيك.
       </p>
     </div>
     <form id="survey-form"></form>
   </div>
 
   <script>
-    // disable scroll-restoration so we always start at top
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-    window.addEventListener('load', () => {
-      window.scrollTo(0,0);
-    });
+    // prevent scroll-restoration so page always opens at top
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', ()=> window.scrollTo(0,0));
 
     const GET_URL  = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
     const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
     const FILENAME = 'survey-001';
     let questionsList = [];
 
-    // sticky header on scroll
-    window.addEventListener('scroll', () => {
+    // sticky header
+    window.addEventListener('scroll', ()=>{
       document.getElementById('stickyHeader')
-              .classList.toggle('scrolled', window.scrollY > 10);
+              .classList.toggle('scrolled', window.scrollY>10);
     });
 
     // language toggle
     document.getElementById('language-toggle')
             .addEventListener('click', function(){
-      const showingEN = this.textContent === 'English';
-      this.textContent = showingEN ? 'العربية' : 'English';
+      const showingEN = this.textContent==='English';
+      this.textContent = showingEN?'العربية':'English';
       document.querySelectorAll('.lang-en')
-              .forEach(el => el.style.display = showingEN ? 'none' : 'block');
+              .forEach(el=>el.style.display=showingEN?'none':'block');
       document.querySelectorAll('.lang-ar')
-              .forEach(el => el.style.display = showingEN ? 'block' : 'none');
+              .forEach(el=>el.style.display=showingEN?'block':'none');
     });
 
-    // detect touch device
     const isTouch = 'ontouchstart' in window;
 
-    // swap two list items
-    function swapItems(a, b) {
-      const parent = a.parentNode;
-      const children = Array.from(parent.children);
-      const iA = children.indexOf(a);
-      const iB = children.indexOf(b);
-      children[iA] = b;
-      children[iB] = a;
-      children.forEach(n => parent.appendChild(n));
+    function swapItems(a,b){
+      const p=a.parentNode, kids=[...p.children];
+      const iA=kids.indexOf(a), iB=kids.indexOf(b);
+      kids[iA]=b; kids[iB]=a;
+      kids.forEach(n=>p.appendChild(n));
     }
 
-    // mobile tap-to-swap
-    function makeTapSwap(listEl) {
-      let first = null;
-      listEl.querySelectorAll('li').forEach(li => {
-        li.addEventListener('click', () => {
-          if (!first) {
-            first = li;
-            li.classList.add('dragging');
-          } else if (first !== li) {
-            swapItems(first, li);
+    function makeTapSwap(listEl){
+      let first=null;
+      listEl.querySelectorAll('li').forEach(li=>{
+        li.addEventListener('click', ()=>{
+          if(!first){
+            first=li; li.classList.add('dragging');
+          } else if(first!==li){
+            swapItems(first,li);
             first.classList.remove('dragging');
-            first = null;
+            first=null;
           }
         });
       });
     }
 
-    // desktop drag & drop
-    function makeDraggable(listEl) {
-      let dragging = null;
-      listEl.addEventListener('dragstart', e => {
-        if (e.target.tagName === 'LI') {
-          dragging = e.target;
-          dragging.classList.add('dragging');
+    function makeDraggable(listEl){
+      let dragging=null;
+      listEl.addEventListener('dragstart',e=>{
+        if(e.target.tagName==='LI'){
+          dragging=e.target; dragging.classList.add('dragging');
           e.dataTransfer.setData('text/plain','');
         }
       });
-      listEl.addEventListener('dragover', e => {
+      listEl.addEventListener('dragover',e=>{
         e.preventDefault();
-        const after = [...listEl.querySelectorAll('li:not(.dragging)')]
-          .find(el => {
-            const box = el.getBoundingClientRect();
-            return e.clientY < box.top + box.height/2;
+        const after=[...listEl.querySelectorAll('li:not(.dragging)')]
+          .find(el=>{
+            const box=el.getBoundingClientRect();
+            return e.clientY<box.top+box.height/2;
           });
-        if (after) listEl.insertBefore(dragging, after);
+        if(after) listEl.insertBefore(dragging,after);
         else       listEl.appendChild(dragging);
       });
-      listEl.addEventListener('dragend', () => {
+      listEl.addEventListener('dragend',()=>{
         dragging.classList.remove('dragging');
-        dragging = null;
+        dragging=null;
       });
     }
 
-    // load and render questions
-    async function loadQuestions() {
-      const form = document.getElementById('survey-form');
-      try {
-        const res = await fetch(GET_URL, { mode: 'cors' });
-        const json = await res.json();
-        if (!json.questions) {
-          form.innerHTML = '<p style="color:red;">No questions found</p>';
+    async function loadQuestions(){
+      const form=document.getElementById('survey-form');
+      try{
+        const res=await fetch(GET_URL,{mode:'cors'});
+        const json=await res.json();
+        if(!json.questions){
+          form.innerHTML='<p style="color:red;">No questions found</p>'; 
           return;
         }
-        questionsList = json.questions;
-        form.innerHTML = '';
+        questionsList=json.questions;
+        form.innerHTML='';
 
-        questionsList.forEach((q, i) => {
-          const wrap = document.createElement('div');
-          wrap.className = 'question-card';
+        questionsList.forEach((q,i)=>{
+          const wrap=document.createElement('div');
+          wrap.className='question-card';
 
-          // question label
-          const lbl = document.createElement('label');
-          lbl.htmlFor = `q${i+1}`;
-          lbl.innerHTML = `
+          const lbl=document.createElement('label');
+          lbl.htmlFor=`q${i+1}`;
+          lbl.innerHTML=`
             <span class="lang-en">${q.question_en}</span>
             <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
           wrap.appendChild(lbl);
 
-          const id = `q${i+1}`;
+          const id=`q${i+1}`;
 
           // paragraph
-          if (q.type === 'paragraph') {
-            const ta = document.createElement('textarea');
-            ta.id = id;
-            wrap.appendChild(ta);
+          if(q.type==='paragraph'){
+            const ta=document.createElement('textarea');
+            ta.id=id; wrap.appendChild(ta);
 
-          // multiple_choice, checkboxes, dropdown, scale
-          } else if (['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)) {
-            if (q.type === 'dropdown') {
-              const sel = document.createElement('select');
-              sel.id = id;
-              q.options_en.forEach(opt => {
-                const o = document.createElement('option');
-                o.value = o.textContent = opt;
+          // short_answer => single-line text
+          } else if(q.type==='short_answer'){
+            const inp=document.createElement('input');
+            inp.type='text'; inp.id=id;
+            wrap.appendChild(inp);
+
+          // dropdown, scale, multiple_choice, checkboxes
+          } else if(['dropdown','scale','multiple_choice','checkboxes']
+                    .includes(q.type)){
+            if(q.type==='dropdown'){
+              const sel=document.createElement('select');
+              sel.id=id;
+              q.options_en.forEach(opt=>{
+                const o=document.createElement('option');
+                o.value=o.textContent=opt;
                 sel.appendChild(o);
               });
               wrap.appendChild(sel);
 
-            } else if (q.type === 'scale') {
-              const range = document.createElement('input');
-              range.type = 'range';
-              range.min = '1'; range.max = '5'; range.step = '1';
-              range.value = '3'; range.id = id;
-              const disp = document.createElement('span');
-              disp.textContent = range.value;
-              disp.style.marginLeft = '10px';
-              range.addEventListener('input', ()=> disp.textContent = range.value);
+            } else if(q.type==='scale'){
+              const range=document.createElement('input');
+              range.type='range'; range.min='1'; range.max='5'; range.step='1';
+              range.value='3'; range.id=id;
+              const disp=document.createElement('span');
+              disp.textContent=range.value; disp.style.marginLeft='10px';
+              range.addEventListener('input',()=>disp.textContent=range.value);
               wrap.appendChild(range);
               wrap.appendChild(disp);
 
             } else {
-              q.options_en.forEach((opt, j) => {
-                const d = document.createElement('div');
-                d.innerHTML = `
+              q.options_en.forEach((opt,j)=>{
+                const d=document.createElement('div');
+                d.innerHTML=`
                   <label>
                     <input
                       type="${q.type==='multiple_choice'?'radio':'checkbox'}"
                       name="${id}" value="${opt}"
                     />
                     <span class="lang-en">${opt}</span>
-                    <span class="lang-ar" style="display:none">${q.options_ar?.[j]||''}</span>
+                    <span class="lang-ar" style="display:none">
+                      ${q.options_ar?.[j]||''}
+                    </span>
                   </label>`;
                 wrap.appendChild(d);
               });
             }
 
-          // ranked list
-          } else if (q.type === 'ranked') {
-            const ul = document.createElement('ul');
-            ul.id = id; ul.className = 'draggable-list';
-            q.options_en.forEach(opt => {
-              const li = document.createElement('li');
-              li.draggable = true;
-              li.textContent = opt;
+          // ranked
+          } else if(q.type==='ranked'){
+            const ul=document.createElement('ul');
+            ul.id=id; ul.className='draggable-list';
+            q.options_en.forEach(opt=>{
+              const li=document.createElement('li');
+              li.draggable=true; li.textContent=opt;
               ul.appendChild(li);
             });
             wrap.appendChild(ul);
-            if (isTouch) makeTapSwap(ul);
-            else        makeDraggable(ul);
+            isTouch ? makeTapSwap(ul) : makeDraggable(ul);
           }
 
           form.appendChild(wrap);
         });
 
-        // submit button
-        const btn = document.createElement('button');
-        btn.type = 'submit';
-        btn.textContent = 'Submit';
+        // submit
+        const btn=document.createElement('button');
+        btn.type='submit'; btn.textContent='Submit';
         form.appendChild(btn);
 
-      } catch (err) {
-        form.innerHTML = `<p style="color:red;">Failed to load: ${err.message}</p>`;
+      } catch(err){
+        form.innerHTML=`<p style="color:red;">Failed to load: ${err.message}</p>`;
       }
     }
 
-    // initialize
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded',()=>{
       loadQuestions();
       document.getElementById('survey-form')
-              .addEventListener('submit', async e => {
+              .addEventListener('submit',async e=>{
         e.preventDefault();
-        const data = { filename: FILENAME };
-        questionsList.forEach((q,i) => {
-          const key = q.question_en, id = `q${i+1}`;
+        const data={filename:FILENAME};
+        questionsList.forEach((q,i)=>{
+          const key=q.question_en, id=`q${i+1}`;
           let val;
-          if (q.type === 'checkboxes') {
-            val = Array.from(
+          if(q.type==='checkboxes'){
+            val=Array.from(
               document.querySelectorAll(`input[name="${id}"]:checked`)
             ).map(x=>x.value);
-          } else if (q.type==='multiple_choice'||q.type==='scale') {
-            const inp = document.querySelector(
+          } else if(q.type==='multiple_choice'||
+                    q.type==='scale'||
+                    q.type==='short_answer'){
+            const inp=document.querySelector(
               `input[name="${id}"]:checked`
             )||document.getElementById(id);
-            val = inp? inp.value : '';
-          } else if (q.type==='ranked') {
-            val = Array.from(
+            val=inp?inp.value:'';
+          } else if(q.type==='ranked'){
+            val=Array.from(
               document.querySelectorAll(`#${id} li`)
             ).map(li=>li.textContent.trim());
-          } else {
-            val = document.getElementById(id)?.value || '';
+          } else { // paragraph
+            val=document.getElementById(id)?.value||'';
           }
-          data[key] = val;
+          data[key]=val;
         });
-        const params = new URLSearchParams();
-        Object.entries(data).forEach(([k,v]) => {
-          if (Array.isArray(v)) v.forEach(x=>params.append(k,x));
-          else                  params.append(k,v);
+        const params=new URLSearchParams();
+        Object.entries(data).forEach(([k,v])=>{
+          if(Array.isArray(v)) v.forEach(x=>params.append(k,x));
+          else params.append(k,v);
         });
-        try {
-          const resp = await fetch(POST_URL, {
-            method:'POST', mode:'cors',
+        try{
+          const resp=await fetch(POST_URL,{
+            method:'POST',mode:'cors',
             headers:{'Content-Type':'application/x-www-form-urlencoded'},
-            body: params.toString()
+            body:params.toString()
           });
-          const txt = await resp.text();
-          if (resp.ok) window.location.href='thankyou.html';
-          else         alert('Submission failed: '+txt);
-        } catch(err) {
+          const txt=await resp.text();
+          if(resp.ok) window.location.href='thankyou.html';
+          else        alert('Submission failed: '+txt);
+        } catch(err){
           alert('Error submitting: '+err.message);
         }
       });

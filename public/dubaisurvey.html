@@ -4,48 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Digital Dubai | Survey Form</title>
-  <link
-    rel="stylesheet"
-    href="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/styles/css/gov-unification.css"
-  />
-  <link
-    rel="stylesheet"
-    href="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/css/style-ltr.css"
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap"
-    rel="stylesheet"
-  />
+  <link rel="stylesheet"
+        href="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/styles/css/gov-unification.css">
+  <link rel="stylesheet"
+        href="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/css/style-ltr.css">
+  <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap"
+        rel="stylesheet">
   <style>
     body {
       font-family: 'Dubai', sans-serif;
       background-color: #1C2654;
-      margin: 0;
-      padding: 0;
-      color: #333;
+      margin: 0; padding: 0; color: #333;
     }
     header.sticky-header {
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      background: transparent;
-      box-shadow: none;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      max-width: 800px;
-      margin: 0 auto;
+      position: sticky; top: 0; z-index: 999;
+      background: transparent; box-shadow: none;
+      padding: 10px 20px; display: flex; align-items: center;
+      max-width: 800px; margin: 0 auto;
       border-bottom-left-radius: 12px;
       border-bottom-right-radius: 12px;
       transition: background-color .3s ease, box-shadow .3s ease;
     }
     header.sticky-header.scrolled {
-      background: #fff;
-      box-shadow: inset 0 -2px 0 #1DB1EC;
+      background: #fff; box-shadow: inset 0 -2px 0 #1DB1EC;
     }
     .logo-left, .logo-right {
-      height: 45px;
-      filter: brightness(0) invert(1);
+      height: 45px; filter: brightness(0) invert(1);
       transition: filter .3s ease;
     }
     header.sticky-header.scrolled .logo-left,
@@ -53,134 +37,92 @@
       filter: none;
     }
     .header-logos {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       gap: 6px;
     }
     .form-title {
-      flex-grow: 1;
-      text-align: center;
-      color: #fff;
-      font-size: 20pt;
-      font-weight: 600;
-      word-break: break-word;
+      flex-grow: 1; text-align: center;
+      color: #fff; font-size: 20pt;
+      font-weight: 600; word-break: break-word;
       margin: 0 10px;
       transition: color .3s ease;
     }
     header.sticky-header.scrolled .form-title {
       color: #1DB1EC;
     }
-    .language-toggle,
-    .home-btn {
-      background: transparent;
-      color: #fff;
-      border: 2px solid #fff;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
+    .language-toggle, .home-btn {
+      background: transparent; color: #fff;
+      border: 2px solid #fff; padding: 5px 10px;
+      border-radius: 5px; cursor: pointer;
       font-size: 12px;
       transition: background .3s ease, color .3s ease, border .3s ease;
     }
     header.sticky-header.scrolled .language-toggle,
     header.sticky-header.scrolled .home-btn {
-      background: #fff;
-      color: #1DB1EC;
+      background: #fff; color: #1DB1EC;
       border: 2px solid #1DB1EC;
     }
     .dda-survey-wrapper {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
+      max-width: 800px; margin: 0 auto; padding: 20px;
     }
     .dda-survey-header {
-      background: #fff;
-      color: #1DB1EC;
-      padding: 30px;
-      border-radius: 12px;
+      background: #fff; color: #1DB1EC;
+      padding: 30px; border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       margin-top: 20px;
     }
     .dda-survey-header h1 {
-      margin: 0;
-      font-size: 24pt;
+      margin: 0; font-size: 24pt;
     }
     .question-card {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      background: #fff; padding: 25px;
+      border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
       margin-top: 20px;
     }
     .question-card label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: normal;
-      margin: 6px 0;
+      display: flex; align-items: center; gap: 8px;
+      font-weight: normal; margin: 6px 0;
     }
     .question-card input[type="radio"],
-    .question-card input[type="checkbox"] {
-      margin: 0;
-    }
+    .question-card input[type="checkbox"] { margin: 0; }
     .question-card select,
     .question-card textarea,
     .question-card input[type=range] {
-      margin-top: 8px;
-      width: 100%;
+      margin-top: 8px; width: 100%;
     }
-    textarea {
-      resize: none;
-      height: 120px;
-    }
+    textarea { resize: none; height: 120px; }
     input, select {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
+      padding: 10px; border: 1px solid #ccc;
+      border-radius: 8px; font-size: 14px;
       box-sizing: border-box;
     }
     button[type="submit"] {
-      background: transparent;
-      color: #fff;
-      border: 2px solid ;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      border-radius: 6px;
-      cursor: pointer;
+      background: transparent; color: #fff;
+      border: 2px solid #fff; padding: 5px 10px;
+      border-radius: 6px; cursor: pointer;
       margin-top: 20px;
     }
-    button[type="submit"]:hover {
-      background: transparent;
-    }
+    button[type="submit"]:hover { background: transparent; }
     ul.draggable-list {
-      list-style: none;
-      padding: 0;
-      margin-top: 12px;
+      list-style: none; padding: 0; margin-top: 12px;
     }
     .draggable-list li {
-      padding: 12px 16px;
-      margin-bottom: 10px;
-      background: #d3d3d3;
-      border-radius: 10px;
-      cursor: move;
-      user-select: none;
+      padding: 12px 16px; margin-bottom: 10px;
+      background: #d3d3d3; border-radius: 10px;
+      cursor: move; user-select: none;
       transition: transform 0.4s ease-in-out, box-shadow 0.3s ease-in-out;
     }
     .draggable-list li.dragging {
-      opacity: 0.9;
-      transform: scale(1.05);
+      opacity: 0.9; transform: scale(1.05);
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
     }
+    .draggable-list li.selected {
+      outline: 3px dashed #1DB1EC;
+    }
     @media (max-width: 600px) {
-      .form-title {
-        font-size: 16pt;
-      }
-      .logo-left, .logo-right {
-        height: 35px;
-      }
+      .form-title { font-size: 16pt; }
+      .logo-left, .logo-right { height: 35px; }
     }
   </style>
 </head>
@@ -193,7 +135,8 @@
     </div>
     <div class="form-title">Dubai Surveys</div>
     <div class="header-logos">
-      <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png" alt="Digital Dubai Logo" class="logo-right">
+      <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png"
+           alt="Digital Dubai Logo" class="logo-right">
       <button id="language-toggle" class="language-toggle">العربية</button>
     </div>
   </header>
@@ -219,41 +162,76 @@
     const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
     const FILENAME = 'survey-001';
     let questionsList = [];
+    let showingEnglish = true;
 
     window.addEventListener('scroll', () => {
-      const header = document.getElementById('stickyHeader');
-      header.classList.toggle('scrolled', window.scrollY > 10);
+      document.getElementById('stickyHeader')
+        .classList.toggle('scrolled', window.scrollY > 10);
     });
 
-    document.getElementById('language-toggle').onclick = function () {
-      const showingEN = this.textContent === 'English';
-      this.textContent = showingEN ? 'العربية' : 'English';
-      document.querySelectorAll('.lang-en').forEach(el => el.style.display = showingEN ? 'none' : 'block');
-      document.querySelectorAll('.lang-ar').forEach(el => el.style.display = showingEN ? 'block' : 'none');
-    };
+    const langBtn = document.getElementById('language-toggle');
+    langBtn.addEventListener('click', () => {
+      showingEnglish = !showingEnglish;
+      document.querySelectorAll('.lang-en').forEach(el =>
+        el.style.display = showingEnglish ? 'block' : 'none'
+      );
+      document.querySelectorAll('.lang-ar').forEach(el =>
+        el.style.display = showingEnglish ? 'none' : 'block'
+      );
+      langBtn.textContent = showingEnglish ? 'العربية' : 'English';
+    });
 
     function makeDraggable(listEl) {
-      let draggingElement;
+      // Desktop drag
+      let dragging;
       listEl.addEventListener('dragstart', e => {
         if (e.target.tagName === 'LI') {
-          draggingElement = e.target;
-          draggingElement.classList.add('dragging');
+          dragging = e.target;
+          dragging.classList.add('dragging');
         }
       });
       listEl.addEventListener('dragover', e => {
         e.preventDefault();
-        const after = [...listEl.querySelectorAll('li:not(.dragging)')].find(el => {
-          const box = el.getBoundingClientRect();
-          return e.clientY < box.top + box.height/2;
-        });
-        if (after) {
-          listEl.insertBefore(draggingElement, after);
-        } else {
-          listEl.appendChild(draggingElement);
-        }
+        const after = [...listEl.querySelectorAll('li:not(.dragging)')]
+          .find(el => {
+            const box = el.getBoundingClientRect();
+            return e.clientY < box.top + box.height/2;
+          });
+        if (after) listEl.insertBefore(dragging, after);
+        else listEl.appendChild(dragging);
       });
       listEl.addEventListener('dragend', () => {
-        draggingElement?.classList.remove('dragging');
+        dragging?.classList.remove('dragging');
+      });
+
+      // Mobile touch‐to‐swap
+      let selected = null;
+      listEl.addEventListener('touchstart', e => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        selected = li;
+        li.classList.add('dragging','selected');
+        e.preventDefault();
+      });
+      listEl.addEventListener('touchend', e => {
+        if (!selected) return;
+        const touch = e.changedTouches[0];
+        const drop = document
+          .elementFromPoint(touch.clientX, touch.clientY)
+          ?.closest('li');
+        if (drop && drop !== selected) {
+          const children = [...listEl.children];
+          const i1 = children.indexOf(selected),
+                i2 = children.indexOf(drop);
+          if (i1 < i2) {
+            listEl.insertBefore(drop, selected);
+            listEl.insertBefore(selected, children[i2]);
+          } else {
+            listEl.insertBefore(selected, drop);
+          }
+        }
+        selected.classList.remove('dragging','selected');
+        selected = null;
       });
     }
 
@@ -269,10 +247,11 @@
         questionsList = json.questions;
         form.innerHTML = '';
 
-        questionsList.forEach((q,i) => {
+        questionsList.forEach((q, i) => {
           const wrap = document.createElement('div');
           wrap.className = 'question-card';
 
+          // Label
           const lbl = document.createElement('label');
           lbl.htmlFor = `q${i+1}`;
           lbl.innerHTML = `
@@ -282,12 +261,16 @@
 
           const id = `q${i+1}`;
 
+          // Paragraph
           if (q.type === 'paragraph') {
             const ta = document.createElement('textarea');
             ta.id = id;
             wrap.appendChild(ta);
 
-          } else if (['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)) {
+          // Multiple-choice, checkboxes, dropdown, scale
+          } else if (['multiple_choice','checkboxes','dropdown','scale']
+                      .includes(q.type)) {
+
             if (q.type === 'dropdown') {
               const sel = document.createElement('select');
               sel.id = id;
@@ -301,22 +284,17 @@
             } else if (q.type === 'scale') {
               const range = document.createElement('input');
               range.type = 'range';
-              range.min = '1';
-              range.max = '5';
-              range.step = '1';
-              range.value = '3';
-              range.id = id;
-
-              const valDisp = document.createElement('span');
-              valDisp.textContent = range.value;
-              valDisp.style.marginLeft = '10px';
-              range.addEventListener('input', () => valDisp.textContent = range.value);
-
+              range.min = '1'; range.max = '5'; range.step = '1';
+              range.value = '3'; range.id = id;
+              const disp = document.createElement('span');
+              disp.textContent = range.value;
+              disp.style.marginLeft = '10px';
+              range.addEventListener('input', ()=> disp.textContent=range.value);
               wrap.appendChild(range);
-              wrap.appendChild(valDisp);
+              wrap.appendChild(disp);
 
             } else {
-              q.options_en.forEach((opt,j) => {
+              q.options_en.forEach((opt, j) => {
                 const d = document.createElement('div');
                 d.innerHTML = `
                   <label>
@@ -325,20 +303,27 @@
                       name="${id}" value="${opt}"
                     />
                     <span class="lang-en">${opt}</span>
-                    <span class="lang-ar" style="display:none">${q.options_ar?.[j]||''}</span>
+                    <span class="lang-ar" style="display:none">${
+                      q.options_ar?.[j]||''
+                    }</span>
                   </label>`;
                 wrap.appendChild(d);
               });
             }
 
+          // Ranked drag-swap
           } else if (q.type === 'ranked') {
             const ul = document.createElement('ul');
             ul.id = id;
             ul.className = 'draggable-list';
-            q.options_en.forEach(opt => {
+            q.options_en.forEach((opt, j) => {
               const li = document.createElement('li');
               li.draggable = true;
-              li.textContent = opt;
+              li.innerHTML = `
+                <span class="lang-en">${opt}</span>
+                <span class="lang-ar" style="display:none">${
+                  q.options_ar?.[j]||''
+                }</span>`;
               ul.appendChild(li);
             });
             wrap.appendChild(ul);
@@ -348,6 +333,7 @@
           form.appendChild(wrap);
         });
 
+        // Submit
         const btn = document.createElement('button');
         btn.type = 'submit';
         btn.textContent = 'Submit';
@@ -358,38 +344,44 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', ()=>{
       loadQuestions();
-      document.getElementById('survey-form').addEventListener('submit', async e => {
+      document.getElementById('survey-form').addEventListener('submit',
+      async e => {
         e.preventDefault();
         const data = { filename: FILENAME };
-        questionsList.forEach((q,i) => {
-          const key = q.question_en;
-          const id = `q${i+1}`;
-          let value;
+        questionsList.forEach((q, i) => {
+          const key = q.question_en, id = `q${i+1}`;
+          let val;
           if (q.type==='checkboxes') {
-            value = Array.from(document.querySelectorAll(`input[name="${id}"]:checked`))
-                         .map(inp=>inp.value);
+            val = Array.from(document.querySelectorAll(
+              `input[name="${id}"]:checked`
+            )).map(n=>n.value);
           } else if (q.type==='multiple_choice'||q.type==='scale') {
-            const inp = document.querySelector(`input[name="${id}"]:checked`)||document.getElementById(id);
-            value = inp?inp.value:'';
+            const inp = document.querySelector(
+              `input[name="${id}"]:checked`
+            )||document.getElementById(id);
+            val = inp?inp.value:'';
           } else if (q.type==='ranked') {
-            value = Array.from(document.querySelectorAll(`#${id} li`))
-                         .map(li=>li.textContent.trim());
+            val = Array.from(document.querySelectorAll(
+              `#${id} li`
+            )).map(li=>li.textContent.trim());
           } else {
             const elm = document.getElementById(id);
-            value = elm?elm.value:'';
+            val = elm?elm.value:'';
           }
-          data[key] = value;
+          data[key] = val;
         });
+
         const params = new URLSearchParams();
         Object.entries(data).forEach(([k,v])=>{
-          if (Array.isArray(v)) v.forEach(x=>params.append(k,x));
+          if(Array.isArray(v)) v.forEach(x=>params.append(k,x));
           else params.append(k,v);
         });
+
         try {
-          const resp = await fetch(POST_URL, {
-            method:'POST',mode:'cors',
+          const resp = await fetch(POST_URL,{
+            method:'POST', mode:'cors',
             headers:{'Content-Type':'application/x-www-form-urlencoded'},
             body:params.toString()
           });

@@ -11,29 +11,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Dubai:wght@400;700&display=swap"
         rel="stylesheet">
   <style>
+    /* --- Reset any focus outline globally --- */
+    *:focus { outline: none; }
+
     body {
       font-family: 'Dubai', sans-serif;
       background-color: #1C2654;
-      margin: 0; padding: 0; color: #333;
+      margin: 0; padding: 0;
+      color: #333;
     }
+
+    /* --- Sticky Header --- */
     header.sticky-header {
-      position: sticky; top: 0; z-index: 999;
+      position: sticky;
+      top: 0; z-index: 999;
       background: transparent; box-shadow: none;
-      padding: 10px 20px; display: flex; align-items: center;
+      padding: 10px 20px;
+      display: flex; align-items: center;
       max-width: 800px; margin: 0 auto;
       border-bottom-left-radius: 12px;
       border-bottom-right-radius: 12px;
-      transition: background-color .3s ease, box-shadow .3s ease;
+      transition: background-color .3s, box-shadow .3s;
     }
     header.sticky-header.scrolled {
-      background: #fff; box-shadow: inset 0 -2px 0 #1DB1EC;
+      background: #fff;
+      box-shadow: inset 0 -2px 0 #1DB1EC;
     }
     .logo-left, .logo-right {
       height: 45px; filter: brightness(0) invert(1);
-      transition: filter .3s ease;
+      transition: filter .3s;
     }
-    header.sticky-header.scrolled .logo-left,
-    header.sticky-header.scrolled .logo-right {
+    header.scrolled .logo-left,
+    header.scrolled .logo-right {
       filter: none;
     }
     .header-logos {
@@ -43,12 +52,10 @@
     }
     .form-title {
       flex-grow: 1; text-align: center;
-      color: #fff; font-size: 20pt;
-      font-weight: 600; word-break: break-word;
-      margin: 0 10px;
-      transition: color .3s ease;
+      color: #fff; font-size: 20pt; font-weight: 600;
+      margin: 0 10px; transition: color .3s;
     }
-    header.sticky-header.scrolled .form-title {
+    header.scrolled .form-title {
       color: #1DB1EC;
     }
     .language-toggle, .home-btn {
@@ -56,70 +63,88 @@
       border: 2px solid #fff; padding: 5px 10px;
       border-radius: 5px; cursor: pointer;
       font-size: 12px;
-      transition: background .3s ease, color .3s ease, border .3s ease;
+      transition: background .3s, color .3s, border .3s;
     }
-    header.sticky-header.scrolled .language-toggle,
-    header.sticky-header.scrolled .home-btn {
+    header.scrolled .language-toggle,
+    header.scrolled .home-btn {
       background: #fff; color: #1DB1EC;
       border: 2px solid #1DB1EC;
     }
+
+    /* --- Survey container --- */
     .dda-survey-wrapper {
-      max-width: 800px; margin: 0 auto; padding: 20px;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 20px 40px;
     }
     .dda-survey-header {
       background: #fff; color: #1DB1EC;
       padding: 30px; border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      margin-top: 20px;
+      margin-bottom: 20px;
     }
-    .dda-survey-header h1 {
-      margin: 0; font-size: 24pt;
-    }
+    .dda-survey-header h1 { margin: 0; font-size: 24pt; }
+
+    /* --- Question cards --- */
     .question-card {
       background: #fff; padding: 25px;
-      border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
       margin-top: 20px;
     }
     .question-card label {
       display: flex; align-items: center; gap: 8px;
-      font-weight: normal; margin: 6px 0;
+      font-weight: normal; margin-bottom: 12px;
+    }
+    .question-card textarea {
+      width: 100%; height: 120px;
+      padding: 10px; border: 1px solid #ccc;
+      border-radius: 8px; resize: none;
+      font-size: 14px; box-sizing: border-box;
+    }
+    .question-card select,
+    .question-card input[type="range"],
+    .question-card input[type="text"],
+    .question-card input[type="number"] {
+      width: 100%; margin-top: 8px;
+      padding: 10px; border: 1px solid #ccc;
+      border-radius: 8px; box-sizing: border-box;
+      font-size: 14px;
     }
     .question-card input[type="radio"],
-    .question-card input[type="checkbox"] { margin: 0; }
-    .question-card select,
-    .question-card textarea,
-    .question-card input[type=range] {
-      margin-top: 8px; width: 100%;
-    }
-    textarea { resize: none; height: 120px; }
-    input, select {
-      padding: 10px; border: 1px solid #ccc;
-      border-radius: 8px; font-size: 14px;
-      box-sizing: border-box;
+    .question-card input[type="checkbox"] {
+      margin-right: 8px;
     }
     button[type="submit"] {
       background: transparent; color: #fff;
-      border: 2px solid #fff; padding: 5px 10px;
-      border-radius: 6px; cursor: pointer;
-      margin-top: 20px;
+      border: 2px solid #fff; padding: 12px 24px;
+      font-size: 16px; border-radius: 6px;
+      cursor: pointer; margin-top: 20px;
+      transition: background .3s, color .3s;
     }
-    button[type="submit"]:hover { background: transparent; }
+    button[type="submit"]:hover {
+      background: #fff; color: #1DB1EC;
+    }
+
+    /* --- Drag & Drop List --- */
     ul.draggable-list {
       list-style: none; padding: 0; margin-top: 12px;
     }
     .draggable-list li {
-      padding: 12px 16px; margin-bottom: 10px;
-      background: #d3d3d3; border-radius: 10px;
-      cursor: move; user-select: none;
-      transition: transform 0.4s ease-in-out, box-shadow 0.3s ease-in-out;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      background: #d3d3d3;
+      border-radius: 10px;
+      cursor: grab; user-select: none;
+      transition: transform .3s, box-shadow .3s;
     }
     .draggable-list li.dragging {
-      opacity: 0.9; transform: scale(1.05);
+      opacity: 0.9;
+      transform: scale(1.05);
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      cursor: grabbing;
     }
-    .draggable-list li.selected {
-      outline: 3px dashed #1DB1EC;
-    }
+
     @media (max-width: 600px) {
       .form-title { font-size: 16pt; }
       .logo-left, .logo-right { height: 35px; }
@@ -128,21 +153,29 @@
 </head>
 <body>
 
+  <!-- ==== Header ==== -->
   <header id="stickyHeader" class="sticky-header">
     <div class="header-logos">
-      <img src="https://tec.gov.ae/documents/d/tec/logo-god" alt="TEC Logo" class="logo-left">
-      <button class="home-btn" onclick="window.location.href='survey.html'">Home</button>
+      <img src="https://tec.gov.ae/documents/d/tec/logo-god"
+           alt="TEC Logo" class="logo-left">
+      <button class="home-btn"
+              onclick="window.location.href='survey.html'">
+        Home
+      </button>
     </div>
     <div class="form-title">Dubai Surveys</div>
     <div class="header-logos">
       <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png"
            alt="Digital Dubai Logo" class="logo-right">
-      <button id="language-toggle" class="language-toggle">العربية</button>
+      <button id="language-toggle" class="language-toggle">
+        العربية
+      </button>
     </div>
   </header>
 
+  <!-- ==== Survey Container ==== -->
   <div class="dda-survey-wrapper">
-    <div class="dda-survey-header" style="color: #000;">
+    <div class="dda-survey-header" style="color:#000;">
       <h1 class="lang-en">Data Collection Department</h1>
       <h1 class="lang-ar" style="display:none">إدارة جمع البيانات</h1>
       <p class="lang-en">
@@ -157,243 +190,238 @@
     <form id="survey-form"></form>
   </div>
 
+  <!-- ==== Script ==== -->
   <script>
     const GET_URL  = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
     const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
     const FILENAME = 'survey-001';
     let questionsList = [];
-    let showingEnglish = true;
 
-    window.addEventListener('scroll', () => {
+    // sticky header toggle
+    window.addEventListener('scroll',() => {
       document.getElementById('stickyHeader')
-        .classList.toggle('scrolled', window.scrollY > 10);
+              .classList.toggle('scrolled', window.scrollY>10);
     });
 
-    const langBtn = document.getElementById('language-toggle');
-    langBtn.addEventListener('click', () => {
-      showingEnglish = !showingEnglish;
-      document.querySelectorAll('.lang-en').forEach(el =>
-        el.style.display = showingEnglish ? 'block' : 'none'
-      );
-      document.querySelectorAll('.lang-ar').forEach(el =>
-        el.style.display = showingEnglish ? 'none' : 'block'
-      );
-      langBtn.textContent = showingEnglish ? 'العربية' : 'English';
+    // language toggle
+    document.getElementById('language-toggle')
+            .addEventListener('click', function(){
+      const showingEN = this.textContent==='English';
+      this.textContent = showingEN?'العربية':'English';
+      document.querySelectorAll('.lang-en')
+              .forEach(el=> el.style.display = showingEN?'none':'block');
+      document.querySelectorAll('.lang-ar')
+              .forEach(el=> el.style.display = showingEN?'block':'none');
     });
 
-    function makeDraggable(listEl) {
-      // Desktop drag
-      let dragging;
-      listEl.addEventListener('dragstart', e => {
-        if (e.target.tagName === 'LI') {
+    // detect touch
+    const isTouch = 'ontouchstart' in window;
+
+    // desktop drag and drop
+    function makeDraggable(listEl){
+      let dragging = null;
+      listEl.addEventListener('dragstart', e=>{
+        if(e.target.tagName==='LI'){
           dragging = e.target;
           dragging.classList.add('dragging');
+          e.dataTransfer.setData('text/plain','');
         }
       });
-      listEl.addEventListener('dragover', e => {
+      listEl.addEventListener('dragover', e=>{
         e.preventDefault();
-        const after = [...listEl.querySelectorAll('li:not(.dragging)')]
-          .find(el => {
+        let after = [...listEl.querySelectorAll('li:not(.dragging)')]
+          .find(el=>{
             const box = el.getBoundingClientRect();
             return e.clientY < box.top + box.height/2;
           });
-        if (after) listEl.insertBefore(dragging, after);
-        else listEl.appendChild(dragging);
+        if(after) listEl.insertBefore(dragging, after);
+        else      listEl.appendChild(dragging);
       });
-      listEl.addEventListener('dragend', () => {
-        dragging?.classList.remove('dragging');
-      });
-
-      // Mobile touch‐to‐swap
-      let selected = null;
-      listEl.addEventListener('touchstart', e => {
-        const li = e.target.closest('li');
-        if (!li) return;
-        selected = li;
-        li.classList.add('dragging','selected');
-        e.preventDefault();
-      });
-      listEl.addEventListener('touchend', e => {
-        if (!selected) return;
-        const touch = e.changedTouches[0];
-        const drop = document
-          .elementFromPoint(touch.clientX, touch.clientY)
-          ?.closest('li');
-        if (drop && drop !== selected) {
-          const children = [...listEl.children];
-          const i1 = children.indexOf(selected),
-                i2 = children.indexOf(drop);
-          if (i1 < i2) {
-            listEl.insertBefore(drop, selected);
-            listEl.insertBefore(selected, children[i2]);
-          } else {
-            listEl.insertBefore(selected, drop);
-          }
-        }
-        selected.classList.remove('dragging','selected');
-        selected = null;
+      listEl.addEventListener('dragend', ()=> {
+        dragging.classList.remove('dragging');
+        dragging = null;
       });
     }
 
-    async function loadQuestions() {
+    // mobile tap-swap
+    function makeTapSwap(listEl){
+      let first = null;
+      listEl.querySelectorAll('li').forEach(li=>{
+        li.addEventListener('click', ()=>{
+          if(!first){
+            first = li;
+            li.classList.add('dragging');
+          } else if(first!==li){
+            // swap nodes
+            const a=first, b=li;
+            const pa = a.parentNode, pb = b.parentNode;
+            const na = a.nextSibling, nb = b.nextSibling;
+            pa.insertBefore(b, na);
+            pb.insertBefore(a, nb);
+            a.classList.remove('dragging');
+            first = null;
+          }
+        });
+      });
+    }
+
+    async function loadQuestions(){
       const form = document.getElementById('survey-form');
       try {
-        const res = await fetch(GET_URL, { mode: 'cors' });
-        const json = await res.json();
-        if (!json.questions) {
-          form.innerHTML = '<p style="color:red;">No questions found</p>';
+        const res = await fetch(GET_URL);
+        const json= await res.json();
+        if(!json.questions){
+          form.innerHTML='<p style="color:red;">No questions found</p>';
           return;
         }
         questionsList = json.questions;
-        form.innerHTML = '';
+        form.innerHTML='';
 
-        questionsList.forEach((q, i) => {
+        questionsList.forEach((q,i)=>{
           const wrap = document.createElement('div');
-          wrap.className = 'question-card';
+          wrap.className='question-card';
 
-          // Label
-          const lbl = document.createElement('label');
-          lbl.htmlFor = `q${i+1}`;
-          lbl.innerHTML = `
+          // label
+          const lbl=document.createElement('label');
+          lbl.htmlFor=`q${i+1}`;
+          lbl.innerHTML=`
             <span class="lang-en">${q.question_en}</span>
             <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
           wrap.appendChild(lbl);
 
           const id = `q${i+1}`;
 
-          // Paragraph
-          if (q.type === 'paragraph') {
-            const ta = document.createElement('textarea');
-            ta.id = id;
-            wrap.appendChild(ta);
+          // paragraph
+          if(q.type==='paragraph'){
+            const ta=document.createElement('textarea');
+            ta.id=id; wrap.appendChild(ta);
 
-          // Multiple-choice, checkboxes, dropdown, scale
-          } else if (['multiple_choice','checkboxes','dropdown','scale']
-                      .includes(q.type)) {
-
-            if (q.type === 'dropdown') {
-              const sel = document.createElement('select');
-              sel.id = id;
-              q.options_en.forEach(opt => {
-                const o = document.createElement('option');
-                o.value = o.textContent = opt;
+          // multiple_choice, checkboxes, dropdown, scale
+          } else if(
+            ['multiple_choice','checkboxes','dropdown','scale']
+            .includes(q.type)
+          ){
+            if(q.type==='dropdown'){
+              const sel=document.createElement('select');
+              sel.id=id;
+              q.options_en.forEach(opt=>{
+                const o=document.createElement('option');
+                o.value=o.textContent=opt;
                 sel.appendChild(o);
               });
               wrap.appendChild(sel);
 
-            } else if (q.type === 'scale') {
-              const range = document.createElement('input');
-              range.type = 'range';
-              range.min = '1'; range.max = '5'; range.step = '1';
-              range.value = '3'; range.id = id;
-              const disp = document.createElement('span');
-              disp.textContent = range.value;
-              disp.style.marginLeft = '10px';
-              range.addEventListener('input', ()=> disp.textContent=range.value);
+            } else if(q.type==='scale'){
+              const range=document.createElement('input');
+              range.type='range';
+              range.min='1'; range.max='5';
+              range.step='1'; range.value='3';
+              range.id=id;
+              const disp=document.createElement('span');
+              disp.textContent=range.value;
+              disp.style.marginLeft='10px';
+              range.addEventListener('input',()=>disp.textContent=range.value);
               wrap.appendChild(range);
               wrap.appendChild(disp);
 
             } else {
-              q.options_en.forEach((opt, j) => {
-                const d = document.createElement('div');
-                d.innerHTML = `
+              q.options_en.forEach((opt,j)=>{
+                const d=document.createElement('div');
+                d.innerHTML=`
                   <label>
                     <input
                       type="${q.type==='multiple_choice'?'radio':'checkbox'}"
                       name="${id}" value="${opt}"
                     />
                     <span class="lang-en">${opt}</span>
-                    <span class="lang-ar" style="display:none">${
-                      q.options_ar?.[j]||''
-                    }</span>
+                    <span class="lang-ar" style="display:none">
+                      ${q.options_ar?.[j]||''}
+                    </span>
                   </label>`;
                 wrap.appendChild(d);
               });
             }
 
-          // Ranked drag-swap
-          } else if (q.type === 'ranked') {
-            const ul = document.createElement('ul');
-            ul.id = id;
-            ul.className = 'draggable-list';
-            q.options_en.forEach((opt, j) => {
-              const li = document.createElement('li');
-              li.draggable = true;
-              li.innerHTML = `
-                <span class="lang-en">${opt}</span>
-                <span class="lang-ar" style="display:none">${
-                  q.options_ar?.[j]||''
-                }</span>`;
+          // ranked drag/drop
+          } else if(q.type==='ranked'){
+            const ul=document.createElement('ul');
+            ul.id=id; ul.className='draggable-list';
+            q.options_en.forEach(opt=>{
+              const li=document.createElement('li');
+              li.draggable=true;
+              li.textContent=opt;
               ul.appendChild(li);
             });
             wrap.appendChild(ul);
-            makeDraggable(ul);
+            if(isTouch) makeTapSwap(ul);
+            else       makeDraggable(ul);
           }
 
           form.appendChild(wrap);
         });
 
-        // Submit
-        const btn = document.createElement('button');
-        btn.type = 'submit';
-        btn.textContent = 'Submit';
+        // final submit
+        const btn=document.createElement('button');
+        btn.type='submit';
+        btn.textContent='Submit';
         form.appendChild(btn);
 
-      } catch(err) {
-        form.innerHTML = `<p style="color:red;">Failed to load: ${err.message}</p>`;
+      } catch(err){
+        form.innerHTML=`<p style="color:red;">Failed to load: ${err.message}</p>`;
       }
     }
 
+    // on DOM ready
     document.addEventListener('DOMContentLoaded', ()=>{
       loadQuestions();
-      document.getElementById('survey-form').addEventListener('submit',
-      async e => {
+      document.getElementById('survey-form')
+              .addEventListener('submit', async e=>{
         e.preventDefault();
-        const data = { filename: FILENAME };
-        questionsList.forEach((q, i) => {
-          const key = q.question_en, id = `q${i+1}`;
+        const data={filename:FILENAME};
+        questionsList.forEach((q,i)=>{
+          const key=q.question_en;
+          const id=`q${i+1}`;
           let val;
-          if (q.type==='checkboxes') {
-            val = Array.from(document.querySelectorAll(
-              `input[name="${id}"]:checked`
-            )).map(n=>n.value);
-          } else if (q.type==='multiple_choice'||q.type==='scale') {
-            const inp = document.querySelector(
+          if(q.type==='checkboxes'){
+            val=Array.from(
+              document.querySelectorAll(`input[name="${id}"]:checked`)
+            ).map(x=>x.value);
+          } else if(
+            q.type==='multiple_choice'||
+            q.type==='scale'
+          ){
+            const inp=document.querySelector(
               `input[name="${id}"]:checked`
             )||document.getElementById(id);
-            val = inp?inp.value:'';
-          } else if (q.type==='ranked') {
-            val = Array.from(document.querySelectorAll(
-              `#${id} li`
-            )).map(li=>li.textContent.trim());
+            val= inp? inp.value:'';
+          } else if(q.type==='ranked'){
+            val=Array.from(
+              document.querySelectorAll(`#${id} li`)
+            ).map(li=>li.textContent.trim());
           } else {
-            const elm = document.getElementById(id);
-            val = elm?elm.value:'';
+            val=(document.getElementById(id)?.value)||'';
           }
-          data[key] = val;
+          data[key]=val;
         });
-
-        const params = new URLSearchParams();
+        const params=new URLSearchParams();
         Object.entries(data).forEach(([k,v])=>{
           if(Array.isArray(v)) v.forEach(x=>params.append(k,x));
-          else params.append(k,v);
+          else                  params.append(k,v);
         });
-
         try {
-          const resp = await fetch(POST_URL,{
-            method:'POST', mode:'cors',
+          const resp=await fetch(POST_URL,{
+            method:'POST',mode:'cors',
             headers:{'Content-Type':'application/x-www-form-urlencoded'},
             body:params.toString()
           });
-          const txt = await resp.text();
-          if (resp.ok) window.location.href='thankyou.html';
-          else alert('Submission failed: '+txt);
-        } catch(err) {
+          const txt=await resp.text();
+          if(resp.ok) window.location.href='thankyou.html';
+          else        alert('Submission failed: '+txt);
+        } catch(err){
           alert('Error submitting: '+err.message);
         }
       });
     });
   </script>
-
 </body>
 </html>

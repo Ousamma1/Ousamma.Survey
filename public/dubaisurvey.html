@@ -180,11 +180,9 @@
       <h1 class="lang-ar" style="display:none">إدارة جمع البيانات</h1>
       <p class="lang-en">
         We kindly invite you to participate in this survey to help us improve our services.
-        Your feedback is highly valuable. Thank you for taking the time to share your opinion.
       </p>
       <p class="lang-ar" style="display:none">
         ندعوك للمشاركة في هذا الاستبيان لمساعدتنا على تحسين خدماتنا.
-        ملاحظاتك ذات قيمة كبيرة. شكرًا لك على تخصيص وقتك لمشاركة رأيك.
       </p>
     </div>
     <form id="survey-form"></form>
@@ -192,6 +190,15 @@
 
   <!-- ==== Script ==== -->
   <script>
+    // disable browser scroll-restoration
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // force scroll to top on load
+    window.addEventListener('load', () => {
+      window.scrollTo(0,0);
+    });
+
     const GET_URL  = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
     const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
     const FILENAME = 'survey-001';
@@ -237,7 +244,7 @@
         if(after) listEl.insertBefore(dragging, after);
         else      listEl.appendChild(dragging);
       });
-      listEl.addEventListener('dragend', ()=> {
+      listEl.addEventListener('dragend', ()=>{
         dragging.classList.remove('dragging');
         dragging = null;
       });
@@ -252,12 +259,10 @@
             first = li;
             li.classList.add('dragging');
           } else if(first!==li){
-            // swap nodes
             const a=first, b=li;
-            const pa = a.parentNode, pb = b.parentNode;
-            const na = a.nextSibling, nb = b.nextSibling;
+            const pa=a.parentNode, na=a.nextSibling;
             pa.insertBefore(b, na);
-            pb.insertBefore(a, nb);
+            pa.insertBefore(a, b.nextSibling);
             a.classList.remove('dragging');
             first = null;
           }
@@ -280,27 +285,19 @@
         questionsList.forEach((q,i)=>{
           const wrap = document.createElement('div');
           wrap.className='question-card';
-
-          // label
           const lbl=document.createElement('label');
-          lbl.htmlFor=`q${i+1}`;
+          lbl.htmlFor=`q${i+1}`;  
           lbl.innerHTML=`
             <span class="lang-en">${q.question_en}</span>
             <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
           wrap.appendChild(lbl);
+          const id=`q${i+1}`;
 
-          const id = `q${i+1}`;
-
-          // paragraph
           if(q.type==='paragraph'){
             const ta=document.createElement('textarea');
             ta.id=id; wrap.appendChild(ta);
 
-          // multiple_choice, checkboxes, dropdown, scale
-          } else if(
-            ['multiple_choice','checkboxes','dropdown','scale']
-            .includes(q.type)
-          ){
+          } else if(['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)){
             if(q.type==='dropdown'){
               const sel=document.createElement('select');
               sel.id=id;
@@ -313,16 +310,12 @@
 
             } else if(q.type==='scale'){
               const range=document.createElement('input');
-              range.type='range';
-              range.min='1'; range.max='5';
-              range.step='1'; range.value='3';
-              range.id=id;
+              range.type='range'; range.min='1'; range.max='5';
+              range.step='1'; range.value='3'; range.id=id;
               const disp=document.createElement('span');
-              disp.textContent=range.value;
-              disp.style.marginLeft='10px';
+              disp.textContent=range.value; disp.style.marginLeft='10px';
               range.addEventListener('input',()=>disp.textContent=range.value);
-              wrap.appendChild(range);
-              wrap.appendChild(disp);
+              wrap.appendChild(range); wrap.appendChild(disp);
 
             } else {
               q.options_en.forEach((opt,j)=>{
@@ -342,28 +335,23 @@
               });
             }
 
-          // ranked drag/drop
           } else if(q.type==='ranked'){
             const ul=document.createElement('ul');
             ul.id=id; ul.className='draggable-list';
             q.options_en.forEach(opt=>{
               const li=document.createElement('li');
-              li.draggable=true;
-              li.textContent=opt;
+              li.draggable=true; li.textContent=opt;
               ul.appendChild(li);
             });
             wrap.appendChild(ul);
-            if(isTouch) makeTapSwap(ul);
-            else       makeDraggable(ul);
+            isTouch ? makeTapSwap(ul) : makeDraggable(ul);
           }
 
           form.appendChild(wrap);
         });
 
-        // final submit
         const btn=document.createElement('button');
-        btn.type='submit';
-        btn.textContent='Submit';
+        btn.type='submit'; btn.textContent='Submit';
         form.appendChild(btn);
 
       } catch(err){
@@ -371,7 +359,6 @@
       }
     }
 
-    // on DOM ready
     document.addEventListener('DOMContentLoaded', ()=>{
       loadQuestions();
       document.getElementById('survey-form')
@@ -379,34 +366,27 @@
         e.preventDefault();
         const data={filename:FILENAME};
         questionsList.forEach((q,i)=>{
-          const key=q.question_en;
-          const id=`q${i+1}`;
+          const key=q.question_en, id=`q${i+1}`;
           let val;
           if(q.type==='checkboxes'){
-            val=Array.from(
-              document.querySelectorAll(`input[name="${id}"]:checked`)
-            ).map(x=>x.value);
-          } else if(
-            q.type==='multiple_choice'||
-            q.type==='scale'
-          ){
-            const inp=document.querySelector(
-              `input[name="${id}"]:checked`
-            )||document.getElementById(id);
+            val=Array.from(document.querySelectorAll(`input[name="${id}"]:checked`))
+                     .map(x=>x.value);
+          } else if(q.type==='multiple_choice'||q.type==='scale'){
+            const inp=document.querySelector(`input[name="${id}"]:checked`) 
+                      || document.getElementById(id);
             val= inp? inp.value:'';
           } else if(q.type==='ranked'){
-            val=Array.from(
-              document.querySelectorAll(`#${id} li`)
-            ).map(li=>li.textContent.trim());
+            val=Array.from(document.querySelectorAll(`#${id} li`))
+                     .map(li=>li.textContent.trim());
           } else {
-            val=(document.getElementById(id)?.value)||'';
+            val=document.getElementById(id)?.value||'';
           }
           data[key]=val;
         });
         const params=new URLSearchParams();
         Object.entries(data).forEach(([k,v])=>{
           if(Array.isArray(v)) v.forEach(x=>params.append(k,x));
-          else                  params.append(k,v);
+          else params.append(k,v);
         });
         try {
           const resp=await fetch(POST_URL,{
@@ -416,12 +396,13 @@
           });
           const txt=await resp.text();
           if(resp.ok) window.location.href='thankyou.html';
-          else        alert('Submission failed: '+txt);
+          else alert('Submission failed: '+txt);
         } catch(err){
           alert('Error submitting: '+err.message);
         }
       });
     });
   </script>
+
 </body>
 </html>

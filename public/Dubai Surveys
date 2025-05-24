@@ -79,12 +79,12 @@
       font-size: 12px;
       transition: background .3s ease, color .3s ease, border .3s ease;
     }
-    header.sticky-header.scrolled .language-toggle,
-    header.sticky-header.scrolled .home-btn {
-      background: #1DB1EC;
-      color: #fff;
-      border: none;
-    }
+	header.sticky-header.scrolled .language-toggle,
+	header.sticky-header.scrolled .home-btn {
+	background: #fff;
+	color: #1DB1EC;
+	border: 2px solid #1DB1EC;
+	}
 
     .dda-survey-wrapper { max-width: 800px; margin: 0 auto; padding: 20px; }
     .dda-survey-header {

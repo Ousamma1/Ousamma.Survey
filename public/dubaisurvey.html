@@ -32,141 +32,42 @@
       background: #fff;
       box-shadow: inset 0 -2px 0 #1DB1EC;
     }
-    .logo-left, .logo-right {
-      height: 45px;
-      transition: filter .3s;
-    }
+    .logo-left, .logo-right { height: 45px; transition: filter .3s; }
     .logo-left { filter: brightness(0) invert(1); }
     header.sticky-header.scrolled .logo-left { filter: none; }
-    .header-logos {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 6px;
-    }
-    .form-title {
-      flex-grow: 1; text-align: center;
-      color: #fff; font-size: 20pt; font-weight: 600;
-      margin: 0 10px; transition: color .3s;
-    }
+    .header-logos { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .form-title { flex-grow: 1; text-align: center; color: #fff; font-size: 20pt; font-weight: 600; margin: 0 10px; transition: color .3s; }
     header.sticky-header.scrolled .form-title { color: #1DB1EC; }
-    .language-toggle, .home-btn {
-      background: transparent; color: #fff;
-      border: 2px solid #fff; padding: 5px 10px;
-      border-radius: 5px; cursor: pointer;
-      font-size: 12px;
-      transition: background .3s, color .3s, border .3s;
-    }
-    header.sticky-header.scrolled .language-toggle,
-    header.sticky-header.scrolled .home-btn {
-      background: #fff; color: #1DB1EC;
-      border: 2px solid #1DB1EC;
-    }
-    .dda-survey-wrapper {
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 0 20px 40px;
-    }
-    .dda-survey-header {
-      background: #fff; color: #1DB1EC;
-      padding: 30px; border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
+    .language-toggle, .home-btn { background: transparent; color: #fff; border: 2px solid #fff; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; transition: all .3s; }
+    header.sticky-header.scrolled .language-toggle, header.sticky-header.scrolled .home-btn { background: #fff; color: #1DB1EC; border-color: #1DB1EC; }
+    .dda-survey-wrapper { max-width: 800px; margin: 20px auto; padding: 0 20px 40px; }
+    .dda-survey-header { background: #fff; color: #1DB1EC; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .dda-survey-header h1 { margin: 0; font-size: 24pt; }
-    .question-card {
-      background: #fff; padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-      margin-top: 20px;
-    }
-    .question-card label {
-      display: flex; align-items: center; gap: 8px;
-      font-weight: normal; margin-bottom: 12px;
-    }
-    .question-card textarea {
-      width: 100%; height: 120px;
-      padding: 10px; border: 1px solid #ccc;
-      border-radius: 8px; resize: none;
-      font-size: 14px; box-sizing: border-box;
-    }
-    .question-card input[type="text"],
-    .question-card select,
-    .question-card input[type="range"],
-    .question-card input[type="number"] {
-      width: 100%; margin-top: 8px;
-      padding: 10px; border: 1px solid #ccc;
-      border-radius: 8px; box-sizing: border-box;
-      font-size: 14px;
-    }
-    .question-card input[type="radio"],
-    .question-card input[type="checkbox"] {
-      margin-right: 8px;
-    }
-    .ai-btn {
-      margin-top: 8px;
-      background: transparent;
-      color: #1DB1EC;
-      border: 2px solid #1DB1EC;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .ai-btn:disabled {
-      opacity: 0.6;
-      cursor: default;
-    }
-    .emoji-gray {
-      display: inline-block;
-      filter: grayscale(100%);
-    }
-    ul.draggable-list {
-      list-style: none; padding: 0; margin-top: 12px;
-    }
-    .draggable-list li {
-      padding: 14px 18px;
-      margin-bottom: 12px;
-      background: #d3d3d3;
-      border-radius: 10px;
-      cursor: grab; user-select: none;
-      transition: transform .3s, box-shadow .3s;
-    }
-    .draggable-list li.dragging {
-      opacity: 0.9;
-      transform: scale(1.05);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-      cursor: grabbing;
-    }
-    button[type="submit"] {
-      background: transparent; color: #fff;
-      border: 2px solid #fff; padding: 12px 24px;
-      font-size: 16px; border-radius: 6px;
-      cursor: pointer; margin-top: 20px;
-      transition: background .3s, color .3s;
-    }
-    button[type="submit"]:hover {
-      background: #fff; color: #1DB1EC;
-    }
-    @media (max-width: 600px) {
-      .form-title { font-size: 16pt; }
-      .logo-left, .logo-right { height: 35px; }
-    }
+    .question-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-top: 20px; }
+    .question-card label { display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 12px; }
+    .question-card textarea, .question-card input[type="text"], .question-card select, .question-card input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+    .question-card textarea { height: 120px; resize: none; }
+    .question-card input[type="radio"], .question-card input[type="checkbox"] { margin-right: 8px; }
+    .ai-btn { margin-top: 8px; background: transparent; color: #1DB1EC; border: 2px solid #1DB1EC; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+    .ai-btn:disabled { opacity: 0.6; cursor: default; }
+    .emoji-gray { display: inline-block; filter: grayscale(100%); }
+    ul.draggable-list { list-style: none; padding: 0; margin-top: 12px; }
+    .draggable-list li { padding: 14px 18px; margin-bottom: 12px; background: #d3d3d3; border-radius: 10px; cursor: grab; user-select: none; transition: transform .3s, box-shadow .3s; }
+    .draggable-list li.dragging { opacity: 0.9; transform: scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.15); cursor: grabbing; }
+    button[type="submit"] { background: transparent; color: #fff; border: 2px solid #fff; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 20px; transition: all .3s; }
+    button[type="submit"]:hover { background: #fff; color: #1DB1EC; }
+    @media (max-width: 600px) { .form-title { font-size: 16pt; } .logo-left, .logo-right { height: 35px; } }
   </style>
 </head>
 <body>
-
   <header id="stickyHeader" class="sticky-header">
     <div class="header-logos">
       <img src="https://tec.gov.ae/documents/d/tec/logo-god" alt="TEC Logo" class="logo-left">
-      <button class="home-btn"
-              onclick="window.location.href='https://ousamma-survey.onrender.com/dubaisurvey.html'">
-        Home
-      </button>
+      <button class="home-btn" onclick="window.location.href='https://ousamma-survey.onrender.com/dubaisurvey.html'">Home</button>
     </div>
     <div class="form-title">Dubai Surveys</div>
     <div class="header-logos">
-      <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo-white.png"
-           alt="Digital Dubai Logo" class="logo-right">
+      <img src="https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo-white.png" alt="Digital Dubai Logo" class="logo-right">
       <button id="language-toggle" class="language-toggle">العربية</button>
     </div>
   </header>
@@ -182,16 +83,13 @@
   </div>
 
   <script>
-    const LOAD_URL = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
+    const LOAD_URL = 'https://script.google.com/macros/s/AKfycbzCJxhRYWC_b51R1NnlfFCw4Dg8jnB7KsxpGoZGWYO-7JtgGj3RQlzn0vw6poxpAmvW/exec?filename=survey-001';
     const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
     const AI_URL   = 'https://ousammai.onrender.com/api/ai/enhance';
     let questionsList = [];
-
-    // force top on mobile
+    
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.addEventListener('load', ()=> window.scrollTo(0, 0));
-
-    // header scroll behavior + logo swap
     window.addEventListener('scroll', () => {
       const scrolled = window.scrollY > 30;
       document.getElementById('stickyHeader').classList.toggle('scrolled', scrolled);
@@ -199,240 +97,68 @@
         ? 'https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo.png'
         : 'https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo-white.png';
     });
-
-    // language toggle
     document.getElementById('language-toggle').addEventListener('click', function(){
       const showAr = this.textContent.includes('English');
       this.textContent = showAr ? 'العربية' : 'English';
       document.querySelectorAll('.lang-en').forEach(el=>el.style.display = showAr ? 'none':'block');
       document.querySelectorAll('.lang-ar').forEach(el=>el.style.display = showAr ? 'block':'none');
     });
-
-    // drag & tap ranking
     const isTouch = 'ontouchstart' in window;
-    function swapItems(a,b){
-      const p=a.parentNode, kids=[...p.children], ia=kids.indexOf(a), ib=kids.indexOf(b);
-      [kids[ia],kids[ib]]=[kids[ib],kids[ia]];
-      kids.forEach(n=>p.appendChild(n));
-    }
-    function makeTapSwap(list){
-      let first=null;
-      list.querySelectorAll('li').forEach(li=>{
-        li.addEventListener('click', ()=>{
-          if (!first){ first = li; li.classList.add('dragging'); }
-          else if (first!==li){ swapItems(first,li); first.classList.remove('dragging'); first=null; }
-        });
-      });
-    }
-    function makeDraggable(list){
-      let dragEl=null;
-      list.addEventListener('dragstart', e=>{
-        if(e.target.tagName==='LI'){ dragEl=e.target; dragEl.classList.add('dragging'); e.dataTransfer.setData('text/plain',''); }
-      });
-      list.addEventListener('dragover', e=>{
-        e.preventDefault();
-        const after = [...list.querySelectorAll('li:not(.dragging)')]
-          .find(el=>{ const r=el.getBoundingClientRect(); return e.clientY < r.top + r.height/2; });
-        after ? list.insertBefore(dragEl, after) : list.appendChild(dragEl);
-      });
-      list.addEventListener('dragend', ()=>{
-        dragEl.classList.remove('dragging'); dragEl=null;
-      });
-    }
-
-    // AI enhancement call
-    async function enhanceText(txt){
-      const res = await fetch(AI_URL, {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ text: txt })
-      });
-      const { enhanced } = await res.json();
-      return enhanced || txt;
-    }
-
-    // load & render
+    function swapItems(a,b){ const p=a.parentNode, kids=[...p.children], ia=kids.indexOf(a), ib=kids.indexOf(b); [kids[ia],kids[ib]]=[kids[ib],kids[ia]]; kids.forEach(n=>p.appendChild(n)); }
+    function makeTapSwap(list){ let first=null; list.querySelectorAll('li').forEach(li=>{ li.addEventListener('click', ()=>{ if (!first){ first = li; li.classList.add('dragging'); } else if (first!==li){ swapItems(first,li); first.classList.remove('dragging'); first=null; }}); }); }
+    function makeDraggable(list){ let dragEl=null; list.addEventListener('dragstart', e=>{ if(e.target.tagName==='LI'){ dragEl=e.target; dragEl.classList.add('dragging'); e.dataTransfer.setData('text/plain',''); }}); list.addEventListener('dragover', e=>{ e.preventDefault(); const after=[...list.querySelectorAll('li:not(.dragging)')].find(el=>{ const r=el.getBoundingClientRect(); return e.clientY<r.top+r.height/2; }); after?list.insertBefore(dragEl,after):list.appendChild(dragEl); }); list.addEventListener('dragend', ()=>{ dragEl.classList.remove('dragging'); dragEl=null; }); }
+    async function enhanceText(txt){ const res=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt})}); const {enhanced}=await res.json(); return enhanced||txt; }
     async function loadQuestions(){
-      const form = document.getElementById('survey-form');
-      try {
-        const resp = await fetch(LOAD_URL, { mode:'cors' });
-        const { questions } = await resp.json();
-        if (!questions) throw new Error('No questions found');
-        questionsList = questions;  // store globally
-        form.innerHTML = '';
-
-        questionsList.forEach((q,i) => {
-          const wrap = document.createElement('div');
-          wrap.className = 'question-card';
-          const lbl = document.createElement('label');
-          lbl.htmlFor = `q${i+1}`;
-          lbl.innerHTML = `
-            <span class="lang-en">${q.question_en}</span>
-            <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
+      const form=document.getElementById('survey-form');
+      try{
+        const resp=await fetch(LOAD_URL,{mode:'cors'});
+        const data=await resp.json();
+        const questions=data.questions||[];
+        const title=data.title||'';
+        const description=data.description||'';
+        if(!questions.length) throw new Error('No questions found');
+        document.querySelector('.form-title').textContent=title;
+        const hdr=document.querySelector('.dda-survey-header');
+        hdr.querySelector('h1.lang-en').textContent=title;
+        hdr.querySelector('p.lang-en').textContent=description;
+        hdr.querySelector('h1.lang-ar').textContent=title;
+        hdr.querySelector('p.lang-ar').textContent=description;
+        questionsList=questions;
+        form.innerHTML='';
+        questionsList.forEach((q,i)=>{
+          const wrap=document.createElement('div'); wrap.className='question-card';
+          const lbl=document.createElement('label'); lbl.htmlFor=`q${i+1}`;
+          lbl.innerHTML=`<span class="lang-en">${q.question_en}</span><span class="lang-ar" style="display:none">${q.question_ar||''}</span>`;
           wrap.appendChild(lbl);
-
-          const id = `q${i+1}`;
-          // paragraph
-          if (q.type==='paragraph'){
-            const ta = document.createElement('textarea');
-            ta.id = id;
-            wrap.appendChild(ta);
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
-            btn.className = 'ai-btn';
-            wrap.appendChild(btn);
-            btn.addEventListener('click', async ()=>{
-              btn.disabled = true; btn.textContent = 'Enhancing…';
-              ta.value = await enhanceText(ta.value).catch(()=>ta.value);
-              btn.disabled = false;
-              btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
-            });
-
-          }
-          // short_answer
-          else if (q.type==='short_answer'){
-            const inp = document.createElement('input');
-            inp.type='text'; inp.id=id;
-            wrap.appendChild(inp);
-            const btn = document.createElement('button');
-            btn.type='button';
-            btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
-            btn.className = 'ai-btn';
-            wrap.appendChild(btn);
-            btn.addEventListener('click', async ()=>{
-              btn.disabled = true; btn.textContent = 'Enhancing…';
-              inp.value = await enhanceText(inp.value).catch(()=>inp.value);
-              btn.disabled = false;
-              btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
-            });
-
-          }
-          // multiple_choice / checkboxes / dropdown / scale
-          else if (['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)){
-            if (q.type==='dropdown'){
-              const sel = document.createElement('select');
-              sel.id = id;
-              q.options_en.forEach(opt=>{
-                const o = document.createElement('option');
-                o.value = o.textContent = opt;
-                sel.appendChild(o);
-              });
-              wrap.appendChild(sel);
-
-            } else if (q.type==='scale'){
-              const range = document.createElement('input');
-              range.type='range'; range.min='1'; range.max='5'; range.step='1';
-              range.value='3'; range.id=id;
-              const disp = document.createElement('span');
-              disp.textContent = range.value;
-              disp.style.marginLeft = '10px';
-              range.addEventListener('input', ()=> disp.textContent = range.value);
-              wrap.appendChild(range);
-              wrap.appendChild(disp);
-
+          const id=`q${i+1}`;
+          if(q.type==='paragraph'){
+            const ta=document.createElement('textarea'); ta.id=id; wrap.appendChild(ta);
+            const btn=document.createElement('button'); btn.type='button'; btn.className='ai-btn'; btn.innerHTML='Enhance with AI <span class="emoji-gray">✨</span>';
+            btn.addEventListener('click',async()=>{ btn.disabled=true; btn.textContent='Enhancing…'; ta.value=await enhanceText(ta.value).catch(()=>ta.value); btn.disabled=false; btn.innerHTML='Enhance with AI <span class="emoji-gray">✨</span>'; }); wrap.appendChild(btn);
+          } else if(q.type==='short_answer'){
+            const inp=document.createElement('input'); inp.type='text'; inp.id=id; wrap.appendChild(inp);
+            const btn=document.createElement('button'); btn.type='button'; btn.className='ai-btn'; btn.innerHTML='Enhance with AI <span class="emoji-gray">✨</span>';
+            btn.addEventListener('click',async()=>{ btn.disabled=true; btn.textContent='Enhancing…'; inp.value=await enhanceText(inp.value).catch(()=>inp.value); btn.disabled=false; btn.innerHTML='Enhance with AI <span class="emoji-gray">✨</span>'; }); wrap.appendChild(btn);
+          } else if(['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)){
+            if(q.type==='dropdown'){
+              const sel=document.createElement('select'); sel.id=id; q.options_en.forEach(opt=>{ const o=document.createElement('option'); o.value=o.textContent=opt; sel.appendChild(o); }); wrap.appendChild(sel);
+            } else if(q.type==='scale'){
+              const range=document.createElement('input'); range.type='range'; range.min='1'; range.max='5'; range.step='1'; range.value='3'; range.id=id;
+              const disp=document.createElement('span'); disp.textContent=range.value; disp.style.marginLeft='10px'; range.addEventListener('input',()=>disp.textContent=range.value);
+              wrap.appendChild(range); wrap.appendChild(disp);
             } else {
-              q.options_en.forEach((opt,j)=>{
-                const div = document.createElement('div');
-                div.innerHTML = `
-                  <label>
-                    <input type="${q.type==='multiple_choice'?'radio':'checkbox'}"
-                           name="${id}" value="${opt}" />
-                    <span class="lang-en">${opt}</span>
-                    <span class="lang-ar" style="display:none">${q.options_ar?.[j]||''}</span>
-                  </label>`;
-                wrap.appendChild(div);
-              });
+              q.options_en.forEach((opt,j)=>{ const div=document.createElement('div'); div.innerHTML=`<label><input type="${q.type==='multiple_choice'?'radio':'checkbox'}" name="${id}" value="${opt}" /><span class="lang-en">${opt}</span><span class="lang-ar" style="display:none">${q.options_ar?.[j]||''}</span></label>`; wrap.appendChild(div); });
             }
+          } else if(q.type==='ranked'){
+            const ul=document.createElement('ul'); ul.id=id; ul.className='draggable-list'; q.options_en.forEach(opt=>{ const li=document.createElement('li'); li.draggable=true; li.textContent=opt; ul.appendChild(li); });
+            isTouch?makeTapSwap(ul):makeDraggable(ul); wrap.appendChild(ul);
           }
-          // ranked
-          else if (q.type==='ranked'){
-            const ul = document.createElement('ul');
-            ul.id = id; ul.className = 'draggable-list';
-            q.options_en.forEach(opt=>{
-              const li = document.createElement('li');
-              li.draggable = true; li.textContent = opt;
-              ul.appendChild(li);
-            });
-            wrap.appendChild(ul);
-            isTouch ? makeTapSwap(ul) : makeDraggable(ul);
-          }
-
           form.appendChild(wrap);
         });
-
-        // submit button
-        const submit = document.createElement('button');
-        submit.type = 'submit';
-        submit.textContent = 'Submit';
-        form.appendChild(submit);
-
-      } catch (err) {
-        document.getElementById('survey-form').innerHTML =
-          `<p style="color:red;">Failed to load: ${err.message}</p>`;
-      }
+        const submit=document.createElement('button'); submit.type='submit'; submit.textContent='Submit'; form.appendChild(submit);
+      }catch(err){ form.innerHTML=`<p style="color:red;">Failed to load: ${err.message}</p>`; }
     }
-
-    // form submit — use question_en as keys, preserve order
-    document.addEventListener('DOMContentLoaded', ()=>{
-      loadQuestions();
-      document.getElementById('survey-form')
-        .addEventListener('submit', async e=>{
-          e.preventDefault();
-
-          const params = new URLSearchParams();
-          questionsList.forEach((q,i) => {
-            const key = q.question_en;
-            const id  = `q${i+1}`;
-            let value;
-
-            if (q.type === 'paragraph'){
-              value = document.getElementById(id).value.trim();
-
-            } else if (q.type === 'short_answer'){
-              value = document.getElementById(id).value.trim();
-
-            } else if (q.type === 'dropdown'){
-              value = document.getElementById(id).value;
-
-            } else if (q.type === 'scale'){
-              value = document.getElementById(id).value;
-
-            } else if (q.type === 'multiple_choice'){
-              const sel = document.querySelector(`input[name="${id}"]:checked`);
-              value = sel ? sel.value : '';
-
-            } else if (q.type === 'checkboxes'){
-              value = Array.from(
-                document.querySelectorAll(`input[name="${id}"]:checked`)
-              ).map(cb=>cb.value).join(',');
-
-            } else if (q.type === 'ranked'){
-              value = Array.from(
-                document.querySelectorAll(`#${id} li`)
-              ).map(li=>li.textContent.trim()).join(',');
-
-            } else {
-              value = '';
-            }
-
-            params.append(key, value);
-          });
-
-          try {
-            await fetch(POST_URL, {
-              method: 'POST',
-              headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-              body: params.toString()
-            });
-            // redirect on success
-            window.location.href = 'https://ousamma-survey.onrender.com/thankyou.html';
-
-          } catch (err) {
-            alert('Submission failed: '+err.message);
-          }
-        });
-    });
+    document.addEventListener('DOMContentLoaded',()=>{ loadQuestions(); document.getElementById('survey-form').addEventListener('submit',async e=>{ e.preventDefault(); const params=new URLSearchParams(); questionsList.forEach((q,i)=>{ const key=q.question_en; const id=`q${i+1}`; let value=''; if(['paragraph','short_answer','dropdown','scale'].includes(q.type)){ value=document.getElementById(id).value.trim(); } else if(q.type==='multiple_choice'){ const sel=document.querySelector(`input[name="${id}"]:checked`); value=sel?sel.value:''; } else if(q.type==='checkboxes'){ value=Array.from(document.querySelectorAll(`input[name="${id}"]:checked`)).map(cb=>cb.value).join(','); } else if(q.type==='ranked'){ value=Array.from(document.querySelectorAll(`#${id} li`)).map(li=>li.textContent.trim()).join(','); } params.append(key,value); }); try{ await fetch(POST_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params.toString()}); window.location.href='https://ousamma-survey.onrender.com/thankyou.html'; }catch(err){ alert('Submission failed: '+err.message); } }); });
   </script>
 </body>
 </html>

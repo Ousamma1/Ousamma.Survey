@@ -182,7 +182,7 @@
   </div>
 
   <script>
-    const LOAD_URL = 'https://script.google.com/macros/s/AKfycbyKfldUTv7hm-EP6UuUgmCOERiv7IBr5YbaxakuQ1wBTS5t_cBT0U3iXRNySXrmLm1w/exec?filename=survey-001';
+    const LOAD_URL = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
     const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
     const AI_URL   = 'https://ousammai.onrender.com/api/ai/enhance';
     let questionsList = [];
@@ -265,13 +265,13 @@
           const wrap = document.createElement('div');
           wrap.className = 'question-card';
           const lbl = document.createElement('label');
-          lbl.htmlFor = q${i+1};
-          lbl.innerHTML = 
+          lbl.htmlFor = `q${i+1}`;
+          lbl.innerHTML = `
             <span class="lang-en">${q.question_en}</span>
-            <span class="lang-ar" style="display:none">${q.question_ar}</span>;
+            <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
           wrap.appendChild(lbl);
 
-          const id = q${i+1};
+          const id = `q${i+1}`;
           // paragraph
           if (q.type==='paragraph'){
             const ta = document.createElement('textarea');
@@ -334,13 +334,13 @@
             } else {
               q.options_en.forEach((opt,j)=>{
                 const div = document.createElement('div');
-                div.innerHTML = 
+                div.innerHTML = `
                   <label>
                     <input type="${q.type==='multiple_choice'?'radio':'checkbox'}"
                            name="${id}" value="${opt}" />
                     <span class="lang-en">${opt}</span>
                     <span class="lang-ar" style="display:none">${q.options_ar?.[j]||''}</span>
-                  </label>;
+                  </label>`;
                 wrap.appendChild(div);
               });
             }
@@ -369,7 +369,7 @@
 
       } catch (err) {
         document.getElementById('survey-form').innerHTML =
-          <p style="color:red;">Failed to load: ${err.message}</p>;
+          `<p style="color:red;">Failed to load: ${err.message}</p>`;
       }
     }
 
@@ -383,7 +383,7 @@
           const params = new URLSearchParams();
           questionsList.forEach((q,i) => {
             const key = q.question_en;
-            const id  = q${i+1};
+            const id  = `q${i+1}`;
             let value;
 
             if (q.type === 'paragraph'){
@@ -399,17 +399,17 @@
               value = document.getElementById(id).value;
 
             } else if (q.type === 'multiple_choice'){
-              const sel = document.querySelector(input[name="${id}"]:checked);
+              const sel = document.querySelector(`input[name="${id}"]:checked`);
               value = sel ? sel.value : '';
 
             } else if (q.type === 'checkboxes'){
               value = Array.from(
-                document.querySelectorAll(input[name="${id}"]:checked)
+                document.querySelectorAll(`input[name="${id}"]:checked`)
               ).map(cb=>cb.value).join(',');
 
             } else if (q.type === 'ranked'){
               value = Array.from(
-                document.querySelectorAll(#${id} li)
+                document.querySelectorAll(`#${id} li`)
               ).map(li=>li.textContent.trim()).join(',');
 
             } else {

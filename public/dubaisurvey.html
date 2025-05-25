@@ -32,18 +32,12 @@
       background: #fff;
       box-shadow: inset 0 -2px 0 #1DB1EC;
     }
-    .logo-left {
-      height: 45px;
-      filter: brightness(0) invert(1);
-      transition: filter .3s;
-    }
-    header.sticky-header.scrolled .logo-left {
-      filter: none;
-    }
-    .logo-right {
+    .logo-left, .logo-right {
       height: 45px;
       transition: filter .3s;
     }
+    .logo-left { filter: brightness(0) invert(1); }
+    header.sticky-header.scrolled .logo-left { filter: none; }
     .header-logos {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -54,9 +48,7 @@
       color: #fff; font-size: 20pt; font-weight: 600;
       margin: 0 10px; transition: color .3s;
     }
-    header.sticky-header.scrolled .form-title {
-      color: #1DB1EC;
-    }
+    header.sticky-header.scrolled .form-title { color: #1DB1EC; }
     .language-toggle, .home-btn {
       background: transparent; color: #fff;
       border: 2px solid #fff; padding: 5px 10px;
@@ -121,7 +113,8 @@
       font-size: 0.9rem;
     }
     .ai-btn:disabled {
-      opacity: 0.6; cursor: default;
+      opacity: 0.6;
+      cursor: default;
     }
     .emoji-gray {
       display: inline-block;
@@ -164,8 +157,7 @@
 
   <header id="stickyHeader" class="sticky-header">
     <div class="header-logos">
-      <img src="https://tec.gov.ae/documents/d/tec/logo-god"
-           alt="TEC Logo" class="logo-left">
+      <img src="https://tec.gov.ae/documents/d/tec/logo-god" alt="TEC Logo" class="logo-left">
       <button class="home-btn"
               onclick="window.location.href='https://ousamma-survey.onrender.com/dubaisurvey.html'">
         Home
@@ -183,23 +175,24 @@
     <div class="dda-survey-header" style="color:#000;">
       <h1 class="lang-en">Data Collection Department</h1>
       <h1 class="lang-ar" style="display:none">إدارة جمع البيانات</h1>
-      <p class="lang-en">
-        We kindly invite you to participate in this survey to help us improve our services.
-      </p>
-      <p class="lang-ar" style="display:none">
-        ندعوك للمشاركة في هذا الاستبيان لمساعدتنا على تحسين خدماتنا.
-      </p>
+      <p class="lang-en">We kindly invite you to participate in this survey to help us improve our services.</p>
+      <p class="lang-ar" style="display:none">ندعوك للمشاركة في هذا الاستبيان لمساعدتنا على تحسين خدماتنا.</p>
     </div>
     <form id="survey-form"></form>
   </div>
 
   <script>
-    // Prevent auto scroll-restoration
-    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-    window.addEventListener('load', ()=> window.scrollTo(0,0));
+    const LOAD_URL = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
+    const POST_URL = 'https://script.google.com/macros/s/AKfycbzI3ZMcF08KS0Er-No8d7o2dhUo4M2GiSS8Y2klCH1dVV3RDgpyQHnGnouWHD48DYD4xA/exec';
+    const AI_URL   = 'https://ousammai.onrender.com/api/ai/enhance';
+    let questionsList = [];
 
-    // On scroll: header style + right-logo swap
-    window.addEventListener('scroll', function () {
+    // force top on mobile
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', ()=> window.scrollTo(0, 0));
+
+    // header scroll behavior + logo swap
+    window.addEventListener('scroll', () => {
       const scrolled = window.scrollY > 30;
       document.getElementById('stickyHeader').classList.toggle('scrolled', scrolled);
       document.querySelector('.logo-right').src = scrolled
@@ -207,82 +200,68 @@
         : 'https://www.digitaldubai.ae/ResourcePackages/Theme/assets/dist/images/logo-white.png';
     });
 
-    // Language toggle
-    document.getElementById('language-toggle').addEventListener('click', function () {
-      const isArabic = this.textContent.includes('English');
-      this.textContent = isArabic ? 'العربية' : 'English';
-      document.querySelectorAll('.lang-en')
-        .forEach(el => el.style.display = isArabic ? 'block' : 'none');
-      document.querySelectorAll('.lang-ar')
-        .forEach(el => el.style.display = isArabic ? 'none' : 'block');
+    // language toggle
+    document.getElementById('language-toggle').addEventListener('click', function(){
+      const showAr = this.textContent.includes('English');
+      this.textContent = showAr ? 'العربية' : 'English';
+      document.querySelectorAll('.lang-en').forEach(el=>el.style.display = showAr ? 'none':'block');
+      document.querySelectorAll('.lang-ar').forEach(el=>el.style.display = showAr ? 'block':'none');
     });
 
+    // drag & tap ranking
     const isTouch = 'ontouchstart' in window;
     function swapItems(a,b){
       const p=a.parentNode, kids=[...p.children], ia=kids.indexOf(a), ib=kids.indexOf(b);
-      kids[ia]=b; kids[ib]=a; kids.forEach(n=>p.appendChild(n));
+      [kids[ia],kids[ib]]=[kids[ib],kids[ia]];
+      kids.forEach(n=>p.appendChild(n));
     }
-    function makeTapSwap(listEl){
-      let first = null;
-      listEl.querySelectorAll('li').forEach(li => {
-        li.addEventListener('click', () => {
-          if (!first) { first = li; li.classList.add('dragging'); }
-          else if (first !== li) {
-            swapItems(first, li);
-            first.classList.remove('dragging');
-            first = null;
-          }
+    function makeTapSwap(list){
+      let first=null;
+      list.querySelectorAll('li').forEach(li=>{
+        li.addEventListener('click', ()=>{
+          if (!first){ first = li; li.classList.add('dragging'); }
+          else if (first!==li){ swapItems(first,li); first.classList.remove('dragging'); first=null; }
         });
       });
     }
-    function makeDraggable(listEl){
-      let dragEl = null;
-      listEl.addEventListener('dragstart', e => {
-        if (e.target.tagName === 'LI') {
-          dragEl = e.target;
-          dragEl.classList.add('dragging');
-          e.dataTransfer.setData('text/plain','');
-        }
+    function makeDraggable(list){
+      let dragEl=null;
+      list.addEventListener('dragstart', e=>{
+        if(e.target.tagName==='LI'){ dragEl=e.target; dragEl.classList.add('dragging'); e.dataTransfer.setData('text/plain',''); }
       });
-      listEl.addEventListener('dragover', e => {
+      list.addEventListener('dragover', e=>{
         e.preventDefault();
-        const after = [...listEl.querySelectorAll('li:not(.dragging)')]
-          .find(el => {
-            const r = el.getBoundingClientRect();
-            return e.clientY < r.top + r.height/2;
-          });
-        after ? listEl.insertBefore(dragEl, after) : listEl.appendChild(dragEl);
+        const after = [...list.querySelectorAll('li:not(.dragging)')]
+          .find(el=>{ const r=el.getBoundingClientRect(); return e.clientY < r.top + r.height/2; });
+        after ? list.insertBefore(dragEl, after) : list.appendChild(dragEl);
       });
-      listEl.addEventListener('dragend', () => {
-        dragEl.classList.remove('dragging');
-        dragEl = null;
+      list.addEventListener('dragend', ()=>{
+        dragEl.classList.remove('dragging'); dragEl=null;
       });
     }
 
-    // AI-enhance call
-    async function enhanceText(text){
-      const res = await fetch('https://ousammai.onrender.com/api/ai/enhance', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({ text })
+    // AI enhancement call
+    async function enhanceText(txt){
+      const res = await fetch(AI_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ text: txt })
       });
       const { enhanced } = await res.json();
-      return enhanced || text;
+      return enhanced || txt;
     }
 
-    // Load & render questions
+    // load & render
     async function loadQuestions(){
-      const GET_URL = 'https://script.google.com/macros/s/AKfycbzAydUcG2IGTEBse4_85nuusen1mHdSH1bM8vZhBNrC9aBO41V7UEUlxvZq30-Iq-lF/exec?filename=survey-001';
       const form = document.getElementById('survey-form');
       try {
-        const resp = await fetch(GET_URL, { mode:'cors' });
-        const json = await resp.json();
-        if (!json.questions) {
-          form.innerHTML = '<p style="color:red;">No questions found</p>';
-          return;
-        }
+        const resp = await fetch(LOAD_URL, { mode:'cors' });
+        const { questions } = await resp.json();
+        if (!questions) throw new Error('No questions found');
+        questionsList = questions;  // store globally
+        form.innerHTML = '';
 
-        json.questions.forEach((q,i) => {
+        questionsList.forEach((q,i) => {
           const wrap = document.createElement('div');
           wrap.className = 'question-card';
           const lbl = document.createElement('label');
@@ -291,82 +270,86 @@
             <span class="lang-en">${q.question_en}</span>
             <span class="lang-ar" style="display:none">${q.question_ar}</span>`;
           wrap.appendChild(lbl);
+
           const id = `q${i+1}`;
-
-          if (q.type === 'paragraph') {
+          // paragraph
+          if (q.type==='paragraph'){
             const ta = document.createElement('textarea');
-            ta.id = id; wrap.appendChild(ta);
+            ta.id = id;
+            wrap.appendChild(ta);
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
             btn.className = 'ai-btn';
             wrap.appendChild(btn);
             btn.addEventListener('click', async ()=>{
-              btn.disabled = true; btn.innerHTML = 'Enhancing…';
-              try { ta.value = await enhanceText(ta.value); }
-              catch (e) { alert('AI failed: '+e); }
+              btn.disabled = true; btn.textContent = 'Enhancing…';
+              ta.value = await enhanceText(ta.value).catch(()=>ta.value);
               btn.disabled = false;
               btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
             });
 
-          } else if (q.type === 'short_answer') {
+          }
+          // short_answer
+          else if (q.type==='short_answer'){
             const inp = document.createElement('input');
-            inp.type = 'text'; inp.id = id; wrap.appendChild(inp);
+            inp.type='text'; inp.id=id;
+            wrap.appendChild(inp);
             const btn = document.createElement('button');
-            btn.type = 'button';
+            btn.type='button';
             btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
             btn.className = 'ai-btn';
             wrap.appendChild(btn);
             btn.addEventListener('click', async ()=>{
-              btn.disabled = true; btn.innerHTML = 'Enhancing…';
-              try { inp.value = await enhanceText(inp.value); }
-              catch (e) { alert('AI failed: '+e); }
+              btn.disabled = true; btn.textContent = 'Enhancing…';
+              inp.value = await enhanceText(inp.value).catch(()=>inp.value);
               btn.disabled = false;
               btn.innerHTML = 'Enhance with AI <span class="emoji-gray">✨</span>';
             });
 
-          } else if (['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)) {
-            if (q.type === 'dropdown') {
+          }
+          // multiple_choice / checkboxes / dropdown / scale
+          else if (['multiple_choice','checkboxes','dropdown','scale'].includes(q.type)){
+            if (q.type==='dropdown'){
               const sel = document.createElement('select');
               sel.id = id;
-              q.options_en.forEach(opt => {
+              q.options_en.forEach(opt=>{
                 const o = document.createElement('option');
                 o.value = o.textContent = opt;
                 sel.appendChild(o);
               });
               wrap.appendChild(sel);
 
-            } else if (q.type === 'scale') {
+            } else if (q.type==='scale'){
               const range = document.createElement('input');
               range.type='range'; range.min='1'; range.max='5'; range.step='1';
               range.value='3'; range.id=id;
               const disp = document.createElement('span');
-              disp.textContent = range.value; disp.style.marginLeft='10px';
+              disp.textContent = range.value;
+              disp.style.marginLeft = '10px';
               range.addEventListener('input', ()=> disp.textContent = range.value);
               wrap.appendChild(range);
               wrap.appendChild(disp);
 
             } else {
-              // multiple_choice or checkboxes
-              q.options_en.forEach((opt,j) => {
-                const d = document.createElement('div');
-                d.innerHTML = `
+              q.options_en.forEach((opt,j)=>{
+                const div = document.createElement('div');
+                div.innerHTML = `
                   <label>
-                    <input
-                      type="${q.type==='multiple_choice'?'radio':'checkbox'}"
-                      name="${id}" value="${opt}"
-                    />
+                    <input type="${q.type==='multiple_choice'?'radio':'checkbox'}"
+                           name="${id}" value="${opt}" />
                     <span class="lang-en">${opt}</span>
                     <span class="lang-ar" style="display:none">${q.options_ar?.[j]||''}</span>
                   </label>`;
-                wrap.appendChild(d);
+                wrap.appendChild(div);
               });
             }
-
-          } else if (q.type === 'ranked') {
+          }
+          // ranked
+          else if (q.type==='ranked'){
             const ul = document.createElement('ul');
             ul.id = id; ul.className = 'draggable-list';
-            q.options_en.forEach(opt => {
+            q.options_en.forEach(opt=>{
               const li = document.createElement('li');
               li.draggable = true; li.textContent = opt;
               ul.appendChild(li);
@@ -384,51 +367,72 @@
         submit.textContent = 'Submit';
         form.appendChild(submit);
 
-      } catch(err) {
-        form.innerHTML = `<p style="color:red;">Failed to load: ${err.message}</p>`;
+      } catch (err) {
+        document.getElementById('survey-form').innerHTML =
+          `<p style="color:red;">Failed to load: ${err.message}</p>`;
       }
     }
 
-    // original submit logic + redirect
-    document.addEventListener('DOMContentLoaded', () => {
+    // form submit — use question_en as keys, preserve order
+    document.addEventListener('DOMContentLoaded', ()=>{
       loadQuestions();
+      document.getElementById('survey-form')
+        .addEventListener('submit', async e=>{
+          e.preventDefault();
 
-      document.getElementById('survey-form').addEventListener('submit', async function(e){
-        e.preventDefault();
-        const formData = {};
-        const inputs = document.querySelectorAll(
-          '#survey-form select, #survey-form textarea,' +
-          '#survey-form input[type="radio"]:checked,' +
-          '#survey-form input[type="checkbox"]:checked'
-        );
-        inputs.forEach(input => {
-          const key = input.name || input.id;
-          if (formData[key]) {
-            if (Array.isArray(formData[key]))
-              formData[key].push(input.value);
-            else
-              formData[key] = [formData[key], input.value];
-          } else {
-            formData[key] = input.value;
+          const params = new URLSearchParams();
+          questionsList.forEach((q,i) => {
+            const key = q.question_en;
+            const id  = `q${i+1}`;
+            let value;
+
+            if (q.type === 'paragraph'){
+              value = document.getElementById(id).value.trim();
+
+            } else if (q.type === 'short_answer'){
+              value = document.getElementById(id).value.trim();
+
+            } else if (q.type === 'dropdown'){
+              value = document.getElementById(id).value;
+
+            } else if (q.type === 'scale'){
+              value = document.getElementById(id).value;
+
+            } else if (q.type === 'multiple_choice'){
+              const sel = document.querySelector(`input[name="${id}"]:checked`);
+              value = sel ? sel.value : '';
+
+            } else if (q.type === 'checkboxes'){
+              value = Array.from(
+                document.querySelectorAll(`input[name="${id}"]:checked`)
+              ).map(cb=>cb.value).join(',');
+
+            } else if (q.type === 'ranked'){
+              value = Array.from(
+                document.querySelectorAll(`#${id} li`)
+              ).map(li=>li.textContent.trim()).join(',');
+
+            } else {
+              value = '';
+            }
+
+            params.append(key, value);
+          });
+
+          try {
+            await fetch(POST_URL, {
+              method: 'POST',
+              headers: { 'Content-Type':'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            // redirect on success
+            window.location.href = 'https://ousamma-survey.onrender.com/thankyou.html';
+
+          } catch (err) {
+            alert('Submission failed: '+err.message);
           }
         });
-
-        try {
-          await fetch(
-            "https://script.google.com/macros/s/AKfycbyLu_hzkwxnYMRR0kSwWEVMqd8E2psb0GmOl6Z9eewtLuX7yqYX8O7Cu6VFpXCi96om/exec",
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: new URLSearchParams(formData).toString()
-            }
-          );
-          window.location.href = 'https://ousamma-survey.onrender.com/thankyou.html';
-        } catch (error) {
-          alert("Submission failed: " + error.message);
-        }
-      });
     });
   </script>
-
 </body>
 </html>

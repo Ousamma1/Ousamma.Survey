@@ -1,0 +1,478 @@
+const express = require('express');
+const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.static('public'));
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadDir = path.join(__dirname, 'uploads');
+    try {
+      await fs.mkdir(uploadDir, { recursive: true });
+    } catch (error) {
+      console.error('Error creating upload directory:', error);
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|pdf|doc|docx|txt|csv|json/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images, PDFs, documents, and text files are allowed.'));
+    }
+  }
+});
+
+// AI Configuration
+const AI_CONFIG = {
+  provider: process.env.AI_PROVIDER || 'openai',
+  apiUrl: process.env.AI_API_URL || 'https://ousammai.onrender.com/api/ai',
+  apiKey: process.env.AI_API_KEY || '',
+  model: process.env.AI_MODEL || 'gpt-4'
+};
+
+// Helper function to call AI API
+async function callAI(endpoint, data) {
+  try {
+    const response = await fetch(`${AI_CONFIG.apiUrl}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': AI_CONFIG.apiKey ? `Bearer ${AI_CONFIG.apiKey}` : ''
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      throw new Error(`AI API error: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('AI API call failed:', error);
+    throw error;
+  }
+}
+
+// ============================================
+// AI ENDPOINTS
+// ============================================
+
+// Chat endpoint - streaming support
+app.post('/api/ai/chat', async (req, res) => {
+  try {
+    const { message, history, context, provider } = req.body;
+
+    const aiResponse = await callAI('/chat', {
+      message,
+      history: history || [],
+      context: context || {},
+      provider: provider || AI_CONFIG.provider,
+      model: AI_CONFIG.model,
+      stream: false
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Survey generation from natural language
+app.post('/api/ai/generate-survey', async (req, res) => {
+  try {
+    const { description, requirements, context } = req.body;
+
+    const aiResponse = await callAI('/generate-survey', {
+      description,
+      requirements: requirements || {},
+      context: context || {},
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Survey optimization
+app.post('/api/ai/optimize-survey', async (req, res) => {
+  try {
+    const { survey, optimizationGoals, context } = req.body;
+
+    const aiResponse = await callAI('/optimize-survey', {
+      survey,
+      goals: optimizationGoals || ['clarity', 'engagement', 'completion_rate'],
+      context: context || {},
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Response analysis
+app.post('/api/ai/analyze-responses', async (req, res) => {
+  try {
+    const { responses, query, analysisType } = req.body;
+
+    const aiResponse = await callAI('/analyze-responses', {
+      responses,
+      query: query || '',
+      analysisType: analysisType || 'general',
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Natural language query about data
+app.post('/api/ai/query-data', async (req, res) => {
+  try {
+    const { query, data, context } = req.body;
+
+    const aiResponse = await callAI('/query-data', {
+      query,
+      data,
+      context: context || {},
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Trend identification
+app.post('/api/ai/identify-trends', async (req, res) => {
+  try {
+    const { responses, timeframe, categories } = req.body;
+
+    const aiResponse = await callAI('/identify-trends', {
+      responses,
+      timeframe: timeframe || 'all',
+      categories: categories || [],
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Anomaly detection
+app.post('/api/ai/detect-anomalies', async (req, res) => {
+  try {
+    const { responses, threshold } = req.body;
+
+    const aiResponse = await callAI('/detect-anomalies', {
+      responses,
+      threshold: threshold || 0.05,
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Report generation
+app.post('/api/ai/generate-report', async (req, res) => {
+  try {
+    const { responses, reportType, format, sections } = req.body;
+
+    const aiResponse = await callAI('/generate-report', {
+      responses,
+      reportType: reportType || 'comprehensive',
+      format: format || 'markdown',
+      sections: sections || ['summary', 'insights', 'recommendations'],
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Text enhancement (existing feature)
+app.post('/api/ai/enhance', async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    const aiResponse = await callAI('/enhance', {
+      text,
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// A/B testing suggestions
+app.post('/api/ai/ab-test-suggestions', async (req, res) => {
+  try {
+    const { survey, metric } = req.body;
+
+    const aiResponse = await callAI('/ab-test-suggestions', {
+      survey,
+      metric: metric || 'completion_rate',
+      provider: AI_CONFIG.provider
+    });
+
+    res.json(aiResponse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// FILE UPLOAD & CONTEXT MANAGEMENT
+// ============================================
+
+// Upload context file
+app.post('/api/context/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const fileData = {
+      filename: req.file.originalname,
+      path: req.file.path,
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+      uploadedAt: new Date().toISOString()
+    };
+
+    // Store file metadata
+    const contextDir = path.join(__dirname, 'data', 'context');
+    await fs.mkdir(contextDir, { recursive: true });
+
+    const metadataPath = path.join(contextDir, 'files.json');
+    let files = [];
+    try {
+      const existing = await fs.readFile(metadataPath, 'utf8');
+      files = JSON.parse(existing);
+    } catch (error) {
+      // File doesn't exist yet
+    }
+
+    files.push(fileData);
+    await fs.writeFile(metadataPath, JSON.stringify(files, null, 2));
+
+    res.json({ success: true, file: fileData });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get context files
+app.get('/api/context/files', async (req, res) => {
+  try {
+    const metadataPath = path.join(__dirname, 'data', 'context', 'files.json');
+    try {
+      const data = await fs.readFile(metadataPath, 'utf8');
+      res.json({ files: JSON.parse(data) });
+    } catch (error) {
+      res.json({ files: [] });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete context file
+app.delete('/api/context/files/:filename', async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const metadataPath = path.join(__dirname, 'data', 'context', 'files.json');
+
+    let files = [];
+    try {
+      const data = await fs.readFile(metadataPath, 'utf8');
+      files = JSON.parse(data);
+    } catch (error) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    const fileIndex = files.findIndex(f => f.filename === filename);
+    if (fileIndex === -1) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    const file = files[fileIndex];
+
+    // Delete physical file
+    try {
+      await fs.unlink(file.path);
+    } catch (error) {
+      console.error('Error deleting physical file:', error);
+    }
+
+    // Remove from metadata
+    files.splice(fileIndex, 1);
+    await fs.writeFile(metadataPath, JSON.stringify(files, null, 2));
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// SURVEY MANAGEMENT
+// ============================================
+
+// Save survey
+app.post('/api/surveys/save', async (req, res) => {
+  try {
+    const { surveyId, survey } = req.body;
+
+    if (!surveyId || !survey) {
+      return res.status(400).json({ error: 'Survey ID and survey data are required' });
+    }
+
+    const surveysDir = path.join(__dirname, 'public', 'Surveys');
+    await fs.mkdir(surveysDir, { recursive: true });
+
+    const filePath = path.join(surveysDir, `${surveyId}.json`);
+    await fs.writeFile(filePath, JSON.stringify(survey, null, 2));
+
+    res.json({ success: true, surveyId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get survey
+app.get('/api/surveys/:surveyId', async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+    const filePath = path.join(__dirname, 'public', 'Surveys', `${surveyId}.json`);
+
+    const data = await fs.readFile(filePath, 'utf8');
+    res.json(JSON.parse(data));
+  } catch (error) {
+    res.status(404).json({ error: 'Survey not found' });
+  }
+});
+
+// List surveys
+app.get('/api/surveys', async (req, res) => {
+  try {
+    const surveysDir = path.join(__dirname, 'public', 'Surveys');
+    await fs.mkdir(surveysDir, { recursive: true });
+
+    const files = await fs.readdir(surveysDir);
+    const surveys = files
+      .filter(f => f.endsWith('.json'))
+      .map(f => ({ id: f.replace('.json', ''), filename: f }));
+
+    res.json({ surveys });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Save survey responses
+app.post('/api/responses/save', async (req, res) => {
+  try {
+    const { surveyId, responses } = req.body;
+
+    const responsesDir = path.join(__dirname, 'data', 'responses');
+    await fs.mkdir(responsesDir, { recursive: true });
+
+    const timestamp = Date.now();
+    const responseData = {
+      surveyId,
+      responses,
+      timestamp,
+      submittedAt: new Date().toISOString()
+    };
+
+    const filePath = path.join(responsesDir, `${surveyId}-${timestamp}.json`);
+    await fs.writeFile(filePath, JSON.stringify(responseData, null, 2));
+
+    res.json({ success: true, responseId: `${surveyId}-${timestamp}` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get survey responses
+app.get('/api/responses/:surveyId', async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+    const responsesDir = path.join(__dirname, 'data', 'responses');
+
+    const files = await fs.readdir(responsesDir);
+    const surveyResponses = [];
+
+    for (const file of files) {
+      if (file.startsWith(surveyId) && file.endsWith('.json')) {
+        const data = await fs.readFile(path.join(responsesDir, file), 'utf8');
+        surveyResponses.push(JSON.parse(data));
+      }
+    }
+
+    res.json({ responses: surveyResponses });
+  } catch (error) {
+    res.status(500).json({ error: error.message, responses: [] });
+  }
+});
+
+// ============================================
+// HEALTH CHECK
+// ============================================
+
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    aiProvider: AI_CONFIG.provider
+  });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Ousamma Survey Server running on port ${PORT}`);
+  console.log(`📊 AI Provider: ${AI_CONFIG.provider}`);
+  console.log(`🔗 API URL: http://localhost:${PORT}`);
+});
+
+module.exports = app;

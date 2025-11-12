@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Members - Survey System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .members-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .members-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .members-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .members-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .role-owner { background: #ffd700; color: #333; }
+        .role-admin { background: #dc3545; color: white; }
+        .role-editor { background: #28a745; color: white; }
+        .role-viewer { background: #6c757d; color: white; }
+
+        .member-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .date-text {
+            color: #999;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <h1>👥 Project Members</h1>
+                    <div class="project-info" id="projectInfo">Loading...</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="goBack()">← Back</button>
+                    <button class="btn btn-primary" id="addMemberBtn" onclick="openAddMemberModal()">+ Add Member</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="members-section">
+            <div class="section-header">
+                <h2>Team Members</h2>
+                <div id="memberCount">0 members</div>
+            </div>
+
+            <div id="membersContainer">
+                <div class="loading">Loading members...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div class="modal" id="addMemberModal">
+        <div class="modal-content">
+            <h2>Add Team Member</h2>
+            <form id="addMemberForm">
+                <div class="form-group">
+                    <label for="userId">User ID *</label>
+                    <input type="text" id="userId" required placeholder="Enter user ID">
+                </div>
+                <div class="form-group">
+                    <label for="role">Role *</label>
+                    <select id="role" required>
+                        <option value="viewer">Viewer - View only access</option>
+                        <option value="editor">Editor - Can edit surveys and groups</option>
+                        <option value="admin">Admin - Can manage members and settings</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Role Modal -->
+    <div class="modal" id="changeRoleModal">
+        <div class="modal-content">
+            <h2>Change Member Role</h2>
+            <form id="changeRoleForm">
+                <div class="form-group">
+                    <label for="newRole">New Role *</label>
+                    <select id="newRole" required>
+                        <option value="viewer">Viewer - View only access</option>
+                        <option value="editor">Editor - Can edit surveys and groups</option>
+                        <option value="admin">Admin - Can manage members and settings</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3006/api/projects';
+        const USER_ID = 'user-123';
+        let projectId = null;
+        let project = null;
+        let members = [];
+        let currentMember = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            projectId = urlParams.get('id');
+
+            if (!projectId) {
+                alert('No project ID provided');
+                window.location.href = 'project-management.html';
+                return;
+            }
+
+            loadProject();
+            loadMembers();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('addMemberForm').addEventListener('submit', handleAddMember);
+            document.getElementById('changeRoleForm').addEventListener('submit', handleChangeRole);
+        }
+
+        async function loadProject() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}`, {
+                    headers: { 'x-user-id': USER_ID }
+                });
+
+                if (!response.ok) throw new Error('Failed to load project');
+
+                const result = await response.json();
+                project = result.data;
+
+                document.getElementById('projectInfo').textContent = project.name;
+
+                // Check if user can add members
+                const userRole = project.ownerId === USER_ID ? 'owner' :
+                                project.members.find(m => m.userId === USER_ID)?.role;
+
+                if (userRole !== 'owner' && userRole !== 'admin') {
+                    document.getElementById('addMemberBtn').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading project:', error);
+                alert('Error loading project');
+            }
+        }
+
+        async function loadMembers() {
+            const container = document.getElementById('membersContainer');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/members`, {
+                    headers: { 'x-user-id': USER_ID }
+                });
+
+                if (!response.ok) throw new Error('Failed to load members');
+
+                const result = await response.json();
+                members = result.data;
+
+                document.getElementById('memberCount').textContent = `${members.length} member${members.length !== 1 ? 's' : ''}`;
+
+                displayMembers(members);
+            } catch (error) {
+                console.error('Error loading members:', error);
+                container.innerHTML = '<div class="empty-state"><h3>Error loading members</h3></div>';
+            }
+        }
+
+        function displayMembers(memberList) {
+            const container = document.getElementById('membersContainer');
+
+            if (memberList.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No members yet</h3></div>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.className = 'members-table';
+
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Role</th>
+                        <th>Added</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${memberList.map(member => createMemberRow(member)).join('')}
+                </tbody>
+            `;
+
+            container.innerHTML = '';
+            container.appendChild(table);
+        }
+
+        function createMemberRow(member) {
+            const canEdit = project.ownerId === USER_ID ||
+                           (project.members.find(m => m.userId === USER_ID)?.role === 'admin' && member.role !== 'owner');
+
+            const date = member.addedAt ? new Date(member.addedAt).toLocaleDateString() : '-';
+
+            return `
+                <tr>
+                    <td>${member.userId}</td>
+                    <td><span class="role-badge role-${member.role}">${member.role}</span></td>
+                    <td class="date-text">${date}</td>
+                    <td>
+                        <div class="member-actions">
+                            ${canEdit && member.role !== 'owner' ? `
+                                <button class="btn btn-secondary btn-small" onclick="openChangeRoleModal('${member.userId}', '${member.role}')">Change Role</button>
+                                <button class="btn btn-danger btn-small" onclick="removeMember('${member.userId}')">Remove</button>
+                            ` : '-'}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function openAddMemberModal() {
+            document.getElementById('addMemberForm').reset();
+            document.getElementById('addMemberModal').classList.add('active');
+        }
+
+        function openChangeRoleModal(userId, currentRole) {
+            currentMember = userId;
+            document.getElementById('newRole').value = currentRole;
+            document.getElementById('changeRoleModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addMemberModal').classList.remove('active');
+            document.getElementById('changeRoleModal').classList.remove('active');
+            currentMember = null;
+        }
+
+        async function handleAddMember(e) {
+            e.preventDefault();
+
+            const userId = document.getElementById('userId').value;
+            const role = document.getElementById('role').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/members`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': USER_ID
+                    },
+                    body: JSON.stringify({ userId, role })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert('Member added successfully');
+                closeModal();
+                loadMembers();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function handleChangeRole(e) {
+            e.preventDefault();
+
+            const newRole = document.getElementById('newRole').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/members/${currentMember}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': USER_ID
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert('Role updated successfully');
+                closeModal();
+                loadMembers();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function removeMember(userId) {
+            if (!confirm('Are you sure you want to remove this member?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/members/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-user-id': USER_ID }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert('Member removed successfully');
+                loadMembers();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'project-management.html';
+        }
+    </script>
+</body>
+</html>

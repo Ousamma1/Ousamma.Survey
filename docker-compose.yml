@@ -481,6 +481,48 @@ services:
       start_period: 10s
       retries: 3
 
+  # Project Service for Project & Survey Group Management
+  project-service:
+    build:
+      context: ./services/project-service
+      dockerfile: Dockerfile
+    container_name: project-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - MONGODB_URI=mongodb://mongodb:27017/projects
+      - MONGODB_DB_NAME=projects
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_TTL=300
+      - KAFKA_BROKERS=kafka:9092
+      - KAFKA_CLIENT_ID=project-service
+      - KAFKA_GROUP_ID=project-service-group
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3006
+      - CACHE_ENABLED=true
+      - CACHE_TTL=300
+    ports:
+      - "3006:3006"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - survey-network
+    volumes:
+      - ./services/project-service:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3006/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+
 networks:
   survey-network:
     driver: bridge

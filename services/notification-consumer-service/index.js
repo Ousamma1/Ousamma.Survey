@@ -6,6 +6,7 @@
 const express = require('express');
 const { KafkaConsumer } = require('../shared/kafka');
 const config = require('./config/config');
+const database = require('./config/database');
 const notificationService = require('./services/notificationService');
 
 const app = express();
@@ -37,6 +38,12 @@ let consumer;
 
 async function startConsumer() {
   try {
+    // Connect to MongoDB
+    await database.connect();
+
+    // Initialize notification services
+    await notificationService.initialize();
+
     consumer = new KafkaConsumer({
       groupId: 'notification-consumer-group',
       clientId: 'notification-consumer'
@@ -105,6 +112,7 @@ async function shutdown() {
   if (consumer) {
     await consumer.disconnect();
   }
+  await database.disconnect();
   process.exit(0);
 }
 

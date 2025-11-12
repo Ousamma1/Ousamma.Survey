@@ -5,6 +5,19 @@
 module.exports = {
   port: process.env.PORT || 3004,
 
+  // MongoDB configuration
+  mongodb: {
+    uri: process.env.MONGODB_URI || 'mongodb://mongodb:27017/notifications',
+    dbName: process.env.MONGODB_DB_NAME || 'notifications'
+  },
+
+  // Kafka configuration
+  kafka: {
+    brokers: (process.env.KAFKA_BROKERS || 'kafka:9092').split(','),
+    clientId: process.env.KAFKA_CLIENT_ID || 'notification-consumer',
+    groupId: process.env.KAFKA_GROUP_ID || 'notification-consumer-group'
+  },
+
   // Email configuration
   email: {
     provider: process.env.EMAIL_PROVIDER || 'console', // 'smtp', 'sendgrid', 'console'
@@ -32,10 +45,24 @@ module.exports = {
 
   // Push notification configuration
   push: {
-    provider: process.env.PUSH_PROVIDER || 'console', // 'fcm', 'apns', 'console'
+    provider: process.env.PUSH_PROVIDER || 'console', // 'web-push', 'fcm', 'console'
+    webPush: {
+      vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
+      vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
+      vapidSubject: process.env.VAPID_SUBJECT || 'mailto:admin@survey-platform.com'
+    },
     fcm: {
       serverKey: process.env.FCM_SERVER_KEY
     }
+  },
+
+  // WebSocket service URL for real-time notifications
+  websocketUrl: process.env.WEBSOCKET_URL || 'http://websocket-service:3002',
+
+  // Retry configuration
+  retry: {
+    maxAttempts: parseInt(process.env.MAX_RETRY_ATTEMPTS || '3'),
+    delayMs: parseInt(process.env.RETRY_DELAY_MS || '5000')
   },
 
   // Notification templates

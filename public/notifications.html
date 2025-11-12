@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Survey Platform</title>
+    <link rel="stylesheet" href="/notifications.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Notifications</h1>
+            <div class="header-actions">
+                <button id="markAllReadBtn" class="btn btn-secondary">
+                    Mark All as Read
+                </button>
+                <button id="settingsBtn" class="btn btn-secondary">
+                    <span class="icon">⚙</span> Settings
+                </button>
+            </div>
+        </header>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="unread">Unread</button>
+            <button class="filter-btn" data-filter="email">Email</button>
+            <button class="filter-btn" data-filter="sms">SMS</button>
+            <button class="filter-btn" data-filter="push">Push</button>
+            <button class="filter-btn" data-filter="in-app">In-App</button>
+        </div>
+
+        <div id="notificationsList" class="notifications-list">
+            <!-- Notifications will be loaded here -->
+        </div>
+
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading notifications...</p>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-icon">🔔</div>
+            <h2>No notifications</h2>
+            <p>You're all caught up!</p>
+        </div>
+    </div>
+
+    <!-- Notification Bell Widget (for embedding in other pages) -->
+    <div id="notificationBell" class="notification-bell" style="display: none;">
+        <button class="bell-button" id="bellBtn">
+            <span class="bell-icon">🔔</span>
+            <span class="badge" id="bellBadge">0</span>
+        </button>
+
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="dropdown-header">
+                <h3>Notifications</h3>
+                <button class="close-btn" id="closeDropdownBtn">×</button>
+            </div>
+
+            <div class="dropdown-list" id="dropdownList">
+                <!-- Recent notifications -->
+            </div>
+
+            <div class="dropdown-footer">
+                <a href="/notifications.html" class="view-all-link">View All Notifications</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Settings Modal -->
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Notification Settings</h2>
+                <button class="close-btn" id="closeModalBtn">×</button>
+            </div>
+
+            <div class="modal-body">
+                <section class="settings-section">
+                    <h3>Notification Channels</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="emailEnabled" checked>
+                            Email Notifications
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="smsEnabled">
+                            SMS Notifications
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="pushEnabled" checked>
+                            Push Notifications
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="inAppEnabled" checked>
+                            In-App Notifications
+                        </label>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>Notification Categories</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="surveyNotif" checked>
+                            Survey Updates
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="responseNotif" checked>
+                            Response Notifications
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="systemNotif" checked>
+                            System Alerts
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="accountNotif" checked>
+                            Account Notifications
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="marketingNotif">
+                            Marketing Messages
+                        </label>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>Quiet Hours</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="quietHoursEnabled">
+                            Enable Quiet Hours
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>Start Time</label>
+                        <input type="time" id="quietStart" value="22:00">
+                    </div>
+                    <div class="setting-item">
+                        <label>End Time</label>
+                        <input type="time" id="quietEnd" value="08:00">
+                    </div>
+                </section>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/notifications.js"></script>
+    <script src="/websocket-client.js"></script>
+</body>
+</html>

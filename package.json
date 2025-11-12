@@ -1,0 +1,27 @@
+{
+  "name": "ousamma-survey-microservices",
+  "version": "2.0.0",
+  "description": "Microservices-based Survey Management Platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:build": "docker-compose up --build",
+    "dev:down": "docker-compose down",
+    "dev:clean": "docker-compose down -v",
+    "install:all": "npm run install:survey && npm run install:response && npm run install:template && npm run install:file && npm run install:gateway",
+    "install:survey": "cd services/survey-service && npm install",
+    "install:response": "cd services/response-service && npm install",
+    "install:template": "cd services/template-service && npm install",
+    "install:file": "cd services/file-service && npm install",
+    "install:gateway": "cd api-gateway && npm install"
+  },
+  "keywords": [
+    "survey",
+    "microservices",
+    "mongodb",
+    "kafka",
+    "express"
+  ],
+  "author": "Ousamma",
+  "license": "ISC"
+}

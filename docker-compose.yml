@@ -1,0 +1,246 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: survey-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - survey-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Zookeeper (required for Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: survey-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - survey-network
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: survey-kafka
+    restart: unless-stopped
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    networks:
+      - survey-network
+    healthcheck:
+      test: kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # Survey Service
+  survey-service:
+    build:
+      context: ./services/survey-service
+      dockerfile: Dockerfile
+    container_name: survey-service
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      NODE_ENV: development
+      MONGO_URI: mongodb://admin:password@mongodb:27017/survey_db?authSource=admin
+      LOG_LEVEL: info
+    volumes:
+      - ./services/survey-service/src:/app/src
+      - ./shared:/app/shared
+      - ./logs:/app/logs
+    networks:
+      - survey-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Response Service
+  response-service:
+    build:
+      context: ./services/response-service
+      dockerfile: Dockerfile
+    container_name: response-service
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      survey-service:
+        condition: service_healthy
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      NODE_ENV: development
+      MONGO_URI: mongodb://admin:password@mongodb:27017/response_db?authSource=admin
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_CLIENT_ID: response-service
+      KAFKA_GROUP_ID: response-service-group
+      SURVEY_SERVICE_URL: http://survey-service:3001
+      LOG_LEVEL: info
+    volumes:
+      - ./services/response-service/src:/app/src
+      - ./shared:/app/shared
+      - ./logs:/app/logs
+    networks:
+      - survey-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3002/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Template Service
+  template-service:
+    build:
+      context: ./services/template-service
+      dockerfile: Dockerfile
+    container_name: template-service
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: 3003
+      NODE_ENV: development
+      MONGO_URI: mongodb://admin:password@mongodb:27017/template_db?authSource=admin
+      LOG_LEVEL: info
+    volumes:
+      - ./services/template-service/src:/app/src
+      - ./shared:/app/shared
+      - ./logs:/app/logs
+    networks:
+      - survey-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3003/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # File Service
+  file-service:
+    build:
+      context: ./services/file-service
+      dockerfile: Dockerfile
+    container_name: file-service
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "3004:3004"
+    environment:
+      PORT: 3004
+      NODE_ENV: development
+      MONGO_URI: mongodb://admin:password@mongodb:27017/file_db?authSource=admin
+      UPLOAD_DIR: /app/uploads
+      MAX_FILE_SIZE: 10485760
+      ALLOWED_FILE_TYPES: image/jpeg,image/png,image/gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      LOG_LEVEL: info
+    volumes:
+      - ./services/file-service/src:/app/src
+      - ./shared:/app/shared
+      - ./logs:/app/logs
+      - file_uploads:/app/uploads
+    networks:
+      - survey-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3004/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    depends_on:
+      survey-service:
+        condition: service_healthy
+      response-service:
+        condition: service_healthy
+      template-service:
+        condition: service_healthy
+      file-service:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      SURVEY_SERVICE_URL: http://survey-service:3001
+      RESPONSE_SERVICE_URL: http://response-service:3002
+      TEMPLATE_SERVICE_URL: http://template-service:3003
+      FILE_SERVICE_URL: http://file-service:3004
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX: 100
+      CORS_ORIGIN: "*"
+      LOG_LEVEL: info
+    volumes:
+      - ./api-gateway/src:/app/src
+      - ./shared:/app/shared
+      - ./logs:/app/logs
+    networks:
+      - survey-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongodb_data:
+    driver: local
+  file_uploads:
+    driver: local
+
+networks:
+  survey-network:
+    driver: bridge

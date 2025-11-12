@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Surveyor Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 16px;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-expired {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: opacity 0.2s ease;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Surveyor Management</h1>
+    </div>
+
+    <div class="container">
+        <div class="toolbar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search surveyors by name, email, or phone...">
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn btn-secondary" onclick="showBulkImportModal()">Bulk Import</button>
+                <button class="btn btn-primary" onclick="showCreateModal()">+ Add Surveyor</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Region</th>
+                        <th>Status</th>
+                        <th>Expiration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="surveyorsTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add New Surveyor</div>
+            <form id="createForm">
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="region">Region</label>
+                    <input type="text" id="region">
+                </div>
+                <div class="form-group">
+                    <label for="expirationDays">Expiration Days</label>
+                    <input type="number" id="expirationDays" value="30" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Surveyor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Import Modal -->
+    <div id="bulkImportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Bulk Import Surveyors</div>
+            <p style="margin-bottom: 20px; color: #666;">Paste JSON array of surveyors or upload a file</p>
+            <div class="form-group">
+                <label>JSON Data</label>
+                <textarea id="bulkImportData" rows="10" placeholder='[{"name": "John Doe", "email": "john@example.com", "phone": "+1234567890"}]'></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeBulkImportModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitBulkImport()">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Modal -->
+    <div id="assignmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Assign Survey</div>
+            <form id="assignmentForm">
+                <input type="hidden" id="assignSurveyorId">
+                <div class="form-group">
+                    <label for="surveyId">Survey ID *</label>
+                    <input type="text" id="surveyId" required>
+                </div>
+                <div class="form-group">
+                    <label for="territoryId">Territory ID</label>
+                    <input type="text" id="territoryId">
+                </div>
+                <div class="form-group">
+                    <label for="targetResponses">Target Responses *</label>
+                    <input type="number" id="targetResponses" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date *</label>
+                    <input type="date" id="endDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAssignmentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign Survey</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+        let currentPage = 1;
+        const limit = 10;
+
+        // Load surveyors
+        async function loadSurveyors(page = 1, search = '') {
+            try {
+                let url = `${API_BASE_URL}/surveyors?page=${page}&limit=${limit}`;
+                if (search) {
+                    url += `&search=${encodeURIComponent(search)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    displaySurveyors(data.surveyors);
+                    updatePagination(data.pagination);
+                }
+            } catch (error) {
+                console.error('Error loading surveyors:', error);
+            }
+        }
+
+        function displaySurveyors(surveyors) {
+            const tbody = document.getElementById('surveyorsTableBody');
+
+            if (surveyors.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <h3>No surveyors found</h3>
+                            <p>Add your first surveyor to get started</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = surveyors.map(surveyor => {
+                const expirationDate = new Date(surveyor.expirationDate).toLocaleDateString();
+                return `
+                    <tr>
+                        <td><strong>${surveyor.name}</strong></td>
+                        <td>${surveyor.email}</td>
+                        <td>${surveyor.phone}</td>
+                        <td>${surveyor.region || 'N/A'}</td>
+                        <td><span class="status-badge status-${surveyor.status}">${surveyor.status.toUpperCase()}</span></td>
+                        <td>${expirationDate}</td>
+                        <td>
+                            <button class="action-btn" style="background: #667eea; color: white;" onclick="showAssignmentModal('${surveyor.id}')">Assign</button>
+                            <button class="action-btn" style="background: #28a745; color: white;" onclick="viewPerformance('${surveyor.id}')">Performance</button>
+                            <button class="action-btn" style="background: #ffc107; color: black;" onclick="extendExpiration('${surveyor.id}')">Extend</button>
+                            <button class="action-btn" style="background: #dc3545; color: white;" onclick="deactivateSurveyor('${surveyor.id}')">Deactivate</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePagination(pagination) {
+            const container = document.getElementById('pagination');
+            container.innerHTML = `
+                <button ${pagination.page === 1 ? 'disabled' : ''} onclick="loadSurveyors(${pagination.page - 1})">Previous</button>
+                <span>Page ${pagination.page} of ${pagination.pages}</span>
+                <button ${pagination.page === pagination.pages ? 'disabled' : ''} onclick="loadSurveyors(${pagination.page + 1})">Next</button>
+            `;
+        }
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            loadSurveyors(1, e.target.value);
+        });
+
+        // Create surveyor
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+            document.getElementById('createForm').reset();
+        }
+
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                region: document.getElementById('region').value,
+                expirationDays: parseInt(document.getElementById('expirationDays').value),
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/surveyors`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Surveyor created successfully!\nTemporary Password: ${data.surveyor.plainPassword}\n\nPlease save this password, it won't be shown again.`);
+                    closeCreateModal();
+                    loadSurveyors(currentPage);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error creating surveyor: ' + error.message);
+            }
+        });
+
+        // Bulk import
+        function showBulkImportModal() {
+            document.getElementById('bulkImportModal').classList.add('active');
+        }
+
+        function closeBulkImportModal() {
+            document.getElementById('bulkImportModal').classList.remove('active');
+            document.getElementById('bulkImportData').value = '';
+        }
+
+        async function submitBulkImport() {
+            const data = document.getElementById('bulkImportData').value;
+
+            try {
+                const surveyors = JSON.parse(data);
+
+                const response = await fetch(`${API_BASE_URL}/surveyors/bulk`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ surveyors })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    let message = result.message + '\n\n';
+                    message += 'Passwords:\n';
+                    for (const [email, password] of Object.entries(result.results.passwords)) {
+                        message += `${email}: ${password}\n`;
+                    }
+
+                    if (result.results.failed.length > 0) {
+                        message += '\nFailed:\n';
+                        result.results.failed.forEach(f => {
+                            message += `${f.email}: ${f.error}\n`;
+                        });
+                    }
+
+                    alert(message);
+                    closeBulkImportModal();
+                    loadSurveyors(currentPage);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Assignment
+        function showAssignmentModal(surveyorId) {
+            document.getElementById('assignSurveyorId').value = surveyorId;
+            document.getElementById('assignmentModal').classList.add('active');
+        }
+
+        function closeAssignmentModal() {
+            document.getElementById('assignmentModal').classList.remove('active');
+            document.getElementById('assignmentForm').reset();
+        }
+
+        document.getElementById('assignmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                surveyorId: document.getElementById('assignSurveyorId').value,
+                surveyId: document.getElementById('surveyId').value,
+                territoryId: document.getElementById('territoryId').value,
+                targetResponses: parseInt(document.getElementById('targetResponses').value),
+                endDate: document.getElementById('endDate').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/assignments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Survey assigned successfully!');
+                    closeAssignmentModal();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error assigning survey: ' + error.message);
+            }
+        });
+
+        // Other actions
+        function viewPerformance(surveyorId) {
+            window.location.href = `/admin-performance.html?surveyorId=${surveyorId}`;
+        }
+
+        async function extendExpiration(surveyorId) {
+            const days = prompt('Enter number of days to extend:');
+            if (!days) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/surveyors/${surveyorId}/extend`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ days: parseInt(days) })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Expiration extended successfully!');
+                    loadSurveyors(currentPage);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deactivateSurveyor(surveyorId) {
+            if (!confirm('Are you sure you want to deactivate this surveyor?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/surveyors/${surveyorId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Surveyor deactivated successfully!');
+                    loadSurveyors(currentPage);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Load surveyors on page load
+        loadSurveyors();
+    </script>
+</body>
+</html>

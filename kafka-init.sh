@@ -32,10 +32,17 @@ topics=(
   "audit.log"
   "audit.auth"
   "audit.data"
+  "admin.action"
+  "admin.health_check"
+  "admin.settings_updated"
+  "admin.user_action"
+  "admin.backup"
+  "admin.restore"
   "dlq.survey"
   "dlq.response"
   "dlq.notification"
   "dlq.audit"
+  "dlq.admin"
 )
 
 echo "Creating Kafka topics..."

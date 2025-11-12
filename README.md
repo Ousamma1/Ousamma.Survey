@@ -1,161 +1,6 @@
 # AI-Powered Survey Platform
 
-A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, analysis, and geolocation services.
 
-## 🚀 Sprint 6: Geolocation Service & Map Integration - COMPLETED
-
-This implementation includes all deliverables for Sprint 6:
-
-### ✅ Deliverables
-
-1. **Geolocation Microservice**
-   - Location CRUD operations with MongoDB
-   - Geocoding and reverse geocoding (OpenStreetMap)
-   - Distance calculations and proximity searches
-   - Geofencing and territory management
-   - Location history tracking
-   - RESTful API with comprehensive endpoints
-
-2. **Location Data Models**
-   - Location schema with geospatial indexing
-   - Territory schema with polygon support
-   - Metadata support for addresses and regions
-   - Automatic coordinate validation
-
-3. **Geolocation API Endpoints**
-   - `POST /geo/location` - Save location
-   - `GET /geo/location/:id` - Get location
-   - `POST /geo/geocode` - Address to coordinates
-   - `POST /geo/reverse-geocode` - Coordinates to address
-   - `POST /geo/distance` - Calculate distances
-   - `POST /geo/nearby` - Find nearby locations
-   - Territory management (CRUD operations)
-   - Geofence checking
-
-4. **Frontend Map Components**
-   - Leaflet.js integration with OpenStreetMap
-   - MapService - Comprehensive client library
-   - Marker components with custom icons
-   - Marker clustering for performance
-   - Territory drawing and visualization
-   - Heat map support
-
-5. **Survey Location Features**
-   - Location capture for surveys
-   - Territory-based assignment
-   - Coverage area visualization
-   - Location filtering and search
-
-6. **Response Location Capture**
-   - Automatic location capture on submission
-   - Location accuracy indicators
-   - Permission handling
-   - Offline queue with auto-sync
-   - LocationCapture widget component
-
-7. **Map Dashboard**
-   - Interactive map with filters
-   - Real-time location visualization
-   - Territory management UI
-   - Statistics and analytics
-   - Clustering toggle
-   - Legend and controls
-
-8. **Docker Configuration**
-   - MongoDB container setup
-   - Geolocation service container
-   - Docker Compose orchestration
-   - Health checks and monitoring
-
-### 📂 New Structure
-
-```
-services/geolocation-service/
-├── index.js                          # Main server
-├── package.json                      # Dependencies
-├── Dockerfile                        # Container config
-├── .env.example                     # Environment template
-├── routes/
-│   └── geolocation.js               # API routes
-├── controllers/
-│   └── geolocationController.js     # Business logic
-├── models/
-│   ├── Location.js                  # Location schema
-│   └── Territory.js                 # Territory schema
-├── services/
-│   ├── geocodingService.js          # Geocoding logic
-│   └── locationService.js           # Location utilities
-└── config/
-    └── database.js                  # MongoDB connection
-
-public/
-├── map-service.js                   # Map client library
-├── map-dashboard.html               # Interactive dashboard
-└── location-capture.js              # Location capture widget
-
-docker-compose.yml                   # Multi-service orchestration
-Dockerfile                           # Main app container
-```
-
-### 🗺️ Using Geolocation Features
-
-**Start the Geolocation Service:**
-```bash
-# Standalone
-cd services/geolocation-service
-npm install
-npm start
-
-# Or with Docker
-docker-compose up geolocation-service mongodb
-```
-
-**Access the Map Dashboard:**
-```
-http://localhost:3000/map-dashboard.html
-```
-
-**Using the Map Service in Your Code:**
-```javascript
-// Initialize map service
-const mapService = new MapService({
-  apiUrl: 'http://localhost:3001/api/geo'
-});
-
-// Initialize map
-mapService.initMap('map-container');
-
-// Add marker
-mapService.addMarker('map-container', {
-  coordinates: [55.2708, 25.2048],
-  type: 'survey',
-  popup: '<strong>Survey Location</strong>'
-});
-
-// Geocode address
-const result = await mapService.geocode('Burj Khalifa, Dubai');
-console.log(result.coordinates);
-```
-
-**Capture Location in Forms:**
-```javascript
-// Initialize location capture
-const locationCapture = new LocationCapture();
-
-// Create widget
-locationCapture.createCaptureWidget({
-  containerId: 'location-widget',
-  showMap: true,
-  showAddress: true,
-  onCapture: (location) => {
-    console.log('Location captured:', location);
-  }
-});
-
-// Or capture programmatically
-const location = await locationCapture.getCurrentLocation();
-await locationCapture.captureResponseLocation(surveyId, responseId);
-```
 
 ## 🚀 Sprint 5: AI Frontend Integration - COMPLETED
 
@@ -202,16 +47,43 @@ This implementation includes all deliverables for Sprint 5:
 
 ```
 Ousamma.Survey/
-├── index.js                    # Express server with AI endpoints
-├── package.json                # Dependencies and scripts
+├── index.js                    # Main Express server (port 3000)
+├── package.json                # Main dependencies and scripts
 ├── .env.example               # Environment configuration template
 ├── .gitignore                 # Git ignore rules
 ├── README.md                  # This file
+├── surveyor-service/          # Surveyor Management Microservice
+│   ├── index.js               # Surveyor service server (port 3001)
+│   ├── package.json           # Surveyor service dependencies
+│   ├── .env                   # Surveyor service configuration
+│   ├── .env.example          # Configuration template
+│   ├── API_DOCUMENTATION.md  # Complete API documentation
+│   ├── models/               # MongoDB models
+│   │   ├── Surveyor.js       # Surveyor model
+│   │   ├── Assignment.js     # Assignment model
+│   │   └── Activity.js       # Activity tracking model
+│   ├── controllers/          # Business logic
+│   │   ├── surveyorController.js
+│   │   ├── assignmentController.js
+│   │   └── activityController.js
+│   ├── routes/               # API routes
+│   │   ├── surveyors.js
+│   │   ├── assignments.js
+│   │   └── activities.js
+│   ├── middleware/           # Middleware
+│   │   ├── auth.js           # Authentication
+│   │   └── validation.js     # Request validation
+│   └── database/             # Database configuration
+│       └── connection.js     # MongoDB connection
 └── public/
     ├── index.html             # Landing page
     ├── survey-builder.html    # AI Survey Builder interface
     ├── dubaisurvey.html       # Survey form with AI enhancement
     ├── thankyou.html          # Thank you page
+    ├── surveyor-login.html    # Surveyor portal login
+    ├── surveyor-dashboard.html # Surveyor dashboard
+    ├── admin-surveyors.html   # Admin surveyor management
+    ├── admin-performance.html # Admin performance dashboard
     ├── ai-service.js          # AI service client
     ├── ai-chat-widget.js      # AI chat component
     ├── survey-builder.js      # Survey builder logic
@@ -320,6 +192,8 @@ questions about user experience, features, and overall satisfaction
 
 ## 📦 Installation
 
+### Main Application
+
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
@@ -337,15 +211,57 @@ questions about user experience, features, and overall satisfaction
    # Edit .env with your configuration
    ```
 
-4. **Start the server**
+4. **Start the main server**
    ```bash
    npm start
    ```
 
-5. **Access the application**
-   - Landing page: http://localhost:3000
-   - Survey Builder: http://localhost:3000/survey-builder.html
-   - Survey Form: http://localhost:3000/dubaisurvey.html
+### Surveyor Management Service
+
+1. **Install MongoDB**
+   ```bash
+   # On macOS
+   brew install mongodb-community
+   brew services start mongodb-community
+
+   # On Ubuntu
+   sudo apt-get install mongodb
+   sudo systemctl start mongodb
+
+   # Or use MongoDB Atlas (cloud)
+   # Update MONGODB_URI in surveyor-service/.env
+   ```
+
+2. **Install surveyor service dependencies**
+   ```bash
+   cd surveyor-service
+   npm install
+   ```
+
+3. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your MongoDB URI and other settings
+   ```
+
+4. **Start the surveyor service**
+   ```bash
+   # From surveyor-service directory
+   npm start
+
+   # Or for development with auto-reload
+   npm run dev
+   ```
+
+### Access the Application
+
+- **Main Application**: http://localhost:3000
+- **Survey Builder**: http://localhost:3000/survey-builder.html
+- **Survey Form**: http://localhost:3000/dubaisurvey.html
+- **Surveyor Login**: http://localhost:3000/surveyor-login.html
+- **Admin Surveyor Management**: http://localhost:3000/admin-surveyors.html
+- **Surveyor Service API**: http://localhost:3001/api
+- **Surveyor Service Health**: http://localhost:3001/health
 
 ## 🔧 Configuration
 
@@ -427,25 +343,7 @@ GOOGLE_API_KEY=...
 | `/api/context/files` | GET | List context files |
 | `/api/context/files/:filename` | DELETE | Delete context file |
 
-### Geolocation Operations (Port 3001)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/geo/location` | POST | Save location |
-| `/api/geo/location/:id` | GET | Get location by ID |
-| `/api/geo/locations` | GET | Get locations (query: entityId, type) |
-| `/api/geo/locations/stats` | GET | Get location statistics |
-| `/api/geo/geocode` | POST | Convert address to coordinates |
-| `/api/geo/reverse-geocode` | POST | Convert coordinates to address |
-| `/api/geo/distance` | POST | Calculate distance between points |
-| `/api/geo/nearby` | POST | Find nearby locations |
-| `/api/geo/territory` | POST | Create territory |
-| `/api/geo/territory/:id` | GET | Get territory |
-| `/api/geo/territories` | GET | Get all territories |
-| `/api/geo/territory/:id` | PUT | Update territory |
-| `/api/geo/territory/:id` | DELETE | Delete territory |
-| `/api/geo/territory/:id/locations` | GET | Get locations in territory |
-| `/api/geo/geofence/check` | POST | Check if point is in territory |
 
 ## 💡 Usage Examples
 

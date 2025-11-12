@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surveyor Performance Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header .breadcrumb {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header .breadcrumb a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .surveyor-info {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .surveyor-info h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-card .subvalue {
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .assignments-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .assignment-item {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .activity-timeline {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 12px 16px;
+            border-left: 3px solid #667eea;
+            margin-bottom: 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .activity-desc {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Performance Dashboard</h1>
+        <div class="breadcrumb">
+            <a href="/admin-surveyors.html">Surveyors</a> / Performance
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="/admin-surveyors.html" class="back-btn">← Back to Surveyors</a>
+
+        <div style="margin-top: 30px;" id="content">
+            <div class="loading">Loading performance data...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const surveyorId = urlParams.get('surveyorId');
+
+        if (!surveyorId) {
+            window.location.href = '/admin-surveyors.html';
+        }
+
+        async function loadPerformanceData() {
+            try {
+                // Load surveyor details
+                const surveyorResponse = await fetch(`${API_BASE_URL}/surveyors/${surveyorId}`);
+                const surveyorData = await surveyorResponse.json();
+
+                // Load performance metrics
+                const performanceResponse = await fetch(`${API_BASE_URL}/surveyors/${surveyorId}/performance`);
+                const performanceData = await performanceResponse.json();
+
+                // Load recent activities
+                const activitiesResponse = await fetch(`${API_BASE_URL}/activities/surveyor/${surveyorId}?limit=20`);
+                const activitiesData = await activitiesResponse.json();
+
+                displayPerformanceData(surveyorData.surveyor, performanceData.performance, activitiesData.activities);
+
+            } catch (error) {
+                console.error('Error loading performance data:', error);
+                document.getElementById('content').innerHTML = `
+                    <div class="section">
+                        <h3>Error loading performance data</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayPerformanceData(surveyor, performance, activities) {
+            const contentDiv = document.getElementById('content');
+
+            contentDiv.innerHTML = `
+                <!-- Surveyor Info -->
+                <div class="surveyor-info">
+                    <h2>${surveyor.name}</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">${surveyor.email}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">${surveyor.phone}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Region</div>
+                            <div class="info-value">${surveyor.region || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">${surveyor.status.toUpperCase()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Last Login</div>
+                            <div class="info-value">${surveyor.lastLoginAt ? new Date(surveyor.lastLoginAt).toLocaleString() : 'Never'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Assignments</h3>
+                        <div class="value">${performance.assignments.total}</div>
+                        <div class="subvalue">${performance.assignments.active} active, ${performance.assignments.completed} completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Completion Rate</h3>
+                        <div class="value">${performance.assignments.completionRate}%</div>
+                        <div class="subvalue">${performance.assignments.completed} of ${performance.assignments.total} assignments</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Responses Collected</h3>
+                        <div class="value">${performance.responses.achieved}</div>
+                        <div class="subvalue">Target: ${performance.responses.target}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Achievement Rate</h3>
+                        <div class="value">${performance.responses.achievementRate}%</div>
+                        <div class="subvalue">${performance.responses.remaining} remaining</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Logins</h3>
+                        <div class="value">${performance.activity.totalLogins}</div>
+                        <div class="subvalue">${performance.activity.totalActivities} total activities</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Responses Submitted</h3>
+                        <div class="value">${performance.activity.totalResponses}</div>
+                        <div class="subvalue">Through activity tracking</div>
+                    </div>
+                </div>
+
+                <!-- Recent Assignments -->
+                <div class="section">
+                    <div class="section-title">Recent Assignments</div>
+                    <div class="assignments-list">
+                        ${performance.recentAssignments.map(assignment => `
+                            <div class="assignment-item">
+                                <div>
+                                    <strong>Survey ${assignment.surveyId}</strong>
+                                    <div style="margin-top: 8px;">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${assignment.progress}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 12px; color: #999;">Status</div>
+                                    <div style="font-weight: 600;">${assignment.status.toUpperCase()}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 12px; color: #999;">Progress</div>
+                                    <div style="font-weight: 600;">${assignment.progress}%</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 12px; color: #999;">Responses</div>
+                                    <div style="font-weight: 600;">${assignment.achievedResponses} / ${assignment.targetResponses}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="section">
+                    <div class="section-title">Recent Activities</div>
+                    <div class="activity-timeline">
+                        ${activities.map(activity => `
+                            <div class="activity-item">
+                                <div class="activity-time">${new Date(activity.timestamp).toLocaleString()}</div>
+                                <div class="activity-desc">${formatActivityType(activity.activityType)} ${activity.relatedSurveyId ? `- Survey ${activity.relatedSurveyId}` : ''}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatActivityType(type) {
+            const types = {
+                'login': '🔑 Logged in',
+                'logout': '🚪 Logged out',
+                'location_checkin': '📍 Location check-in',
+                'response_submission': '✅ Submitted response',
+                'survey_view': '👁️ Viewed survey',
+                'profile_update': '✏️ Updated profile',
+                'password_change': '🔒 Changed password',
+                'assignment_view': '📋 Viewed assignment'
+            };
+            return types[type] || type;
+        }
+
+        // Load data on page load
+        loadPerformanceData();
+    </script>
+</body>
+</html>

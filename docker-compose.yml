@@ -340,6 +340,43 @@ services:
       start_period: 10s
       retries: 3
 
+  # Notification Service (API)
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - MONGODB_URI=mongodb://mongodb:27017/notifications
+      - MONGODB_DB_NAME=notifications
+      - KAFKA_BROKERS=kafka:9092
+      - KAFKA_CLIENT_ID=notification-service
+      - KAFKA_GROUP_ID=notification-service-group
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:3006
+      - WEBSOCKET_URL=http://websocket-service:3002
+    ports:
+      - "3006:3006"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - survey-network
+    volumes:
+      - ./services/notification-service:/app
+      - ./services/shared:/app/shared
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3006/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+
   # Notification Consumer Service
   notification-consumer:
     build:
@@ -350,19 +387,31 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3004
+      - MONGODB_URI=mongodb://mongodb:27017/notifications
+      - MONGODB_DB_NAME=notifications
       - KAFKA_BROKERS=kafka:9092
+      - KAFKA_CLIENT_ID=notification-consumer
+      - KAFKA_GROUP_ID=notification-consumer-group
       - EMAIL_PROVIDER=console
+      - EMAIL_FROM=noreply@survey-platform.com
       - SMS_PROVIDER=console
       - PUSH_PROVIDER=console
+      - WEBSOCKET_URL=http://websocket-service:3002
+      - MAX_RETRY_ATTEMPTS=3
+      - RETRY_DELAY_MS=5000
     ports:
       - "3004:3004"
     depends_on:
+      mongodb:
+        condition: service_healthy
       kafka:
         condition: service_healthy
     networks:
       - survey-network
     volumes:
+      - ./services/notification-consumer-service:/app
       - ./services/shared:/app/shared
+      - /app/node_modules
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3004/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s

@@ -4,16 +4,74 @@
  */
 
 const config = require('../config/config');
+const emailService = require('./emailService');
+const smsService = require('./smsService');
+const pushService = require('./pushService');
+const websocketService = require('./websocketService');
+
+// Import Notification model
+let Notification;
+try {
+  Notification = require('../../../notification-service/models/Notification');
+} catch (error) {
+  // If model not accessible, create a simple logger
+  console.warn('Notification model not found, using simple logging');
+  Notification = {
+    findById: async () => null,
+    prototype: {
+      markAsSent: async function() { return this; },
+      markAsFailed: async function() { return this; }
+    }
+  };
+}
 
 class NotificationService {
   constructor() {
-    this.notificationLog = new Map(); // Store notification status
+    this.notificationLog = new Map();
+    this.initialized = false;
+  }
+
+  /**
+   * Initialize all notification services
+   */
+  async initialize() {
+    try {
+      await Promise.all([
+        emailService.initialize(),
+        smsService.initialize(),
+        pushService.initialize()
+      ]);
+
+      this.initialized = true;
+      console.log('✓ All notification services initialized');
+    } catch (error) {
+      console.error('Error initializing notification services:', error);
+    }
   }
 
   /**
    * Get notification status
    */
   async getNotificationStatus(notificationId) {
+    // Try to get from database first
+    if (Notification.findById) {
+      try {
+        const notification = await Notification.findById(notificationId);
+        if (notification) {
+          return {
+            notificationId: notification._id,
+            status: notification.status,
+            type: notification.type,
+            sentAt: notification.sentAt,
+            readAt: notification.readAt
+          };
+        }
+      } catch (error) {
+        console.error('Error fetching notification from DB:', error);
+      }
+    }
+
+    // Fallback to in-memory log
     return this.notificationLog.get(notificationId) || { status: 'not_found' };
   }
 
@@ -31,6 +89,33 @@ class NotificationService {
   }
 
   /**
+   * Update notification status in database
+   */
+  async updateNotificationStatus(notificationId, status, details = {}) {
+    try {
+      if (Notification.findById) {
+        const notification = await Notification.findById(notificationId);
+        if (notification) {
+          if (status === 'sent') {
+            await notification.markAsSent();
+          } else if (status === 'failed') {
+            await notification.markAsFailed(details.error || 'Unknown error');
+          }
+
+          // Send real-time update via WebSocket
+          await websocketService.sendNotificationUpdate(notification.userId, {
+            notificationId,
+            status,
+            ...details
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating notification status:', error);
+    }
+  }
+
+  /**
    * Notify survey created
    */
   async notifySurveyCreated(event) {
@@ -41,12 +126,15 @@ class NotificationService {
       console.log(`Sending survey created notification for: ${surveyId}`);
 
       const template = config.templates.surveyCreated;
-      const message = template.body.replace('{surveyTitle}', payload.title);
+      const message = template.body.replace('{surveyTitle}', payload.title || surveyId);
 
-      // In production, send actual email/push notification
-      console.log(`📧 Notification: ${template.subject}`);
-      console.log(`   Message: ${message}`);
-      console.log(`   User: ${userId}`);
+      // Send in-app notification via WebSocket
+      await websocketService.sendNotification(userId, {
+        type: 'survey.created',
+        title: template.subject,
+        message,
+        data: { surveyId, ...payload }
+      });
 
       this.logNotification(notificationId, 'survey_created', 'sent', {
         surveyId,
@@ -74,8 +162,21 @@ class NotificationService {
       const template = config.templates.surveyPublished;
       const message = template.body.replace('{surveyTitle}', payload.title || surveyId);
 
-      console.log(`📧 Notification: ${template.subject}`);
-      console.log(`   Message: ${message}`);
+      // Send both in-app and email notification
+      await Promise.all([
+        websocketService.sendNotification(userId, {
+          type: 'survey.published',
+          title: template.subject,
+          message,
+          data: { surveyId, ...payload }
+        }),
+        emailService.send({
+          to: payload.email || userId,
+          subject: template.subject,
+          body: message,
+          htmlBody: `<h2>${template.subject}</h2><p>${message}</p>`
+        }).catch(err => console.error('Email send failed:', err))
+      ]);
 
       this.logNotification(notificationId, 'survey_published', 'sent', {
         surveyId,
@@ -95,17 +196,24 @@ class NotificationService {
    */
   async notifyResponseSubmitted(event) {
     try {
-      const { responseId, surveyId, respondentId } = event;
+      const { responseId, surveyId, respondentId, payload } = event;
       const notificationId = `response-submitted-${responseId}-${Date.now()}`;
 
       console.log(`Sending response submitted notification for: ${responseId}`);
 
       const template = config.templates.responseSubmitted;
-      const message = template.body.replace('{surveyTitle}', surveyId);
+      const message = template.body.replace('{surveyTitle}', payload?.surveyTitle || surveyId);
 
-      console.log(`📧 Notification: ${template.subject}`);
-      console.log(`   Message: ${message}`);
-      console.log(`   Survey: ${surveyId}`);
+      // Send in-app notification
+      const userId = payload?.surveyOwnerId || payload?.userId;
+      if (userId) {
+        await websocketService.sendNotification(userId, {
+          type: 'response.submitted',
+          title: template.subject,
+          message,
+          data: { responseId, surveyId, respondentId }
+        });
+      }
 
       this.logNotification(notificationId, 'response_submitted', 'sent', {
         responseId,
@@ -132,11 +240,17 @@ class NotificationService {
       console.log(`Sending welcome notification to surveyor: ${surveyorId}`);
 
       const template = config.templates.surveyorRegistered;
-      const message = template.body.replace('{surveyorName}', payload.name);
+      const message = template.body.replace('{surveyorName}', payload.name || 'User');
 
-      console.log(`📧 Notification: ${template.subject}`);
-      console.log(`   Message: ${message}`);
-      console.log(`   Email: ${payload.email}`);
+      // Send welcome email
+      if (payload.email) {
+        await emailService.send({
+          to: payload.email,
+          subject: template.subject,
+          body: message,
+          htmlBody: `<h2>${template.subject}</h2><p>${message}</p>`
+        });
+      }
 
       this.logNotification(notificationId, 'surveyor_registered', 'sent', {
         surveyorId,
@@ -160,8 +274,6 @@ class NotificationService {
       const { type, recipient, content, priority } = payload;
 
       console.log(`Sending ${type} notification (${priority} priority)`);
-      console.log(`   To: ${JSON.stringify(recipient)}`);
-      console.log(`   Content: ${JSON.stringify(content)}`);
 
       // Route to appropriate channel
       switch (type) {
@@ -171,15 +283,19 @@ class NotificationService {
           return await this.sendSMS(event);
         case 'push':
           return await this.sendPushNotification(event);
+        case 'in-app':
+          return await this.sendInAppNotification(event);
         default:
           console.log(`Unknown notification type: ${type}`);
       }
 
       this.logNotification(notificationId, type, 'sent', { recipient, content });
+      await this.updateNotificationStatus(notificationId, 'sent');
 
       return { success: true, notificationId };
     } catch (error) {
       console.error('Error sending notification:', error);
+      await this.updateNotificationStatus(notificationId, 'failed', { error: error.message });
       return { success: false, error: error.message };
     }
   }
@@ -190,19 +306,15 @@ class NotificationService {
   async sendEmail(event) {
     try {
       const { notificationId, payload } = event;
-      const { to, subject, body, attachments = [] } = payload;
+      const { to, subject, body, htmlBody, attachments = [] } = payload;
 
-      console.log(`📧 Sending email:`);
-      console.log(`   To: ${to.join(', ')}`);
-      console.log(`   Subject: ${subject}`);
-      console.log(`   Body: ${body.substring(0, 100)}...`);
-
-      if (attachments.length > 0) {
-        console.log(`   Attachments: ${attachments.length}`);
-      }
-
-      // In production, integrate with actual email service (SendGrid, SES, etc.)
-      // For now, just log
+      const result = await emailService.send({
+        to,
+        subject,
+        body,
+        htmlBody,
+        attachments
+      });
 
       this.logNotification(notificationId, 'email', 'sent', {
         to,
@@ -210,9 +322,12 @@ class NotificationService {
         sentAt: new Date()
       });
 
-      return { success: true, notificationId };
+      await this.updateNotificationStatus(notificationId, 'sent');
+
+      return { success: true, notificationId, ...result };
     } catch (error) {
       console.error('Error sending email:', error);
+      await this.updateNotificationStatus(notificationId, 'failed', { error: error.message });
       return { success: false, error: error.message };
     }
   }
@@ -223,23 +338,24 @@ class NotificationService {
   async sendSMS(event) {
     try {
       const { notificationId, payload } = event;
-      const { phoneNumber, message, provider } = payload;
+      const { phoneNumber, message } = payload;
 
-      console.log(`📱 Sending SMS:`);
-      console.log(`   To: ${phoneNumber}`);
-      console.log(`   Message: ${message}`);
-      console.log(`   Provider: ${provider || config.sms.provider}`);
-
-      // In production, integrate with Twilio or similar service
+      const result = await smsService.send({
+        phoneNumber,
+        message
+      });
 
       this.logNotification(notificationId, 'sms', 'sent', {
         phoneNumber,
         sentAt: new Date()
       });
 
-      return { success: true, notificationId };
+      await this.updateNotificationStatus(notificationId, 'sent');
+
+      return { success: true, notificationId, ...result };
     } catch (error) {
       console.error('Error sending SMS:', error);
+      await this.updateNotificationStatus(notificationId, 'failed', { error: error.message });
       return { success: false, error: error.message };
     }
   }
@@ -250,28 +366,73 @@ class NotificationService {
   async sendPushNotification(event) {
     try {
       const { notificationId, payload } = event;
-      const { deviceTokens, title, body, data, badge } = payload;
+      const { deviceTokens, subscription, title, body, data, icon, badge } = payload;
 
-      console.log(`🔔 Sending push notification:`);
-      console.log(`   To: ${deviceTokens.length} devices`);
-      console.log(`   Title: ${title}`);
-      console.log(`   Body: ${body}`);
+      let result;
 
-      if (badge) {
-        console.log(`   Badge: ${badge}`);
+      if (subscription) {
+        // Web push
+        result = await pushService.send({
+          subscription,
+          title,
+          body,
+          data,
+          icon,
+          badge
+        });
+      } else if (deviceTokens && deviceTokens.length > 0) {
+        // FCM for mobile
+        result = await pushService.sendFCM({
+          tokens: deviceTokens,
+          title,
+          body,
+          data
+        });
       }
 
-      // In production, integrate with FCM or APNs
-
       this.logNotification(notificationId, 'push', 'sent', {
-        deviceCount: deviceTokens.length,
+        deviceCount: deviceTokens?.length || 1,
         title,
         sentAt: new Date()
       });
 
-      return { success: true, notificationId };
+      await this.updateNotificationStatus(notificationId, 'sent');
+
+      return { success: true, notificationId, ...result };
     } catch (error) {
       console.error('Error sending push notification:', error);
+      await this.updateNotificationStatus(notificationId, 'failed', { error: error.message });
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send in-app notification
+   */
+  async sendInAppNotification(event) {
+    try {
+      const { notificationId, userId, payload } = event;
+      const { title, message, data } = payload;
+
+      await websocketService.sendNotification(userId, {
+        type: 'in-app',
+        title,
+        message,
+        data
+      });
+
+      this.logNotification(notificationId, 'in-app', 'sent', {
+        userId,
+        title,
+        sentAt: new Date()
+      });
+
+      await this.updateNotificationStatus(notificationId, 'sent');
+
+      return { success: true, notificationId };
+    } catch (error) {
+      console.error('Error sending in-app notification:', error);
+      await this.updateNotificationStatus(notificationId, 'failed', { error: error.message });
       return { success: false, error: error.message };
     }
   }

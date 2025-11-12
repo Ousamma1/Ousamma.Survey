@@ -1,6 +1,76 @@
-# AI-Powered Survey Platform - 
+# AI-Powered Survey Platform
 
-A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, and analysis.
+A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, analysis, and surveyor management.
+
+## 🚀 Sprint 7: Surveyor Management Service - COMPLETED
+
+This implementation includes all deliverables for Sprint 7:
+
+### ✅ Deliverables
+
+1. **Surveyor Microservice**
+   - Express.js microservice on port 3001
+   - MongoDB integration for data persistence
+   - RESTful API endpoints for all operations
+   - Comprehensive error handling and validation
+   - Health check endpoint
+
+2. **Surveyor CRUD Operations**
+   - Create surveyor with temporary password generation
+   - List surveyors with pagination and filtering
+   - Get surveyor details by ID
+   - Update surveyor information
+   - Deactivate surveyor (soft delete)
+   - Reset password functionality
+   - Bulk import from JSON
+
+3. **Assignment Management System**
+   - Assign surveys to surveyors
+   - Territory-based assignment
+   - Target quota setting
+   - Automatic assignment completion tracking
+   - Assignment activation and cancellation
+   - Bulk assignment capabilities
+   - Performance tracking
+
+4. **Account Expiration Management**
+   - Configurable expiration periods
+   - Automatic status updates for expired accounts
+   - Expiration extension functionality
+   - Expiration notifications
+
+5. **Surveyor Portal Frontend**
+   - Surveyor login page
+   - Dashboard with assigned surveys
+   - Target progress visualization
+   - Assignment status tracking
+   - Activity logging on login/logout
+
+6. **Activity Tracking System**
+   - Login/logout tracking
+   - Location check-ins with GPS coordinates
+   - Response submission tracking
+   - Survey view tracking
+   - Daily activity summaries
+   - Session duration tracking
+   - Device and browser information
+
+7. **Admin Surveyor Management UI**
+   - Surveyor list with search and pagination
+   - Create surveyor modal
+   - Bulk import interface
+   - Assignment interface
+   - Performance dashboard
+   - Deactivation/reactivation controls
+   - Password reset
+
+### 📊 MongoDB Collections
+
+- **surveyors**: Surveyor profiles and credentials
+- **assignments**: Survey-surveyor assignments with quotas
+- **activities**: Activity tracking logs
+
+---
 
 ## 🚀 Sprint 5: AI Frontend Integration - COMPLETED
 
@@ -47,16 +117,43 @@ This implementation includes all deliverables for Sprint 5:
 
 ```
 Ousamma.Survey/
-├── index.js                    # Express server with AI endpoints
-├── package.json                # Dependencies and scripts
+├── index.js                    # Main Express server (port 3000)
+├── package.json                # Main dependencies and scripts
 ├── .env.example               # Environment configuration template
 ├── .gitignore                 # Git ignore rules
 ├── README.md                  # This file
+├── surveyor-service/          # Surveyor Management Microservice
+│   ├── index.js               # Surveyor service server (port 3001)
+│   ├── package.json           # Surveyor service dependencies
+│   ├── .env                   # Surveyor service configuration
+│   ├── .env.example          # Configuration template
+│   ├── API_DOCUMENTATION.md  # Complete API documentation
+│   ├── models/               # MongoDB models
+│   │   ├── Surveyor.js       # Surveyor model
+│   │   ├── Assignment.js     # Assignment model
+│   │   └── Activity.js       # Activity tracking model
+│   ├── controllers/          # Business logic
+│   │   ├── surveyorController.js
+│   │   ├── assignmentController.js
+│   │   └── activityController.js
+│   ├── routes/               # API routes
+│   │   ├── surveyors.js
+│   │   ├── assignments.js
+│   │   └── activities.js
+│   ├── middleware/           # Middleware
+│   │   ├── auth.js           # Authentication
+│   │   └── validation.js     # Request validation
+│   └── database/             # Database configuration
+│       └── connection.js     # MongoDB connection
 └── public/
     ├── index.html             # Landing page
     ├── survey-builder.html    # AI Survey Builder interface
     ├── dubaisurvey.html       # Survey form with AI enhancement
     ├── thankyou.html          # Thank you page
+    ├── surveyor-login.html    # Surveyor portal login
+    ├── surveyor-dashboard.html # Surveyor dashboard
+    ├── admin-surveyors.html   # Admin surveyor management
+    ├── admin-performance.html # Admin performance dashboard
     ├── ai-service.js          # AI service client
     ├── ai-chat-widget.js      # AI chat component
     ├── survey-builder.js      # Survey builder logic
@@ -165,6 +262,8 @@ questions about user experience, features, and overall satisfaction
 
 ## 📦 Installation
 
+### Main Application
+
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
@@ -182,15 +281,57 @@ questions about user experience, features, and overall satisfaction
    # Edit .env with your configuration
    ```
 
-4. **Start the server**
+4. **Start the main server**
    ```bash
    npm start
    ```
 
-5. **Access the application**
-   - Landing page: http://localhost:3000
-   - Survey Builder: http://localhost:3000/survey-builder.html
-   - Survey Form: http://localhost:3000/dubaisurvey.html
+### Surveyor Management Service
+
+1. **Install MongoDB**
+   ```bash
+   # On macOS
+   brew install mongodb-community
+   brew services start mongodb-community
+
+   # On Ubuntu
+   sudo apt-get install mongodb
+   sudo systemctl start mongodb
+
+   # Or use MongoDB Atlas (cloud)
+   # Update MONGODB_URI in surveyor-service/.env
+   ```
+
+2. **Install surveyor service dependencies**
+   ```bash
+   cd surveyor-service
+   npm install
+   ```
+
+3. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your MongoDB URI and other settings
+   ```
+
+4. **Start the surveyor service**
+   ```bash
+   # From surveyor-service directory
+   npm start
+
+   # Or for development with auto-reload
+   npm run dev
+   ```
+
+### Access the Application
+
+- **Main Application**: http://localhost:3000
+- **Survey Builder**: http://localhost:3000/survey-builder.html
+- **Survey Form**: http://localhost:3000/dubaisurvey.html
+- **Surveyor Login**: http://localhost:3000/surveyor-login.html
+- **Admin Surveyor Management**: http://localhost:3000/admin-surveyors.html
+- **Surveyor Service API**: http://localhost:3001/api
+- **Surveyor Service Health**: http://localhost:3001/health
 
 ## 🔧 Configuration
 
@@ -271,6 +412,48 @@ GOOGLE_API_KEY=...
 | `/api/context/upload` | POST | Upload context file |
 | `/api/context/files` | GET | List context files |
 | `/api/context/files/:filename` | DELETE | Delete context file |
+
+### Surveyor Management (Port 3001)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/surveyors` | POST | Create surveyor |
+| `/api/surveyors/bulk` | POST | Bulk import surveyors |
+| `/api/surveyors` | GET | List surveyors (with filters) |
+| `/api/surveyors/:id` | GET | Get surveyor details |
+| `/api/surveyors/:id` | PUT | Update surveyor |
+| `/api/surveyors/:id` | DELETE | Deactivate surveyor |
+| `/api/surveyors/:id/extend` | POST | Extend expiration |
+| `/api/surveyors/:id/performance` | GET | Get performance metrics |
+| `/api/surveyors/:id/reset-password` | POST | Reset password |
+| `/api/surveyors/:id/assignments` | GET | Get surveyor assignments |
+
+### Assignment Management (Port 3001)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/assignments` | POST | Assign survey to surveyor |
+| `/api/assignments/bulk` | POST | Bulk assign surveys |
+| `/api/assignments` | GET | List all assignments |
+| `/api/assignments/stats` | GET | Get assignment statistics |
+| `/api/assignments/:id` | GET | Get assignment details |
+| `/api/assignments/:id` | PUT | Update assignment |
+| `/api/assignments/:id/activate` | POST | Activate assignment |
+| `/api/assignments/:id/cancel` | POST | Cancel assignment |
+| `/api/assignments/:id/record-response` | POST | Record response submission |
+
+### Activity Tracking (Port 3001)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/activities` | POST | Log activity |
+| `/api/activities` | GET | List all activities |
+| `/api/activities/surveyor/:id` | GET | Get surveyor activities |
+| `/api/activities/surveyor/:id/daily-summary` | GET | Get daily summary |
+| `/api/activities/surveyor/:id/locations` | GET | Get response locations |
+| `/api/activities/surveyor/:id/stats` | GET | Get activity statistics |
+
+**Note:** See `surveyor-service/API_DOCUMENTATION.md` for complete API documentation.
 
 ## 💡 Usage Examples
 

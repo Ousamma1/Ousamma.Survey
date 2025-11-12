@@ -1,4 +1,4 @@
-# AI-Powered Survey Platform - Digital Dubai
+# AI-Powered Survey Platform - 
 
 A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, and analysis.
 

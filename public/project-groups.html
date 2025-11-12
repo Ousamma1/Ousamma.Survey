@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Groups - Survey System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .groups-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .group-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .group-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .group-card-header {
+            display: flex;
+            align-items: start;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .group-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .group-info {
+            flex: 1;
+        }
+
+        .group-card h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .group-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .group-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .group-stat {
+            text-align: center;
+        }
+
+        .group-stat .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .group-stat .label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .survey-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .survey-item {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .survey-item:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <h1>📁 Survey Groups</h1>
+                    <div class="project-info" id="projectInfo">Loading...</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="goBack()">← Back</button>
+                    <button class="btn btn-primary" id="createGroupBtn" onclick="openCreateGroupModal()">+ Create Group</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="groups-section">
+            <div class="section-header">
+                <h2>Groups</h2>
+                <div id="groupCount">0 groups</div>
+            </div>
+
+            <div id="groupsContainer">
+                <div class="loading">Loading groups...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Group Modal -->
+    <div class="modal" id="groupModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Create New Group</h2>
+            <form id="groupForm">
+                <div class="form-group">
+                    <label for="groupName">Group Name *</label>
+                    <input type="text" id="groupName" required minlength="3" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="groupDescription">Description</label>
+                    <textarea id="groupDescription" maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="groupColor">Color</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="groupColor" value="#3B82F6">
+                        <div class="color-preview" id="colorPreview" style="background: #3B82F6;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="groupIcon">Icon</label>
+                    <select id="groupIcon">
+                        <option value="folder">📁 Folder</option>
+                        <option value="star">⭐ Star</option>
+                        <option value="chart">📊 Chart</option>
+                        <option value="tag">🏷️ Tag</option>
+                        <option value="book">📖 Book</option>
+                        <option value="clipboard">📋 Clipboard</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Survey Modal -->
+    <div class="modal" id="addSurveyModal">
+        <div class="modal-content">
+            <h2>Add Survey to Group</h2>
+            <form id="addSurveyForm">
+                <div class="form-group">
+                    <label for="surveyId">Survey ID *</label>
+                    <input type="text" id="surveyId" required placeholder="Enter survey ID">
+                    <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                        Enter the ID of the survey you want to add to this group
+                    </small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Survey</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Surveys Modal -->
+    <div class="modal" id="viewSurveysModal">
+        <div class="modal-content">
+            <h2 id="surveysModalTitle">Surveys in Group</h2>
+            <div id="surveysListContainer">
+                <div class="loading">Loading surveys...</div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3006/api/projects';
+        const USER_ID = 'user-123';
+        let projectId = null;
+        let project = null;
+        let groups = [];
+        let currentGroup = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            projectId = urlParams.get('id');
+
+            if (!projectId) {
+                alert('No project ID provided');
+                window.location.href = 'project-management.html';
+                return;
+            }
+
+            loadProject();
+            loadGroups();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('groupForm').addEventListener('submit', handleGroupSubmit);
+            document.getElementById('addSurveyForm').addEventListener('submit', handleAddSurvey);
+            document.getElementById('groupColor').addEventListener('input', (e) => {
+                document.getElementById('colorPreview').style.background = e.target.value;
+            });
+        }
+
+        async function loadProject() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}`, {
+                    headers: { 'x-user-id': USER_ID }
+                });
+
+                if (!response.ok) throw new Error('Failed to load project');
+
+                const result = await response.json();
+                project = result.data;
+
+                document.getElementById('projectInfo').textContent = project.name;
+
+                // Check if user can create groups
+                const userRole = project.ownerId === USER_ID ? 'owner' :
+                                project.members.find(m => m.userId === USER_ID)?.role;
+
+                if (userRole !== 'owner' && userRole !== 'admin' && userRole !== 'editor') {
+                    document.getElementById('createGroupBtn').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading project:', error);
+                alert('Error loading project');
+            }
+        }
+
+        async function loadGroups() {
+            const container = document.getElementById('groupsContainer');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/groups`, {
+                    headers: { 'x-user-id': USER_ID }
+                });
+
+                if (!response.ok) throw new Error('Failed to load groups');
+
+                const result = await response.json();
+                groups = result.data;
+
+                document.getElementById('groupCount').textContent = `${groups.length} group${groups.length !== 1 ? 's' : ''}`;
+
+                displayGroups(groups);
+            } catch (error) {
+                console.error('Error loading groups:', error);
+                container.innerHTML = '<div class="empty-state"><h3>Error loading groups</h3></div>';
+            }
+        }
+
+        function displayGroups(groupList) {
+            const container = document.getElementById('groupsContainer');
+
+            if (groupList.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No groups yet</h3><p>Create your first group to organize surveys</p></div>';
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'groups-grid';
+
+            groupList.forEach(group => {
+                const card = createGroupCard(group);
+                grid.appendChild(card);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(grid);
+        }
+
+        function createGroupCard(group) {
+            const card = document.createElement('div');
+            card.className = 'group-card';
+
+            const iconMap = {
+                'folder': '📁',
+                'star': '⭐',
+                'chart': '📊',
+                'tag': '🏷️',
+                'book': '📖',
+                'clipboard': '📋'
+            };
+
+            const icon = iconMap[group.settings?.icon] || '📁';
+            const color = group.settings?.color || '#3B82F6';
+
+            card.innerHTML = `
+                <div class="group-card-header">
+                    <div class="group-icon" style="background: ${color}20; color: ${color};">
+                        ${icon}
+                    </div>
+                    <div class="group-info">
+                        <h3>${group.name}</h3>
+                    </div>
+                </div>
+                <p>${group.description || 'No description provided'}</p>
+                <div class="group-stats">
+                    <div class="group-stat">
+                        <div class="value">${group.surveyIds.length}</div>
+                        <div class="label">Surveys</div>
+                    </div>
+                    <div class="group-stat">
+                        <div class="value">${group.metadata.totalResponses || 0}</div>
+                        <div class="label">Responses</div>
+                    </div>
+                </div>
+                <div class="group-actions">
+                    <button class="btn btn-primary btn-small" onclick="viewSurveys('${group._id}')">View Surveys</button>
+                    <button class="btn btn-success btn-small" onclick="openAddSurveyModal('${group._id}')">+ Add Survey</button>
+                    <button class="btn btn-secondary btn-small" onclick="editGroup('${group._id}')">Edit</button>
+                    <button class="btn btn-danger btn-small" onclick="deleteGroup('${group._id}')">Delete</button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function openCreateGroupModal() {
+            currentGroup = null;
+            document.getElementById('modalTitle').textContent = 'Create New Group';
+            document.getElementById('groupForm').reset();
+            document.getElementById('groupColor').value = '#3B82F6';
+            document.getElementById('colorPreview').style.background = '#3B82F6';
+            document.getElementById('groupModal').classList.add('active');
+        }
+
+        function editGroup(groupId) {
+            const group = groups.find(g => g._id === groupId);
+            if (!group) return;
+
+            currentGroup = group;
+            document.getElementById('modalTitle').textContent = 'Edit Group';
+            document.getElementById('groupName').value = group.name;
+            document.getElementById('groupDescription').value = group.description || '';
+            document.getElementById('groupColor').value = group.settings?.color || '#3B82F6';
+            document.getElementById('groupIcon').value = group.settings?.icon || 'folder';
+            document.getElementById('colorPreview').style.background = group.settings?.color || '#3B82F6';
+            document.getElementById('groupModal').classList.add('active');
+        }
+
+        function openAddSurveyModal(groupId) {
+            currentGroup = groups.find(g => g._id === groupId);
+            document.getElementById('addSurveyForm').reset();
+            document.getElementById('addSurveyModal').classList.add('active');
+        }
+
+        function viewSurveys(groupId) {
+            const group = groups.find(g => g._id === groupId);
+            if (!group) return;
+
+            document.getElementById('surveysModalTitle').textContent = `Surveys in "${group.name}"`;
+
+            const container = document.getElementById('surveysListContainer');
+
+            if (group.surveyIds.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No surveys in this group yet</p></div>';
+            } else {
+                const list = document.createElement('ul');
+                list.className = 'survey-list';
+
+                group.surveyIds.forEach(surveyId => {
+                    const item = document.createElement('li');
+                    item.className = 'survey-item';
+                    item.innerHTML = `
+                        <span>Survey: ${surveyId}</span>
+                        <button class="btn btn-danger btn-small" onclick="removeSurveyFromGroup('${groupId}', '${surveyId}')">Remove</button>
+                    `;
+                    list.appendChild(item);
+                });
+
+                container.innerHTML = '';
+                container.appendChild(list);
+            }
+
+            document.getElementById('viewSurveysModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('groupModal').classList.remove('active');
+            document.getElementById('addSurveyModal').classList.remove('active');
+            document.getElementById('viewSurveysModal').classList.remove('active');
+            currentGroup = null;
+        }
+
+        async function handleGroupSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('groupName').value;
+            const description = document.getElementById('groupDescription').value;
+            const color = document.getElementById('groupColor').value;
+            const icon = document.getElementById('groupIcon').value;
+
+            const groupData = {
+                name,
+                description,
+                settings: { color, icon }
+            };
+
+            try {
+                const url = currentGroup
+                    ? `${API_BASE_URL}/${projectId}/groups/${currentGroup._id}`
+                    : `${API_BASE_URL}/${projectId}/groups`;
+
+                const method = currentGroup ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': USER_ID
+                    },
+                    body: JSON.stringify(groupData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert(currentGroup ? 'Group updated successfully' : 'Group created successfully');
+                closeModal();
+                loadGroups();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function handleAddSurvey(e) {
+            e.preventDefault();
+
+            const surveyId = document.getElementById('surveyId').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/groups/${currentGroup._id}/surveys`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': USER_ID
+                    },
+                    body: JSON.stringify({ surveyId })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert('Survey added to group successfully');
+                closeModal();
+                loadGroups();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function removeSurveyFromGroup(groupId, surveyId) {
+            if (!confirm('Remove this survey from the group?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/groups/${groupId}/surveys/${surveyId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-user-id': USER_ID }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert('Survey removed from group');
+                closeModal();
+                loadGroups();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteGroup(groupId) {
+            if (!confirm('Are you sure you want to delete this group?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/${projectId}/groups/${groupId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-user-id': USER_ID }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                alert('Group deleted successfully');
+                loadGroups();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'project-management.html';
+        }
+    </script>
+</body>
+</html>

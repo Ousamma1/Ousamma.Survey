@@ -1,76 +1,6 @@
 # AI-Powered Survey Platform
 
-A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, analysis, and surveyor management.
 
-## 🚀 Sprint 7: Surveyor Management Service - COMPLETED
-
-This implementation includes all deliverables for Sprint 7:
-
-### ✅ Deliverables
-
-1. **Surveyor Microservice**
-   - Express.js microservice on port 3001
-   - MongoDB integration for data persistence
-   - RESTful API endpoints for all operations
-   - Comprehensive error handling and validation
-   - Health check endpoint
-
-2. **Surveyor CRUD Operations**
-   - Create surveyor with temporary password generation
-   - List surveyors with pagination and filtering
-   - Get surveyor details by ID
-   - Update surveyor information
-   - Deactivate surveyor (soft delete)
-   - Reset password functionality
-   - Bulk import from JSON
-
-3. **Assignment Management System**
-   - Assign surveys to surveyors
-   - Territory-based assignment
-   - Target quota setting
-   - Automatic assignment completion tracking
-   - Assignment activation and cancellation
-   - Bulk assignment capabilities
-   - Performance tracking
-
-4. **Account Expiration Management**
-   - Configurable expiration periods
-   - Automatic status updates for expired accounts
-   - Expiration extension functionality
-   - Expiration notifications
-
-5. **Surveyor Portal Frontend**
-   - Surveyor login page
-   - Dashboard with assigned surveys
-   - Target progress visualization
-   - Assignment status tracking
-   - Activity logging on login/logout
-
-6. **Activity Tracking System**
-   - Login/logout tracking
-   - Location check-ins with GPS coordinates
-   - Response submission tracking
-   - Survey view tracking
-   - Daily activity summaries
-   - Session duration tracking
-   - Device and browser information
-
-7. **Admin Surveyor Management UI**
-   - Surveyor list with search and pagination
-   - Create surveyor modal
-   - Bulk import interface
-   - Assignment interface
-   - Performance dashboard
-   - Deactivation/reactivation controls
-   - Password reset
-
-### 📊 MongoDB Collections
-
-- **surveyors**: Surveyor profiles and credentials
-- **assignments**: Survey-surveyor assignments with quotas
-- **activities**: Activity tracking logs
-
----
 
 ## 🚀 Sprint 5: AI Frontend Integration - COMPLETED
 
@@ -413,47 +343,7 @@ GOOGLE_API_KEY=...
 | `/api/context/files` | GET | List context files |
 | `/api/context/files/:filename` | DELETE | Delete context file |
 
-### Surveyor Management (Port 3001)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/surveyors` | POST | Create surveyor |
-| `/api/surveyors/bulk` | POST | Bulk import surveyors |
-| `/api/surveyors` | GET | List surveyors (with filters) |
-| `/api/surveyors/:id` | GET | Get surveyor details |
-| `/api/surveyors/:id` | PUT | Update surveyor |
-| `/api/surveyors/:id` | DELETE | Deactivate surveyor |
-| `/api/surveyors/:id/extend` | POST | Extend expiration |
-| `/api/surveyors/:id/performance` | GET | Get performance metrics |
-| `/api/surveyors/:id/reset-password` | POST | Reset password |
-| `/api/surveyors/:id/assignments` | GET | Get surveyor assignments |
-
-### Assignment Management (Port 3001)
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/assignments` | POST | Assign survey to surveyor |
-| `/api/assignments/bulk` | POST | Bulk assign surveys |
-| `/api/assignments` | GET | List all assignments |
-| `/api/assignments/stats` | GET | Get assignment statistics |
-| `/api/assignments/:id` | GET | Get assignment details |
-| `/api/assignments/:id` | PUT | Update assignment |
-| `/api/assignments/:id/activate` | POST | Activate assignment |
-| `/api/assignments/:id/cancel` | POST | Cancel assignment |
-| `/api/assignments/:id/record-response` | POST | Record response submission |
-
-### Activity Tracking (Port 3001)
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/activities` | POST | Log activity |
-| `/api/activities` | GET | List all activities |
-| `/api/activities/surveyor/:id` | GET | Get surveyor activities |
-| `/api/activities/surveyor/:id/daily-summary` | GET | Get daily summary |
-| `/api/activities/surveyor/:id/locations` | GET | Get response locations |
-| `/api/activities/surveyor/:id/stats` | GET | Get activity statistics |
-
-**Note:** See `surveyor-service/API_DOCUMENTATION.md` for complete API documentation.
 
 ## 💡 Usage Examples
 

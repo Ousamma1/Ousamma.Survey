@@ -3,9 +3,13 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
+const http = require('http');
+const WebSocket = require('ws');
 require('dotenv').config();
 
 const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server, path: '/ws' });
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -399,11 +403,29 @@ app.get('/api/surveys', async (req, res) => {
     await fs.mkdir(surveysDir, { recursive: true });
 
     const files = await fs.readdir(surveysDir);
-    const surveys = files
-      .filter(f => f.endsWith('.json'))
-      .map(f => ({ id: f.replace('.json', ''), filename: f }));
+    const surveys = [];
 
-    res.json({ surveys });
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        try {
+          const filePath = path.join(surveysDir, file);
+          const data = await fs.readFile(filePath, 'utf8');
+          const survey = JSON.parse(data);
+          surveys.push({
+            id: file.replace('.json', ''),
+            title: survey.title || survey.name || `Survey ${file.replace('.json', '')}`,
+            description: survey.description || '',
+            questions: survey.questions || [],
+            createdAt: survey.createdAt || new Date().toISOString(),
+            ...survey
+          });
+        } catch (error) {
+          console.error(`Error reading survey ${file}:`, error);
+        }
+      }
+    }
+
+    res.json(surveys);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -428,6 +450,16 @@ app.post('/api/responses/save', async (req, res) => {
     const filePath = path.join(responsesDir, `${surveyId}-${timestamp}.json`);
     await fs.writeFile(filePath, JSON.stringify(responseData, null, 2));
 
+    // Broadcast new response to WebSocket clients
+    broadcastToSurveySubscribers(surveyId, {
+      type: 'new_response',
+      data: {
+        surveyId,
+        responseId: `${surveyId}-${timestamp}`,
+        timestamp: responseData.submittedAt
+      }
+    });
+
     res.json({ success: true, responseId: `${surveyId}-${timestamp}` });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -440,21 +472,141 @@ app.get('/api/responses/:surveyId', async (req, res) => {
     const { surveyId } = req.params;
     const responsesDir = path.join(__dirname, 'data', 'responses');
 
-    const files = await fs.readdir(responsesDir);
+    try {
+      await fs.mkdir(responsesDir, { recursive: true });
+    } catch (error) {
+      // Directory exists
+    }
+
+    let files = [];
+    try {
+      files = await fs.readdir(responsesDir);
+    } catch (error) {
+      return res.json([]);
+    }
+
     const surveyResponses = [];
 
     for (const file of files) {
       if (file.startsWith(surveyId) && file.endsWith('.json')) {
-        const data = await fs.readFile(path.join(responsesDir, file), 'utf8');
-        surveyResponses.push(JSON.parse(data));
+        try {
+          const data = await fs.readFile(path.join(responsesDir, file), 'utf8');
+          const response = JSON.parse(data);
+          surveyResponses.push({
+            id: file.replace('.json', ''),
+            surveyId: response.surveyId,
+            answers: response.responses || response.answers || {},
+            timestamp: response.timestamp,
+            createdAt: response.submittedAt || response.createdAt,
+            completed: response.completed !== false,
+            ...response
+          });
+        } catch (error) {
+          console.error(`Error reading response ${file}:`, error);
+        }
       }
     }
 
-    res.json({ responses: surveyResponses });
+    res.json(surveyResponses);
   } catch (error) {
-    res.status(500).json({ error: error.message, responses: [] });
+    res.status(500).json({ error: error.message });
   }
 });
+
+// ============================================
+// WEBSOCKET REAL-TIME UPDATES
+// ============================================
+
+// Store WebSocket client subscriptions
+const surveySubscriptions = new Map(); // surveyId -> Set of WebSocket clients
+
+// WebSocket connection handler
+wss.on('connection', (ws) => {
+  console.log('New WebSocket client connected');
+  ws.subscribedSurveys = new Set();
+
+  ws.on('message', (message) => {
+    try {
+      const data = JSON.parse(message);
+
+      switch (data.type) {
+        case 'subscribe':
+          const surveyId = data.data?.surveyId;
+          if (surveyId) {
+            // Add client to survey subscribers
+            if (!surveySubscriptions.has(surveyId)) {
+              surveySubscriptions.set(surveyId, new Set());
+            }
+            surveySubscriptions.get(surveyId).add(ws);
+            ws.subscribedSurveys.add(surveyId);
+            console.log(`Client subscribed to survey: ${surveyId}`);
+          }
+          break;
+
+        case 'unsubscribe':
+          const unsubSurveyId = data.data?.surveyId;
+          if (unsubSurveyId && surveySubscriptions.has(unsubSurveyId)) {
+            surveySubscriptions.get(unsubSurveyId).delete(ws);
+            ws.subscribedSurveys.delete(unsubSurveyId);
+            console.log(`Client unsubscribed from survey: ${unsubSurveyId}`);
+          }
+          break;
+
+        case 'ping':
+          ws.send(JSON.stringify({ type: 'pong' }));
+          break;
+
+        default:
+          console.log('Unknown WebSocket message type:', data.type);
+      }
+    } catch (error) {
+      console.error('Error processing WebSocket message:', error);
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('WebSocket client disconnected');
+    // Remove client from all subscriptions
+    ws.subscribedSurveys.forEach(surveyId => {
+      if (surveySubscriptions.has(surveyId)) {
+        surveySubscriptions.get(surveyId).delete(ws);
+        if (surveySubscriptions.get(surveyId).size === 0) {
+          surveySubscriptions.delete(surveyId);
+        }
+      }
+    });
+  });
+
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+});
+
+// Broadcast message to all subscribers of a survey
+function broadcastToSurveySubscribers(surveyId, message) {
+  if (!surveySubscriptions.has(surveyId)) return;
+
+  const subscribers = surveySubscriptions.get(surveyId);
+  const messageStr = JSON.stringify(message);
+
+  subscribers.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(messageStr);
+    }
+  });
+
+  console.log(`Broadcast to ${subscribers.size} subscribers of survey ${surveyId}`);
+}
+
+// Broadcast to all connected clients
+function broadcastToAll(message) {
+  const messageStr = JSON.stringify(message);
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(messageStr);
+    }
+  });
+}
 
 // ============================================
 // HEALTH CHECK
@@ -464,15 +616,20 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    aiProvider: AI_CONFIG.provider
+    aiProvider: AI_CONFIG.provider,
+    websocket: {
+      connected: wss.clients.size,
+      subscriptions: surveySubscriptions.size
+    }
   });
 });
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Ousamma Survey Server running on port ${PORT}`);
   console.log(`📊 AI Provider: ${AI_CONFIG.provider}`);
   console.log(`🔗 API URL: http://localhost:${PORT}`);
+  console.log(`🔌 WebSocket URL: ws://localhost:${PORT}/ws`);
 });
 
-module.exports = app;
+module.exports = { app, server, wss };

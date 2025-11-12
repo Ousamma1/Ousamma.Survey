@@ -1,6 +1,161 @@
-# AI-Powered Survey Platform - 
+# AI-Powered Survey Platform
 
-A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, and analysis.
+A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, analysis, and geolocation services.
+
+## 🚀 Sprint 6: Geolocation Service & Map Integration - COMPLETED
+
+This implementation includes all deliverables for Sprint 6:
+
+### ✅ Deliverables
+
+1. **Geolocation Microservice**
+   - Location CRUD operations with MongoDB
+   - Geocoding and reverse geocoding (OpenStreetMap)
+   - Distance calculations and proximity searches
+   - Geofencing and territory management
+   - Location history tracking
+   - RESTful API with comprehensive endpoints
+
+2. **Location Data Models**
+   - Location schema with geospatial indexing
+   - Territory schema with polygon support
+   - Metadata support for addresses and regions
+   - Automatic coordinate validation
+
+3. **Geolocation API Endpoints**
+   - `POST /geo/location` - Save location
+   - `GET /geo/location/:id` - Get location
+   - `POST /geo/geocode` - Address to coordinates
+   - `POST /geo/reverse-geocode` - Coordinates to address
+   - `POST /geo/distance` - Calculate distances
+   - `POST /geo/nearby` - Find nearby locations
+   - Territory management (CRUD operations)
+   - Geofence checking
+
+4. **Frontend Map Components**
+   - Leaflet.js integration with OpenStreetMap
+   - MapService - Comprehensive client library
+   - Marker components with custom icons
+   - Marker clustering for performance
+   - Territory drawing and visualization
+   - Heat map support
+
+5. **Survey Location Features**
+   - Location capture for surveys
+   - Territory-based assignment
+   - Coverage area visualization
+   - Location filtering and search
+
+6. **Response Location Capture**
+   - Automatic location capture on submission
+   - Location accuracy indicators
+   - Permission handling
+   - Offline queue with auto-sync
+   - LocationCapture widget component
+
+7. **Map Dashboard**
+   - Interactive map with filters
+   - Real-time location visualization
+   - Territory management UI
+   - Statistics and analytics
+   - Clustering toggle
+   - Legend and controls
+
+8. **Docker Configuration**
+   - MongoDB container setup
+   - Geolocation service container
+   - Docker Compose orchestration
+   - Health checks and monitoring
+
+### 📂 New Structure
+
+```
+services/geolocation-service/
+├── index.js                          # Main server
+├── package.json                      # Dependencies
+├── Dockerfile                        # Container config
+├── .env.example                     # Environment template
+├── routes/
+│   └── geolocation.js               # API routes
+├── controllers/
+│   └── geolocationController.js     # Business logic
+├── models/
+│   ├── Location.js                  # Location schema
+│   └── Territory.js                 # Territory schema
+├── services/
+│   ├── geocodingService.js          # Geocoding logic
+│   └── locationService.js           # Location utilities
+└── config/
+    └── database.js                  # MongoDB connection
+
+public/
+├── map-service.js                   # Map client library
+├── map-dashboard.html               # Interactive dashboard
+└── location-capture.js              # Location capture widget
+
+docker-compose.yml                   # Multi-service orchestration
+Dockerfile                           # Main app container
+```
+
+### 🗺️ Using Geolocation Features
+
+**Start the Geolocation Service:**
+```bash
+# Standalone
+cd services/geolocation-service
+npm install
+npm start
+
+# Or with Docker
+docker-compose up geolocation-service mongodb
+```
+
+**Access the Map Dashboard:**
+```
+http://localhost:3000/map-dashboard.html
+```
+
+**Using the Map Service in Your Code:**
+```javascript
+// Initialize map service
+const mapService = new MapService({
+  apiUrl: 'http://localhost:3001/api/geo'
+});
+
+// Initialize map
+mapService.initMap('map-container');
+
+// Add marker
+mapService.addMarker('map-container', {
+  coordinates: [55.2708, 25.2048],
+  type: 'survey',
+  popup: '<strong>Survey Location</strong>'
+});
+
+// Geocode address
+const result = await mapService.geocode('Burj Khalifa, Dubai');
+console.log(result.coordinates);
+```
+
+**Capture Location in Forms:**
+```javascript
+// Initialize location capture
+const locationCapture = new LocationCapture();
+
+// Create widget
+locationCapture.createCaptureWidget({
+  containerId: 'location-widget',
+  showMap: true,
+  showAddress: true,
+  onCapture: (location) => {
+    console.log('Location captured:', location);
+  }
+});
+
+// Or capture programmatically
+const location = await locationCapture.getCurrentLocation();
+await locationCapture.captureResponseLocation(surveyId, responseId);
+```
 
 ## 🚀 Sprint 5: AI Frontend Integration - COMPLETED
 
@@ -271,6 +426,26 @@ GOOGLE_API_KEY=...
 | `/api/context/upload` | POST | Upload context file |
 | `/api/context/files` | GET | List context files |
 | `/api/context/files/:filename` | DELETE | Delete context file |
+
+### Geolocation Operations (Port 3001)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/geo/location` | POST | Save location |
+| `/api/geo/location/:id` | GET | Get location by ID |
+| `/api/geo/locations` | GET | Get locations (query: entityId, type) |
+| `/api/geo/locations/stats` | GET | Get location statistics |
+| `/api/geo/geocode` | POST | Convert address to coordinates |
+| `/api/geo/reverse-geocode` | POST | Convert coordinates to address |
+| `/api/geo/distance` | POST | Calculate distance between points |
+| `/api/geo/nearby` | POST | Find nearby locations |
+| `/api/geo/territory` | POST | Create territory |
+| `/api/geo/territory/:id` | GET | Get territory |
+| `/api/geo/territories` | GET | Get all territories |
+| `/api/geo/territory/:id` | PUT | Update territory |
+| `/api/geo/territory/:id` | DELETE | Delete territory |
+| `/api/geo/territory/:id/locations` | GET | Get locations in territory |
+| `/api/geo/geofence/check` | POST | Check if point is in territory |
 
 ## 💡 Usage Examples
 

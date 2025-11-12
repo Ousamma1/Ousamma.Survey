@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Dubai Survey - AI Enhanced</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #1C2654;
+      color: white;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .form-body {
+      padding: 32px;
+    }
+
+    .question {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      transition: border-color 0.2s;
+    }
+
+    .question:hover {
+      border-color: #667eea;
+    }
+
+    .question-label {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .question-required {
+      color: #ef4444;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .ai-enhance-btn {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .ai-enhance-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    .ai-enhance-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .radio-option,
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .radio-option:hover,
+    .checkbox-option:hover {
+      background: #f1f5f9;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .scale-input {
+      width: 100%;
+      margin: 16px 0;
+    }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 32px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .lang-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border: 2px solid #667eea;
+      color: #667eea;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .lang-toggle:hover {
+      background: #667eea;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <button class="lang-toggle" id="langToggle">العربية</button>
+
+  <div class="container">
+    <div class="header">
+      <h1>Digital Dubai Survey</h1>
+      <p>Help us improve our services</p>
+      <div class="ai-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"></path>
+        </svg>
+        AI-Enhanced Survey
+      </div>
+    </div>
+
+    <div class="form-body">
+      <form id="surveyForm">
+        <!-- Question 1: Multiple Choice -->
+        <div class="question">
+          <label class="question-label">
+            1. How satisfied are you with Digital Dubai services? <span class="question-required">*</span>
+          </label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="q1" value="Very Satisfied" required>
+              <span>Very Satisfied</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="q1" value="Satisfied">
+              <span>Satisfied</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="q1" value="Neutral">
+              <span>Neutral</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="q1" value="Dissatisfied">
+              <span>Dissatisfied</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="q1" value="Very Dissatisfied">
+              <span>Very Dissatisfied</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Question 2: Checkboxes -->
+        <div class="question">
+          <label class="question-label">
+            2. Which Digital Dubai services have you used? (Select all that apply)
+          </label>
+          <div class="checkbox-group">
+            <label class="checkbox-option">
+              <input type="checkbox" name="q2" value="Smart City Apps">
+              <span>Smart City Apps</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="q2" value="E-Government Services">
+              <span>E-Government Services</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="q2" value="Digital Payments">
+              <span>Digital Payments</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="q2" value="Public WiFi">
+              <span>Public WiFi</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="q2" value="Other">
+              <span>Other</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Question 3: Short Answer with AI Enhancement -->
+        <div class="question">
+          <label class="question-label">
+            3. What do you like most about our services?
+          </label>
+          <div class="input-group">
+            <input type="text" name="q3" id="q3" placeholder="Type your answer here...">
+            <button type="button" class="ai-enhance-btn" data-target="q3">
+              ✨ Enhance
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 4: Paragraph with AI Enhancement -->
+        <div class="question">
+          <label class="question-label">
+            4. Please share any suggestions for improvement
+          </label>
+          <div class="input-group">
+            <textarea name="q4" id="q4" placeholder="Share your thoughts..."></textarea>
+            <button type="button" class="ai-enhance-btn" data-target="q4">
+              ✨ Enhance
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 5: Scale -->
+        <div class="question">
+          <label class="question-label">
+            5. How likely are you to recommend Digital Dubai to others? <span class="question-required">*</span>
+          </label>
+          <input type="range" name="q5" class="scale-input" min="0" max="10" value="5" required>
+          <div class="scale-labels">
+            <span>Not likely</span>
+            <span id="scaleValue">5</span>
+            <span>Very likely</span>
+          </div>
+        </div>
+
+        <!-- Question 6: Dropdown -->
+        <div class="question">
+          <label class="question-label">
+            6. How often do you use Digital Dubai services?
+          </label>
+          <select name="q6">
+            <option value="">Select an option</option>
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Rarely">Rarely</option>
+            <option value="First time">First time</option>
+          </select>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Submit Survey</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- AI Chat Widget Container -->
+  <div id="aiChatContainer"></div>
+
+  <!-- Scripts -->
+  <script src="ai-service.js"></script>
+  <script src="ai-chat-widget.js"></script>
+  <script>
+    // Initialize AI Service and Chat Widget
+    const aiService = new AIService();
+    const chatWidget = new AIChatWidget('#aiChatContainer', aiService);
+
+    // Set context
+    aiService.setContext({
+      application: 'Survey Form',
+      purpose: 'Text enhancement for user responses'
+    });
+
+    // Scale value display
+    const scaleInput = document.querySelector('input[type="range"]');
+    const scaleValue = document.getElementById('scaleValue');
+
+    scaleInput.addEventListener('input', (e) => {
+      scaleValue.textContent = e.target.value;
+    });
+
+    // AI Enhancement buttons
+    document.querySelectorAll('.ai-enhance-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const targetId = this.dataset.target;
+        const input = document.getElementById(targetId);
+        const originalText = input.value.trim();
+
+        if (!originalText) {
+          alert('Please enter some text first.');
+          return;
+        }
+
+        const originalBtnText = this.innerHTML;
+        this.disabled = true;
+        this.innerHTML = '⏳ Enhancing...';
+
+        try {
+          const enhanced = await aiService.enhanceText(originalText);
+          input.value = enhanced;
+          this.innerHTML = '✅ Enhanced!';
+          setTimeout(() => {
+            this.innerHTML = originalBtnText;
+            this.disabled = false;
+          }, 2000);
+        } catch (error) {
+          console.error('Enhancement error:', error);
+          this.innerHTML = '❌ Error';
+          setTimeout(() => {
+            this.innerHTML = originalBtnText;
+            this.disabled = false;
+          }, 2000);
+        }
+      });
+    });
+
+    // Form submission
+    document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      // Collect form data
+      const formData = new FormData(e.target);
+      const responses = {};
+
+      for (let [key, value] of formData.entries()) {
+        if (responses[key]) {
+          // Handle multiple checkboxes
+          if (!Array.isArray(responses[key])) {
+            responses[key] = [responses[key]];
+          }
+          responses[key].push(value);
+        } else {
+          responses[key] = value;
+        }
+      }
+
+      try {
+        // Save responses
+        const response = await fetch('/api/responses/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            surveyId: 'survey-001',
+            responses
+          })
+        });
+
+        if (response.ok) {
+          window.location.href = 'thankyou.html';
+        } else {
+          throw new Error('Failed to submit survey');
+        }
+      } catch (error) {
+        console.error('Submission error:', error);
+        alert('Failed to submit survey. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Survey';
+      }
+    });
+
+    // Language toggle (placeholder for future implementation)
+    document.getElementById('langToggle').addEventListener('click', function() {
+      const currentLang = this.textContent;
+      if (currentLang === 'العربية') {
+        this.textContent = 'English';
+        // Switch to Arabic
+      } else {
+        this.textContent = 'العربية';
+        // Switch to English
+      }
+    });
+  </script>
+</body>
+</html>

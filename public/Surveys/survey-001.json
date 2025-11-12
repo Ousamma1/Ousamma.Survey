@@ -1,0 +1,93 @@
+{
+  "id": "survey-001",
+  "title": "Digital Dubai Customer Satisfaction Survey",
+  "description": "Help us improve our digital services",
+  "version": "1.0",
+  "createdAt": "2025-11-12T00:00:00.000Z",
+  "questions": [
+    {
+      "type": "multiple_choice",
+      "question_en": "How satisfied are you with Digital Dubai services?",
+      "question_ar": "ما مدى رضاك عن خدمات دبي الرقمية؟",
+      "options_en": [
+        "Very Satisfied",
+        "Satisfied",
+        "Neutral",
+        "Dissatisfied",
+        "Very Dissatisfied"
+      ],
+      "options_ar": [
+        "راضٍ جداً",
+        "راضٍ",
+        "محايد",
+        "غير راضٍ",
+        "غير راضٍ جداً"
+      ],
+      "required": true
+    },
+    {
+      "type": "checkboxes",
+      "question_en": "Which Digital Dubai services have you used? (Select all that apply)",
+      "question_ar": "ما هي خدمات دبي الرقمية التي استخدمتها؟ (اختر كل ما ينطبق)",
+      "options_en": [
+        "Smart City Apps",
+        "E-Government Services",
+        "Digital Payments",
+        "Public WiFi",
+        "Other"
+      ],
+      "options_ar": [
+        "تطبيقات المدينة الذكية",
+        "الخدمات الحكومية الإلكترونية",
+        "المدفوعات الرقمية",
+        "الواي فاي العام",
+        "أخرى"
+      ],
+      "required": false
+    },
+    {
+      "type": "short_answer",
+      "question_en": "What do you like most about our services?",
+      "question_ar": "ما الذي يعجبك أكثر في خدماتنا؟",
+      "required": false
+    },
+    {
+      "type": "paragraph",
+      "question_en": "Please share any suggestions for improvement",
+      "question_ar": "يرجى مشاركة أي اقتراحات للتحسين",
+      "required": false
+    },
+    {
+      "type": "scale",
+      "question_en": "How likely are you to recommend Digital Dubai to others?",
+      "question_ar": "ما مدى احتمالية توصيتك بدبي الرقمية للآخرين؟",
+      "min": 0,
+      "max": 10,
+      "minLabel_en": "Not likely",
+      "maxLabel_en": "Very likely",
+      "minLabel_ar": "غير محتمل",
+      "maxLabel_ar": "محتمل جداً",
+      "required": true
+    },
+    {
+      "type": "dropdown",
+      "question_en": "How often do you use Digital Dubai services?",
+      "question_ar": "كم مرة تستخدم خدمات دبي الرقمية؟",
+      "options_en": [
+        "Daily",
+        "Weekly",
+        "Monthly",
+        "Rarely",
+        "First time"
+      ],
+      "options_ar": [
+        "يومياً",
+        "أسبوعياً",
+        "شهرياً",
+        "نادراً",
+        "المرة الأولى"
+      ],
+      "required": false
+    }
+  ]
+}

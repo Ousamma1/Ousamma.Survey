@@ -517,4 +517,3 @@ For issues or questions:
 
 ---
 
-**Built with ❤️ for Digital Dubai**

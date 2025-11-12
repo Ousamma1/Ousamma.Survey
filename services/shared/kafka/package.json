@@ -1,0 +1,19 @@
+{
+  "name": "@survey-platform/kafka",
+  "version": "1.0.0",
+  "description": "Shared Kafka utilities for Survey Platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "kafka",
+    "event-streaming",
+    "microservices"
+  ],
+  "author": "Survey Platform",
+  "license": "MIT",
+  "dependencies": {
+    "kafkajs": "^2.2.4"
+  }
+}

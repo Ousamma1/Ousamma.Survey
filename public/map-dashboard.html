@@ -403,6 +403,9 @@
     <!-- Map Service -->
     <script src="map-service.js"></script>
 
+    <!-- WebSocket Client -->
+    <script src="websocket-client.js"></script>
+
     <script>
         // Initialize map service
         const mapService = new MapService({
@@ -414,6 +417,105 @@
         let clusteringEnabled = true;
         let territoriesVisible = true;
         let currentFilters = {};
+        let wsClient = null;
+
+        // Initialize WebSocket connection
+        function initWebSocket() {
+            wsClient = new WebSocketClient({
+                url: 'http://localhost:3002',
+                autoReconnect: true,
+                enableToasts: true
+            });
+
+            // Setup event handlers
+            wsClient.on('connected', (data) => {
+                console.log('WebSocket connected:', data);
+                showAlert('Real-time updates enabled', 'success');
+
+                // Join global room for general updates
+                wsClient.joinRoom('global');
+            });
+
+            wsClient.on('response.new', handleNewResponse);
+            wsClient.on('analytics.update', handleAnalyticsUpdate);
+            wsClient.on('surveyor.location', handleLocationUpdate);
+            wsClient.on('notification', handleNotification);
+
+            // Connect
+            wsClient.connect().catch(error => {
+                console.error('WebSocket connection failed:', error);
+                showAlert('Real-time updates unavailable', 'error');
+            });
+        }
+
+        // Handle new survey response
+        function handleNewResponse(data) {
+            console.log('New response received:', data);
+
+            // Refresh locations if viewing the same survey
+            if (currentFilters.type === 'response' || !currentFilters.type) {
+                loadLocations(currentFilters);
+            }
+
+            // Update stats
+            loadStats();
+
+            // Show notification
+            showAlert(`New response for survey ${data.surveyId}`, 'info');
+        }
+
+        // Handle analytics update
+        function handleAnalyticsUpdate(data) {
+            console.log('Analytics update:', data);
+
+            // Refresh stats
+            loadStats();
+        }
+
+        // Handle surveyor location update
+        function handleLocationUpdate(data) {
+            console.log('Location update:', data);
+
+            // Add/update marker on map
+            if (data.location && data.location.coordinates) {
+                mapService.addMarker('map', {
+                    coordinates: data.location.coordinates,
+                    type: 'surveyor',
+                    popup: createSurveyorPopup(data)
+                });
+            }
+
+            // Refresh locations if viewing surveyors
+            if (currentFilters.type === 'surveyor') {
+                loadLocations(currentFilters);
+            }
+        }
+
+        // Handle notification
+        function handleNotification(data) {
+            console.log('Notification:', data);
+
+            const type = data.priority === 'high' ? 'error' : 'info';
+            showAlert(data.message || data.title, type);
+        }
+
+        // Create surveyor popup content
+        function createSurveyorPopup(data) {
+            return `
+                <div style="min-width: 200px;">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">SURVEYOR</h4>
+                    <p style="margin: 5px 0; font-size: 13px;">
+                        <strong>Surveyor ID:</strong> ${data.surveyorId}
+                    </p>
+                    ${data.surveyId ? `<p style="margin: 5px 0; font-size: 13px;">
+                        <strong>Survey ID:</strong> ${data.surveyId}
+                    </p>` : ''}
+                    <p style="margin: 5px 0; font-size: 12px; color: #666;">
+                        ${new Date(data.timestamp).toLocaleString()}
+                    </p>
+                </div>
+            `;
+        }
 
         // Initialize dashboard
         async function initDashboard() {
@@ -422,6 +524,9 @@
 
                 // Initialize map
                 mapService.initMap('map');
+
+                // Initialize WebSocket connection
+                initWebSocket();
 
                 // Load data
                 await Promise.all([

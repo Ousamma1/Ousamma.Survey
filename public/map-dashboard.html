@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Dashboard - Survey Geolocation</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Leaflet MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+    <!-- Leaflet Draw CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+
+    <!-- Leaflet Heat CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+        }
+
+        .filter-section h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend {
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+
+        .legend h4 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .map-controls button {
+            display: block;
+            width: 100%;
+            padding: 8px 15px;
+            margin-bottom: 8px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .map-controls button:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🗺️ Map Dashboard</h1>
+                <p>Survey Geolocation Analytics</p>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="total-locations">0</div>
+                        <div class="label">Locations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="total-surveys">0</div>
+                        <div class="label">Surveys</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="total-responses">0</div>
+                        <div class="label">Responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="total-territories">0</div>
+                        <div class="label">Territories</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-section">
+                    <h3>Filters</h3>
+
+                    <div class="filter-group">
+                        <label>Location Type</label>
+                        <select id="filter-type">
+                            <option value="">All Types</option>
+                            <option value="survey">Surveys</option>
+                            <option value="response">Responses</option>
+                            <option value="surveyor">Surveyors</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Territory</label>
+                        <select id="filter-territory">
+                            <option value="">All Territories</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Search Entity ID</label>
+                        <input type="text" id="filter-entity" placeholder="Enter entity ID">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+                </div>
+
+                <!-- Legend -->
+                <div class="legend">
+                    <h4>Legend</h4>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3388ff;"></div>
+                        <span>Survey Locations</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #28a745;"></div>
+                        <span>Response Locations</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff7800;"></div>
+                        <span>Surveyor Locations</span>
+                    </div>
+                </div>
+
+                <!-- Loading indicator -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Loading data...</p>
+                </div>
+
+                <!-- Alerts -->
+                <div id="alerts"></div>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+
+            <div class="map-controls">
+                <button onclick="toggleClustering()">Toggle Clustering</button>
+                <button onclick="toggleTerritories()">Toggle Territories</button>
+                <button onclick="fitAllBounds()">Fit All</button>
+                <button onclick="refreshData()">Refresh Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet MarkerCluster JS -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+    <!-- Leaflet Draw JS -->
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+    <!-- Leaflet Heat JS -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+    <!-- Map Service -->
+    <script src="map-service.js"></script>
+
+    <script>
+        // Initialize map service
+        const mapService = new MapService({
+            apiUrl: 'http://localhost:3001/api/geo',
+            defaultCenter: [25.2048, 55.2708], // Dubai
+            defaultZoom: 11
+        });
+
+        let clusteringEnabled = true;
+        let territoriesVisible = true;
+        let currentFilters = {};
+
+        // Initialize dashboard
+        async function initDashboard() {
+            try {
+                showLoading(true);
+
+                // Initialize map
+                mapService.initMap('map');
+
+                // Load data
+                await Promise.all([
+                    loadLocations(),
+                    loadTerritories(),
+                    loadStats()
+                ]);
+
+                showLoading(false);
+                showAlert('Dashboard loaded successfully', 'success');
+            } catch (error) {
+                console.error('Dashboard initialization error:', error);
+                showAlert('Failed to initialize dashboard: ' + error.message, 'error');
+                showLoading(false);
+            }
+        }
+
+        // Load locations from API
+        async function loadLocations(filters = {}) {
+            try {
+                const queryParams = new URLSearchParams(filters);
+                const response = await fetch(`http://localhost:3001/api/geo/locations?${queryParams}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to load locations');
+                }
+
+                const data = await response.json();
+
+                // Clear existing markers
+                mapService.clearMarkers('map');
+
+                // Add markers
+                if (data.locations && data.locations.length > 0) {
+                    if (clusteringEnabled) {
+                        const markersData = data.locations.map(loc => ({
+                            coordinates: loc.coordinates,
+                            type: loc.type,
+                            popup: createPopupContent(loc)
+                        }));
+                        mapService.addMarkerCluster('map', markersData);
+                    } else {
+                        data.locations.forEach(loc => {
+                            mapService.addMarker('map', {
+                                coordinates: loc.coordinates,
+                                type: loc.type,
+                                popup: createPopupContent(loc)
+                            });
+                        });
+                    }
+
+                    // Fit bounds to show all markers
+                    if (!filters.type && !filters.entityId) {
+                        mapService.fitBounds('map');
+                    }
+                }
+
+                return data.locations;
+            } catch (error) {
+                console.error('Load locations error:', error);
+                throw error;
+            }
+        }
+
+        // Load territories from API
+        async function loadTerritories() {
+            try {
+                const data = await mapService.getTerritories();
+
+                if (data.territories && data.territories.length > 0) {
+                    // Populate territory filter dropdown
+                    const territorySelect = document.getElementById('filter-territory');
+                    data.territories.forEach(territory => {
+                        const option = document.createElement('option');
+                        option.value = territory._id;
+                        option.textContent = territory.name;
+                        territorySelect.appendChild(option);
+                    });
+
+                    // Draw territories on map
+                    data.territories.forEach(territory => {
+                        mapService.drawTerritory('map', {
+                            polygon: territory.polygon,
+                            name: territory.name,
+                            color: territory.color,
+                            popup: `<strong>${territory.name}</strong><br>Surveyors: ${territory.assignedSurveyors.length}`
+                        });
+                    });
+
+                    // Update stats
+                    document.getElementById('total-territories').textContent = data.territories.length;
+                }
+
+                return data.territories;
+            } catch (error) {
+                console.error('Load territories error:', error);
+                throw error;
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('http://localhost:3001/api/geo/locations/stats');
+
+                if (!response.ok) {
+                    throw new Error('Failed to load statistics');
+                }
+
+                const data = await response.json();
+
+                // Update stats display
+                document.getElementById('total-locations').textContent = data.stats.total || 0;
+
+                // Update by type
+                const byType = data.stats.byType || [];
+                const surveys = byType.find(t => t._id === 'survey')?.count || 0;
+                const responses = byType.find(t => t._id === 'response')?.count || 0;
+
+                document.getElementById('total-surveys').textContent = surveys;
+                document.getElementById('total-responses').textContent = responses;
+
+                return data.stats;
+            } catch (error) {
+                console.error('Load stats error:', error);
+                // Don't throw, just log
+            }
+        }
+
+        // Create popup content for markers
+        function createPopupContent(location) {
+            return `
+                <div style="min-width: 200px;">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">${location.type.toUpperCase()}</h4>
+                    <p style="margin: 5px 0; font-size: 13px;">
+                        <strong>Entity ID:</strong> ${location.entityId}
+                    </p>
+                    ${location.address ? `<p style="margin: 5px 0; font-size: 13px;">
+                        <strong>Address:</strong> ${location.address}
+                    </p>` : ''}
+                    ${location.accuracy ? `<p style="margin: 5px 0; font-size: 13px;">
+                        <strong>Accuracy:</strong> ${location.accuracy}m
+                    </p>` : ''}
+                    <p style="margin: 5px 0; font-size: 12px; color: #666;">
+                        ${new Date(location.createdAt).toLocaleString()}
+                    </p>
+                </div>
+            `;
+        }
+
+        // Apply filters
+        async function applyFilters() {
+            const filters = {};
+
+            const type = document.getElementById('filter-type').value;
+            const territory = document.getElementById('filter-territory').value;
+            const entityId = document.getElementById('filter-entity').value;
+
+            if (type) filters.type = type;
+            if (entityId) filters.entityId = entityId;
+
+            currentFilters = filters;
+
+            showLoading(true);
+            try {
+                await loadLocations(filters);
+                showAlert('Filters applied successfully', 'success');
+            } catch (error) {
+                showAlert('Failed to apply filters', 'error');
+            }
+            showLoading(false);
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('filter-type').value = '';
+            document.getElementById('filter-territory').value = '';
+            document.getElementById('filter-entity').value = '';
+            currentFilters = {};
+            applyFilters();
+        }
+
+        // Toggle clustering
+        function toggleClustering() {
+            clusteringEnabled = !clusteringEnabled;
+            loadLocations(currentFilters);
+            showAlert(`Clustering ${clusteringEnabled ? 'enabled' : 'disabled'}`, 'info');
+        }
+
+        // Toggle territories
+        function toggleTerritories() {
+            territoriesVisible = !territoriesVisible;
+            if (territoriesVisible) {
+                loadTerritories();
+            } else {
+                mapService.clearTerritories('map');
+            }
+            showAlert(`Territories ${territoriesVisible ? 'shown' : 'hidden'}`, 'info');
+        }
+
+        // Fit all bounds
+        function fitAllBounds() {
+            mapService.fitBounds('map');
+        }
+
+        // Refresh data
+        async function refreshData() {
+            showLoading(true);
+            try {
+                await initDashboard();
+                showAlert('Data refreshed successfully', 'success');
+            } catch (error) {
+                showAlert('Failed to refresh data', 'error');
+            }
+            showLoading(false);
+        }
+
+        // Show/hide loading indicator
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('active');
+            } else {
+                loading.classList.remove('active');
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'info') {
+            const alertsDiv = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertsDiv.appendChild(alert);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Initialize dashboard on page load
+        window.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

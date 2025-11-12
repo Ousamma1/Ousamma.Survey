@@ -1,14 +1,14 @@
 /**
- * Audit Service
+ * Enhanced Audit Service with MongoDB Storage
  * Manages audit logging and compliance reporting
  */
 
+const AuditLog = require('../models/AuditLog');
 const config = require('../config/config');
 
 class AuditService {
   constructor() {
-    this.auditLogs = new Map(); // In-memory store (replace with MongoDB in production)
-    this.logIndex = new Map(); // Index for quick lookups
+    console.log('Initializing Enhanced Audit Service with MongoDB storage');
   }
 
   /**
@@ -16,27 +16,25 @@ class AuditService {
    */
   async logAuditEvent(event) {
     try {
-      const { auditId, userId, payload } = event;
-      const { action, resource, resourceId, changes, ipAddress, userAgent, result } = payload;
+      const { eventId, userId, payload, timestamp } = event;
+      const { action, resource, resourceId, changes, ipAddress, userAgent, result } = payload || {};
 
-      const auditLog = {
-        auditId: auditId || `audit-${Date.now()}`,
+      const auditData = {
+        eventId: eventId || `audit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        eventType: event.eventType || 'audit.log',
+        category: 'audit',
+        action: action || 'unknown',
         userId,
-        action,
-        resource,
-        resourceId,
+        resource: resource ? { type: resource, id: resourceId } : undefined,
         changes,
-        ipAddress,
-        userAgent,
-        result,
-        timestamp: event.timestamp || new Date(),
-        eventType: 'audit.log'
+        metadata: { ipAddress, userAgent },
+        result: result || 'success',
+        timestamp: timestamp || new Date()
       };
 
-      this.auditLogs.set(auditLog.auditId, auditLog);
-      this.indexLog(auditLog);
+      const auditLog = await AuditLog.logEvent(auditData);
 
-      console.log(`✓ Audit log created: ${auditLog.auditId} - ${action} on ${resource}`);
+      console.log(`✓ Audit log created: ${auditLog.eventId} - ${action} on ${resource}`);
 
       return auditLog;
     } catch (error) {
@@ -50,24 +48,22 @@ class AuditService {
    */
   async logAuthEvent(event) {
     try {
-      const { auditId, userId, payload } = event;
-      const { action, ipAddress, userAgent, success, failureReason } = payload;
+      const { eventId, userId, payload, timestamp } = event;
+      const { action, ipAddress, userAgent, success, failureReason } = payload || {};
 
-      const auditLog = {
-        auditId: auditId || `auth-${Date.now()}`,
+      const auditData = {
+        eventId: eventId || `auth-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        eventType: 'auth.' + (action || 'unknown'),
+        category: 'auth',
+        action: action || 'unknown',
         userId,
-        action,
-        ipAddress,
-        userAgent,
-        success,
-        failureReason,
-        timestamp: event.timestamp || new Date(),
-        eventType: 'audit.auth',
-        severity: success ? 'info' : 'warning'
+        metadata: { ipAddress, userAgent, failureReason },
+        result: success ? 'success' : 'failure',
+        errorMessage: success ? undefined : failureReason,
+        timestamp: timestamp || new Date()
       };
 
-      this.auditLogs.set(auditLog.auditId, auditLog);
-      this.indexLog(auditLog);
+      const auditLog = await AuditLog.logEvent(auditData);
 
       console.log(`✓ Auth audit: ${action} - ${success ? 'SUCCESS' : 'FAILED'} (User: ${userId})`);
 
@@ -83,24 +79,22 @@ class AuditService {
    */
   async logDataAccessEvent(event) {
     try {
-      const { auditId, userId, payload } = event;
-      const { action, dataType, dataId, sensitivityLevel, reason } = payload;
+      const { eventId, userId, payload, timestamp } = event;
+      const { action, dataType, dataId, sensitivityLevel, reason } = payload || {};
 
-      const auditLog = {
-        auditId: auditId || `data-${Date.now()}`,
+      const auditData = {
+        eventId: eventId || `data-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        eventType: 'data.' + (action || 'access'),
+        category: 'data',
+        action: action || 'access',
         userId,
-        action,
-        dataType,
-        dataId,
-        sensitivityLevel,
-        reason,
-        timestamp: event.timestamp || new Date(),
-        eventType: 'audit.data',
-        severity: this.getSeverityForDataAccess(action, sensitivityLevel)
+        resource: { type: dataType, id: dataId },
+        metadata: { sensitivityLevel, reason },
+        result: 'success',
+        timestamp: timestamp || new Date()
       };
 
-      this.auditLogs.set(auditLog.auditId, auditLog);
-      this.indexLog(auditLog);
+      const auditLog = await AuditLog.logEvent(auditData);
 
       console.log(`✓ Data access audit: ${action} ${dataType} (${sensitivityLevel})`);
 
@@ -116,22 +110,24 @@ class AuditService {
    */
   async autoAudit(action, event) {
     try {
-      const auditLog = {
-        auditId: `auto-${action}-${Date.now()}`,
+      const resourceType = this.getResourceType(action);
+      const resourceId = event.surveyId || event.responseId || event.id;
+
+      const auditData = {
+        eventId: `auto-${action}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        eventType: event.eventType || action,
+        category: resourceType,
+        action: action.replace(/^(survey|response|surveyor)_/, ''),
         userId: event.userId,
-        action,
-        resource: this.getResourceType(action),
-        resourceId: event.surveyId || event.responseId || event.id,
-        timestamp: event.timestamp || new Date(),
-        eventType: 'audit.auto',
-        eventData: event,
-        autoGenerated: true
+        resource: { type: resourceType, id: resourceId },
+        metadata: { autoGenerated: true, eventData: event },
+        result: 'success',
+        timestamp: event.timestamp || new Date()
       };
 
-      this.auditLogs.set(auditLog.auditId, auditLog);
-      this.indexLog(auditLog);
+      const auditLog = await AuditLog.logEvent(auditData);
 
-      console.log(`✓ Auto-audit: ${action} (Resource: ${auditLog.resourceId})`);
+      console.log(`✓ Auto-audit: ${action} (Resource: ${resourceId})`);
 
       return auditLog;
     } catch (error) {
@@ -141,74 +137,12 @@ class AuditService {
   }
 
   /**
-   * Index log for quick lookups
-   */
-  indexLog(log) {
-    // Index by userId
-    if (log.userId) {
-      if (!this.logIndex.has(`user:${log.userId}`)) {
-        this.logIndex.set(`user:${log.userId}`, []);
-      }
-      this.logIndex.get(`user:${log.userId}`).push(log.auditId);
-    }
-
-    // Index by action
-    if (log.action) {
-      if (!this.logIndex.has(`action:${log.action}`)) {
-        this.logIndex.set(`action:${log.action}`, []);
-      }
-      this.logIndex.get(`action:${log.action}`).push(log.auditId);
-    }
-
-    // Index by resource
-    if (log.resource) {
-      if (!this.logIndex.has(`resource:${log.resource}`)) {
-        this.logIndex.set(`resource:${log.resource}`, []);
-      }
-      this.logIndex.get(`resource:${log.resource}`).push(log.auditId);
-    }
-  }
-
-  /**
-   * Query audit logs
+   * Query audit logs (delegates to AuditLog model)
    */
   async queryLogs(filters) {
     try {
-      const { userId, action, resource, startDate, endDate, limit = 100 } = filters;
-
-      let logs = Array.from(this.auditLogs.values());
-
-      // Apply filters
-      if (userId) {
-        const userLogIds = this.logIndex.get(`user:${userId}`) || [];
-        logs = logs.filter(log => userLogIds.includes(log.auditId));
-      }
-
-      if (action) {
-        const actionLogIds = this.logIndex.get(`action:${action}`) || [];
-        logs = logs.filter(log => actionLogIds.includes(log.auditId));
-      }
-
-      if (resource) {
-        const resourceLogIds = this.logIndex.get(`resource:${resource}`) || [];
-        logs = logs.filter(log => resourceLogIds.includes(log.auditId));
-      }
-
-      if (startDate) {
-        const start = new Date(startDate);
-        logs = logs.filter(log => new Date(log.timestamp) >= start);
-      }
-
-      if (endDate) {
-        const end = new Date(endDate);
-        logs = logs.filter(log => new Date(log.timestamp) <= end);
-      }
-
-      // Sort by timestamp descending
-      logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-      // Apply limit
-      return logs.slice(0, limit);
+      const result = await AuditLog.search(filters);
+      return result.logs;
     } catch (error) {
       console.error('Error querying audit logs:', error);
       throw error;
@@ -219,7 +153,12 @@ class AuditService {
    * Get single audit log
    */
   async getLog(auditId) {
-    return this.auditLogs.get(auditId);
+    try {
+      return await AuditLog.findOne({ eventId: auditId }).lean();
+    } catch (error) {
+      console.error('Error getting audit log:', error);
+      throw error;
+    }
   }
 
   /**
@@ -227,16 +166,23 @@ class AuditService {
    */
   async generateComplianceReport(startDate, endDate) {
     try {
-      const logs = await this.queryLogs({ startDate, endDate, limit: 10000 });
+      const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const end = endDate ? new Date(endDate) : new Date();
+
+      const logs = await AuditLog.find({
+        timestamp: { $gte: start, $lte: end }
+      }).lean();
 
       const report = {
         period: {
-          start: startDate,
-          end: endDate
+          start: start.toISOString(),
+          end: end.toISOString()
         },
         totalEvents: logs.length,
-        eventsByType: {},
+        eventsByCategory: {},
+        eventsByAction: {},
         eventsByUser: {},
+        eventsBySeverity: {},
         authenticationEvents: {
           total: 0,
           successful: 0,
@@ -253,18 +199,24 @@ class AuditService {
 
       // Analyze logs
       logs.forEach(log => {
-        // Count by event type
-        report.eventsByType[log.eventType] = (report.eventsByType[log.eventType] || 0) + 1;
+        // Count by category
+        report.eventsByCategory[log.category] = (report.eventsByCategory[log.category] || 0) + 1;
+
+        // Count by action
+        report.eventsByAction[log.action] = (report.eventsByAction[log.action] || 0) + 1;
 
         // Count by user
         if (log.userId) {
           report.eventsByUser[log.userId] = (report.eventsByUser[log.userId] || 0) + 1;
         }
 
+        // Count by severity
+        report.eventsBySeverity[log.severity] = (report.eventsBySeverity[log.severity] || 0) + 1;
+
         // Authentication events
-        if (log.eventType === 'audit.auth') {
+        if (log.category === 'auth') {
           report.authenticationEvents.total++;
-          if (log.success) {
+          if (log.result === 'success') {
             report.authenticationEvents.successful++;
           } else {
             report.authenticationEvents.failed++;
@@ -272,9 +224,9 @@ class AuditService {
         }
 
         // Data access events
-        if (log.eventType === 'audit.data') {
+        if (log.category === 'data') {
           report.dataAccessEvents.total++;
-          const sensitivity = log.sensitivityLevel || 'unknown';
+          const sensitivity = log.metadata?.sensitivityLevel || 'unknown';
           report.dataAccessEvents.bySensitivity[sensitivity] =
             (report.dataAccessEvents.bySensitivity[sensitivity] || 0) + 1;
         }
@@ -282,10 +234,12 @@ class AuditService {
         // Critical events
         if (log.severity === 'critical' || log.severity === 'warning') {
           report.criticalEvents.push({
-            auditId: log.auditId,
+            eventId: log.eventId,
             timestamp: log.timestamp,
+            eventType: log.eventType,
             action: log.action,
-            severity: log.severity
+            severity: log.severity,
+            userId: log.userId
           });
         }
       });
@@ -300,25 +254,14 @@ class AuditService {
   }
 
   /**
-   * Get severity level for data access
-   */
-  getSeverityForDataAccess(action, sensitivityLevel) {
-    if (action === 'delete' && ['confidential', 'restricted'].includes(sensitivityLevel)) {
-      return 'critical';
-    }
-    if (action === 'export' && sensitivityLevel === 'restricted') {
-      return 'warning';
-    }
-    return 'info';
-  }
-
-  /**
    * Get resource type from action
    */
   getResourceType(action) {
     if (action.includes('survey')) return 'survey';
     if (action.includes('response')) return 'response';
     if (action.includes('surveyor')) return 'surveyor';
+    if (action.includes('user')) return 'user';
+    if (action.includes('project')) return 'project';
     return 'unknown';
   }
 
@@ -326,12 +269,88 @@ class AuditService {
    * Get audit statistics
    */
   async getStatistics() {
-    return {
-      totalLogs: this.auditLogs.size,
-      indexedUsers: Array.from(this.logIndex.keys()).filter(k => k.startsWith('user:')).length,
-      indexedActions: Array.from(this.logIndex.keys()).filter(k => k.startsWith('action:')).length,
-      indexedResources: Array.from(this.logIndex.keys()).filter(k => k.startsWith('resource:')).length
-    };
+    try {
+      const stats = await AuditLog.getStatistics(7); // Last 7 days
+
+      return {
+        totalEvents: stats.totalEvents?.[0]?.count || 0,
+        byCategory: stats.byCategory || [],
+        bySeverity: stats.bySeverity || [],
+        byResult: stats.byResult || [],
+        topUsers: stats.topUsers || [],
+        recentCritical: stats.recentCritical || []
+      };
+    } catch (error) {
+      console.error('Error getting statistics:', error);
+      return {
+        totalEvents: 0,
+        byCategory: [],
+        bySeverity: [],
+        byResult: [],
+        topUsers: [],
+        recentCritical: []
+      };
+    }
+  }
+
+  /**
+   * Export audit logs in various formats
+   */
+  async exportLogs(filters, format = 'json') {
+    try {
+      const result = await AuditLog.search({ ...filters, limit: 10000 });
+
+      if (format === 'csv') {
+        return this.convertToCSV(result.logs);
+      }
+
+      return result.logs;
+    } catch (error) {
+      console.error('Error exporting logs:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Convert logs to CSV format
+   */
+  convertToCSV(logs) {
+    if (logs.length === 0) {
+      return 'No data';
+    }
+
+    const headers = [
+      'Event ID',
+      'Timestamp',
+      'Event Type',
+      'Category',
+      'Action',
+      'User ID',
+      'Resource Type',
+      'Resource ID',
+      'Result',
+      'Severity'
+    ];
+
+    const rows = logs.map(log => [
+      log.eventId,
+      log.timestamp,
+      log.eventType,
+      log.category,
+      log.action,
+      log.userId || '',
+      log.resource?.type || '',
+      log.resource?.id || '',
+      log.result,
+      log.severity
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    return csvContent;
   }
 }
 

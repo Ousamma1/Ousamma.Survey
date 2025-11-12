@@ -572,6 +572,51 @@ services:
       start_period: 15s
       retries: 3
 
+  # Admin Service - System Management & Monitoring
+  admin-service:
+    build:
+      context: ./services/admin-service
+      dockerfile: Dockerfile
+    container_name: admin-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - MONGODB_URI=mongodb://mongodb:27017/admin_service
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKERS=kafka:9092
+      - KAFKA_CLIENT_ID=admin-service
+      - KAFKA_GROUP_ID=admin-service-group
+      - HEALTH_CHECK_INTERVAL=30000
+      - STATS_CACHE_TTL=60
+      - AUDIT_RETENTION_DAYS=365
+      - SURVEY_SERVICE_URL=http://survey-service:3000
+      - GEOLOCATION_SERVICE_URL=http://geolocation-service:3001
+      - ANALYTICS_SERVICE_URL=http://analytics-service:3002
+      - WEBSOCKET_SERVICE_URL=http://websocket-service:3002
+      - PROJECT_SERVICE_URL=http://project-service:3006
+    ports:
+      - "3007:3007"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - survey-network
+    volumes:
+      - ./services/admin-service:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3007/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+
 networks:
   survey-network:
     driver: bridge

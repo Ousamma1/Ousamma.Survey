@@ -6,6 +6,7 @@
 const express = require('express');
 const { KafkaConsumer } = require('../shared/kafka');
 const config = require('./config/config');
+const database = require('./config/database');
 const auditService = require('./services/auditService');
 
 const app = express();
@@ -143,6 +144,7 @@ async function shutdown() {
   if (consumer) {
     await consumer.disconnect();
   }
+  await database.disconnect();
   process.exit(0);
 }
 
@@ -153,6 +155,15 @@ process.on('SIGINT', shutdown);
 const PORT = config.port || 3005;
 app.listen(PORT, async () => {
   console.log(`✓ Audit Consumer Service listening on port ${PORT}`);
+
+  // Connect to MongoDB
+  try {
+    await database.connect();
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    process.exit(1);
+  }
+
   await startConsumer();
 });
 

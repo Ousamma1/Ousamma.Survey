@@ -1,6 +1,314 @@
 # AI-Powered Survey Platform
 
-A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, analysis, and geolocation services.
+A comprehensive survey platform with integrated AI capabilities for survey generation, optimization, analysis, geolocation services, and real-time event streaming.
+
+## 🚀 Sprint 8: Kafka Event Streaming Infrastructure - COMPLETED
+
+This implementation provides a robust event-driven architecture using Apache Kafka for real-time event streaming across all microservices.
+
+### ✅ Deliverables
+
+#### 1. **Kafka Infrastructure**
+   - Kafka broker running in Docker
+   - Zookeeper for cluster coordination
+   - Kafka UI for monitoring and management (accessible at `http://localhost:8080`)
+   - Automated topic creation with proper partitioning
+   - 24 pre-configured topics for different event types
+   - Replication and partition strategies
+
+#### 2. **Event Topics**
+```
+Survey Events:
+  - survey.created, survey.updated, survey.published, survey.deleted
+
+Response Events:
+  - response.submitted, response.updated, response.deleted
+
+Surveyor Events:
+  - surveyor.activity, surveyor.location, surveyor.registered
+
+Analytics Events:
+  - analytics.update, analytics.request
+
+Notification Events:
+  - notification.send, notification.email, notification.sms, notification.push
+
+Audit Events:
+  - audit.log, audit.auth, audit.data
+
+Dead Letter Queues:
+  - dlq.survey, dlq.response, dlq.notification, dlq.audit
+```
+
+#### 3. **Shared Kafka Library** (`services/shared/kafka/`)
+   - **Producer Utilities**: Event publishing with retry logic
+   - **Consumer Utilities**: Event consumption with automatic offset management
+   - **Event Schemas**: Strongly-typed event definitions
+   - **Configuration Management**: Centralized Kafka configuration
+   - **Error Handling**: Dead letter queue integration
+   - **Retry Mechanisms**: Automatic retry with exponential backoff
+
+#### 4. **Analytics Consumer Service** (Port 3003)
+   - Consumes `response.submitted`, `response.updated`, `survey.created` events
+   - Real-time analytics aggregation
+   - In-memory caching with TTL
+   - Publishes `analytics.update` events
+   - REST API for analytics queries
+   - Endpoints:
+     - `GET /api/analytics/:surveyId` - Get survey analytics
+     - `GET /api/analytics/:surveyId/realtime` - Get real-time analytics
+
+#### 5. **Notification Consumer Service** (Port 3004)
+   - Consumes survey, response, and notification events
+   - Multi-channel notification support (Email, SMS, Push)
+   - Template-based notification system
+   - Notification status tracking
+   - Endpoints:
+     - `GET /api/notifications/:notificationId` - Get notification status
+
+#### 6. **Audit Consumer Service** (Port 3005)
+   - Consumes all audit and critical events
+   - Comprehensive audit trail storage
+   - Compliance reporting (GDPR, SOC2, HIPAA)
+   - 365-day retention by default
+   - Query and filtering capabilities
+   - Endpoints:
+     - `GET /api/audit/logs` - Query audit logs
+     - `GET /api/audit/logs/:auditId` - Get specific audit log
+     - `GET /api/audit/compliance-report` - Generate compliance report
+
+#### 7. **Event Schemas**
+All events follow a consistent schema:
+```javascript
+{
+  eventId: string,           // Unique identifier
+  eventType: string,          // Event type (e.g., 'survey.created')
+  timestamp: Date,            // Event timestamp
+  version: string,            // Schema version
+  source: string,             // Service that generated the event
+  correlationId: string,      // For tracing related events
+  userId: string,             // User who triggered the event
+  payload: object             // Event-specific data
+}
+```
+
+#### 8. **Monitoring & Management**
+   - **Kafka UI Dashboard**: Visual monitoring at `http://localhost:8080`
+   - **Event Streaming Dashboard**: Custom dashboard at `http://localhost:3000/kafka-dashboard.html`
+   - Topic monitoring and consumer lag tracking
+   - Real-time event statistics
+   - Consumer group status
+   - Dead letter queue monitoring
+
+#### 9. **Features**
+   - ✅ Event-driven microservices architecture
+   - ✅ Real-time data processing
+   - ✅ Automatic retry and error handling
+   - ✅ Dead letter queues for failed events
+   - ✅ Consumer group coordination
+   - ✅ Event replay capability
+   - ✅ Horizontal scalability
+   - ✅ Fault tolerance and resilience
+
+### 📂 New Structure
+
+```
+services/
+├── shared/
+│   └── kafka/
+│       ├── index.js                # Main export
+│       ├── config.js               # Kafka configuration
+│       ├── producer.js             # Producer utilities
+│       ├── consumer.js             # Consumer utilities
+│       ├── schemas.js              # Event schemas
+│       └── package.json
+│
+├── analytics-consumer-service/
+│   ├── index.js                    # Main server
+│   ├── config/
+│   │   └── config.js               # Service configuration
+│   ├── services/
+│   │   ├── analyticsService.js     # Analytics processing
+│   │   └── cacheService.js         # Caching layer
+│   ├── package.json
+│   └── Dockerfile
+│
+├── notification-consumer-service/
+│   ├── index.js                    # Main server
+│   ├── config/
+│   │   └── config.js               # Service configuration
+│   ├── services/
+│   │   └── notificationService.js  # Notification handling
+│   ├── package.json
+│   └── Dockerfile
+│
+└── audit-consumer-service/
+    ├── index.js                    # Main server
+    ├── config/
+    │   └── config.js               # Service configuration
+    ├── services/
+    │   └── auditService.js         # Audit logging
+    ├── package.json
+    └── Dockerfile
+
+public/
+└── kafka-dashboard.html            # Monitoring dashboard
+
+kafka-init.sh                       # Topic initialization script
+docker-compose.yml                  # Updated with Kafka services
+```
+
+### 🚀 Getting Started
+
+#### Start the Kafka Infrastructure
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Or start individual services
+docker-compose up -d zookeeper kafka kafka-ui
+
+# Initialize topics (runs automatically)
+docker-compose up kafka-init
+
+# Start consumer services
+docker-compose up -d analytics-consumer notification-consumer audit-consumer
+```
+
+#### Access Dashboards
+
+- **Kafka UI**: http://localhost:8080
+- **Event Dashboard**: http://localhost:3000/kafka-dashboard.html
+- **Analytics API**: http://localhost:3003
+- **Notification API**: http://localhost:3004
+- **Audit API**: http://localhost:3005
+
+#### Using the Kafka Library
+
+```javascript
+// In your microservice
+const { getProducer, createEvent } = require('../shared/kafka');
+
+// Initialize producer
+const producer = getProducer();
+await producer.connect();
+
+// Send an event
+const event = createEvent('survey.created', {
+  surveyId: 'survey-123',
+  userId: 'user-456',
+  payload: {
+    title: 'Customer Satisfaction Survey',
+    questions: [...]
+  }
+}, {
+  source: 'survey-service'
+});
+
+await producer.sendEvent('survey.created', event);
+```
+
+#### Consuming Events
+
+```javascript
+const { KafkaConsumer } = require('../shared/kafka');
+
+// Create consumer
+const consumer = new KafkaConsumer({
+  groupId: 'my-consumer-group',
+  clientId: 'my-service'
+});
+
+// Connect and subscribe
+await consumer.connect();
+await consumer.subscribe(['survey.created', 'response.submitted']);
+
+// Register handlers
+consumer.on('survey.created', async (event, metadata) => {
+  console.log('Survey created:', event.surveyId);
+  // Process event...
+});
+
+// Start consuming
+await consumer.consume();
+```
+
+### 🔧 Configuration
+
+All services support environment variables for configuration:
+
+```env
+# Kafka Configuration
+KAFKA_BROKERS=kafka:9092
+KAFKA_CLIENT_ID=survey-platform
+KAFKA_CONSUMER_GROUP=my-consumer-group
+
+# Analytics Consumer
+ANALYTICS_CACHE_TTL=300
+ANALYTICS_UPDATE_INTERVAL=5000
+
+# Notification Consumer
+EMAIL_PROVIDER=console          # or 'smtp', 'sendgrid'
+SMS_PROVIDER=console            # or 'twilio'
+PUSH_PROVIDER=console           # or 'fcm', 'apns'
+
+# Audit Consumer
+AUDIT_RETENTION_DAYS=365
+AUDIT_ARCHIVE_ENABLED=true
+```
+
+### 📊 Monitoring
+
+#### Check Kafka Status
+
+```bash
+# View running containers
+docker-compose ps
+
+# Check Kafka logs
+docker-compose logs kafka
+
+# Check consumer logs
+docker-compose logs analytics-consumer
+docker-compose logs notification-consumer
+docker-compose logs audit-consumer
+```
+
+#### Access Kafka UI
+Navigate to `http://localhost:8080` for:
+- Topic management
+- Consumer group monitoring
+- Message browsing
+- Cluster health
+
+### 🔍 Event Flow Example
+
+1. **Survey Created**:
+   - Survey Service → `survey.created` event → Kafka
+   - Analytics Consumer receives → Initializes analytics
+   - Notification Consumer receives → Sends notification
+   - Audit Consumer receives → Logs audit trail
+
+2. **Response Submitted**:
+   - Response Service → `response.submitted` event → Kafka
+   - Analytics Consumer → Updates real-time analytics → `analytics.update` event
+   - Notification Consumer → Sends confirmation
+   - Audit Consumer → Records data access
+
+3. **Error Handling**:
+   - Event processing fails → Retry with exponential backoff
+   - Max retries exceeded → Send to Dead Letter Queue
+   - DLQ monitoring → Alert on failures
+
+### 🎯 Benefits
+
+- **Decoupling**: Services communicate asynchronously
+- **Scalability**: Add more consumers to handle load
+- **Reliability**: Event persistence and replay
+- **Real-time**: Instant event processing
+- **Auditability**: Complete event trail
+- **Resilience**: Automatic retry and DLQ
 
 ## 🚀 Sprint 6: Geolocation Service & Map Integration - COMPLETED
 

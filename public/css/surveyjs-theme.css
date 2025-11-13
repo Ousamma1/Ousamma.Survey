@@ -1,0 +1,640 @@
+/**
+ * SurveyJS Theme Customization - Digital Dubai Survey System
+ *
+ * This file customizes the SurveyJS library to match our design system
+ * including question cards, progress indicators, buttons, and validation messages.
+ */
+
+/* ========================================
+   SURVEY CONTAINER
+   ======================================== */
+
+.sv-root-modern {
+  --primary: var(--color-primary-500);
+  --primary-light: var(--color-primary-600);
+  --secondary: var(--color-secondary-400);
+  --background: var(--color-bg-primary);
+  --background-dim: var(--color-neutral-100);
+  --foreground: var(--color-text-primary);
+  --base-unit: 8px;
+}
+
+.sv_main {
+  background: var(--color-neutral-100) !important;
+  font-family: var(--font-primary) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.sv_container {
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  padding: var(--space-10) !important;
+}
+
+/* ========================================
+   SURVEY HEADER
+   ======================================== */
+
+.sv_header {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+  padding: var(--space-12) var(--space-10) !important;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0 !important;
+  margin-bottom: var(--space-10) !important;
+}
+
+.sv_header__text h3 {
+  font-size: var(--font-size-3xl) !important;
+  font-weight: var(--font-weight-bold) !important;
+  color: white !important;
+  margin-bottom: var(--space-3) !important;
+}
+
+.sv_header__text {
+  font-size: var(--font-size-md) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  line-height: var(--line-height-relaxed) !important;
+}
+
+/* ========================================
+   PROGRESS BAR
+   ======================================== */
+
+.sv_progress {
+  background: white !important;
+  border-radius: var(--radius-xl) !important;
+  padding: var(--space-7) !important;
+  margin-bottom: var(--space-10) !important;
+  box-shadow: var(--shadow-base) !important;
+  border: 1px solid var(--color-border-light) !important;
+}
+
+.sv_progress-bar {
+  height: 8px !important;
+  background: var(--color-neutral-400) !important;
+  border-radius: var(--radius-full) !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.sv_progress-bar__bar {
+  background: var(--gradient-primary) !important;
+  height: 100% !important;
+  border-radius: var(--radius-full) !important;
+  transition: width 0.5s var(--ease-in-out) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.sv_progress-bar__bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.sv_progress-text {
+  text-align: center !important;
+  margin-top: var(--space-3) !important;
+  font-size: var(--font-size-sm) !important;
+  color: var(--color-text-secondary) !important;
+  font-weight: var(--font-weight-medium) !important;
+}
+
+/* ========================================
+   QUESTION CARDS
+   ======================================== */
+
+.sv_qstn {
+  background: var(--color-bg-primary) !important;
+  border-radius: var(--radius-2xl) !important;
+  padding: var(--space-10) !important;
+  margin-bottom: var(--space-10) !important;
+  box-shadow: var(--shadow-base) !important;
+  border: 1px solid var(--color-border-light) !important;
+  transition: all var(--transition-base) !important;
+  animation: messageSlideIn 0.4s var(--ease-in-out);
+}
+
+.sv_qstn:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-2px) !important;
+}
+
+.sv_qstn.sv_qstn_hasError {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.1) !important;
+}
+
+/* Question Title */
+.sv_q_title {
+  font-size: var(--font-size-lg) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--color-text-primary) !important;
+  margin-bottom: var(--space-5) !important;
+  line-height: var(--line-height-normal) !important;
+}
+
+.sv_q_num {
+  color: var(--color-primary-500) !important;
+  font-weight: var(--font-weight-bold) !important;
+  margin-right: var(--space-2) !important;
+}
+
+/* Question Description */
+.sv_q_description {
+  font-size: var(--font-size-md) !important;
+  color: var(--color-text-secondary) !important;
+  margin-bottom: var(--space-7) !important;
+  line-height: var(--line-height-relaxed) !important;
+}
+
+/* Required Asterisk */
+.sv_q_required_text {
+  color: var(--color-danger) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+/* ========================================
+   INPUT FIELDS
+   ======================================== */
+
+.sv_q_text_root input,
+.sv_q_text_root textarea {
+  border: 2px solid var(--color-border-light) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: var(--space-5) var(--space-7) !important;
+  font-size: var(--font-size-md) !important;
+  font-family: var(--font-primary) !important;
+  color: var(--color-text-primary) !important;
+  transition: all var(--transition-base) !important;
+  background: var(--color-neutral-50) !important;
+}
+
+.sv_q_text_root input:focus,
+.sv_q_text_root textarea:focus {
+  outline: none !important;
+  border-color: var(--color-primary-500) !important;
+  background: white !important;
+  box-shadow: 0 0 0 3px rgba(47, 96, 165, 0.1) !important;
+}
+
+.sv_q_text_root input.sv_q_text_error,
+.sv_q_text_root textarea.sv_q_text_error {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.1) !important;
+}
+
+/* ========================================
+   RADIO BUTTONS & CHECKBOXES
+   ======================================== */
+
+.sv_q_radiogroup,
+.sv_q_checkbox {
+  margin-top: var(--space-5) !important;
+}
+
+.sv_q_radiogroup_item,
+.sv_q_checkbox_item {
+  padding: var(--space-5) var(--space-7) !important;
+  margin-bottom: var(--space-3) !important;
+  border-radius: var(--radius-lg) !important;
+  border: 2px solid var(--color-border-light) !important;
+  transition: all var(--transition-fast) !important;
+  background: var(--color-neutral-50) !important;
+}
+
+.sv_q_radiogroup_item:hover,
+.sv_q_checkbox_item:hover {
+  background: white !important;
+  border-color: var(--color-primary-500) !important;
+  transform: translateX(4px) !important;
+}
+
+.sv_q_radiogroup_item.sv_q_radiogroup_item_checked,
+.sv_q_checkbox_item.sv_q_checkbox_item_checked {
+  background: linear-gradient(135deg, #e8f4f8 0%, #dff0f4 100%) !important;
+  border-color: var(--color-primary-500) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.sv_q_radiogroup_label,
+.sv_q_checkbox_label {
+  font-size: var(--font-size-md) !important;
+  color: var(--color-text-primary) !important;
+  font-weight: var(--font-weight-medium) !important;
+  cursor: pointer !important;
+}
+
+/* Custom Radio/Checkbox Appearance */
+.sv_q_radiogroup_control_item,
+.sv_q_checkbox_control_item {
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid var(--color-border-light) !important;
+  background: white !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.sv_q_radiogroup_control_item {
+  border-radius: var(--radius-full) !important;
+}
+
+.sv_q_checkbox_control_item {
+  border-radius: var(--radius-sm) !important;
+}
+
+.sv_q_radiogroup_item_checked .sv_q_radiogroup_control_item,
+.sv_q_checkbox_item_checked .sv_q_checkbox_control_item {
+  background: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+}
+
+/* ========================================
+   DROPDOWN / SELECT
+   ======================================== */
+
+.sv_q_dropdown_control {
+  border: 2px solid var(--color-border-light) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: var(--space-5) var(--space-7) !important;
+  font-size: var(--font-size-md) !important;
+  font-family: var(--font-primary) !important;
+  color: var(--color-text-primary) !important;
+  background: var(--color-neutral-50) !important;
+  transition: all var(--transition-base) !important;
+  cursor: pointer !important;
+}
+
+.sv_q_dropdown_control:hover {
+  border-color: var(--color-primary-500) !important;
+  background: white !important;
+}
+
+.sv_q_dropdown_control:focus {
+  outline: none !important;
+  border-color: var(--color-primary-500) !important;
+  background: white !important;
+  box-shadow: 0 0 0 3px rgba(47, 96, 165, 0.1) !important;
+}
+
+/* ========================================
+   RATING
+   ======================================== */
+
+.sv_q_rating {
+  display: flex !important;
+  gap: var(--space-3) !important;
+  margin-top: var(--space-5) !important;
+}
+
+.sv_q_rating_item {
+  width: 48px !important;
+  height: 48px !important;
+  border: 2px solid var(--color-border-light) !important;
+  border-radius: var(--radius-lg) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-base) !important;
+  background: var(--color-neutral-50) !important;
+}
+
+.sv_q_rating_item:hover {
+  background: white !important;
+  border-color: var(--color-primary-500) !important;
+  transform: scale(1.1) !important;
+}
+
+.sv_q_rating_item.sv_q_rating_item_active {
+  background: var(--gradient-primary) !important;
+  border-color: var(--color-primary-500) !important;
+  color: white !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* ========================================
+   MATRIX / TABLE
+   ======================================== */
+
+.sv_q_matrix {
+  overflow-x: auto !important;
+  margin-top: var(--space-5) !important;
+}
+
+.sv_q_matrix table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 var(--space-2) !important;
+}
+
+.sv_q_matrix th {
+  background: var(--color-neutral-100) !important;
+  padding: var(--space-5) !important;
+  text-align: left !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--color-text-primary) !important;
+  border-bottom: 2px solid var(--color-border-light) !important;
+  font-size: var(--font-size-md) !important;
+}
+
+.sv_q_matrix td {
+  padding: var(--space-5) !important;
+  border-bottom: 1px solid var(--color-border-light) !important;
+  background: var(--color-neutral-50) !important;
+}
+
+.sv_q_matrix tr:hover td {
+  background: white !important;
+}
+
+/* ========================================
+   FILE UPLOAD
+   ======================================== */
+
+.sv_q_file {
+  margin-top: var(--space-5) !important;
+}
+
+.sv_q_file_choose_btn {
+  background: var(--gradient-button) !important;
+  color: white !important;
+  border: none !important;
+  padding: var(--space-5) var(--space-10) !important;
+  border-radius: var(--radius-lg) !important;
+  font-size: var(--font-size-md) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-base) !important;
+  box-shadow: var(--shadow-button) !important;
+}
+
+.sv_q_file_choose_btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-button-hover) !important;
+}
+
+.sv_q_file_preview {
+  margin-top: var(--space-5) !important;
+  padding: var(--space-5) !important;
+  background: var(--color-neutral-100) !important;
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--color-border-light) !important;
+}
+
+/* ========================================
+   VALIDATION & ERROR MESSAGES
+   ======================================== */
+
+.sv_q_erbox {
+  background: rgba(217, 83, 79, 0.1) !important;
+  border: 1px solid var(--color-danger) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: var(--space-5) var(--space-7) !important;
+  margin-top: var(--space-5) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-3) !important;
+  animation: shake 0.3s ease-in-out !important;
+}
+
+.sv_q_erbox span {
+  color: var(--color-danger) !important;
+  font-size: var(--font-size-md) !important;
+  font-weight: var(--font-weight-medium) !important;
+}
+
+.sv_q_erbox::before {
+  content: '⚠️';
+  font-size: var(--font-size-lg);
+}
+
+/* ========================================
+   NAVIGATION BUTTONS
+   ======================================== */
+
+.sv_nav {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-top: var(--space-12) !important;
+  padding-top: var(--space-10) !important;
+  border-top: 1px solid var(--color-border-light) !important;
+}
+
+.sv_nav_btn,
+.sv_complete_btn,
+.sv_prev_btn {
+  background: var(--gradient-button) !important;
+  color: white !important;
+  border: none !important;
+  padding: var(--space-6) var(--space-12) !important;
+  border-radius: var(--radius-4xl) !important;
+  font-size: var(--font-size-md) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-base) !important;
+  box-shadow: var(--shadow-button) !important;
+  font-family: var(--font-primary) !important;
+}
+
+.sv_nav_btn:hover,
+.sv_complete_btn:hover,
+.sv_prev_btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-button-hover) !important;
+}
+
+.sv_nav_btn:active,
+.sv_complete_btn:active,
+.sv_prev_btn:active {
+  transform: translateY(0) !important;
+}
+
+.sv_prev_btn {
+  background: var(--color-neutral-50) !important;
+  color: var(--color-primary-500) !important;
+  border: 1px solid var(--color-border-light) !important;
+}
+
+.sv_prev_btn:hover {
+  background: white !important;
+  border-color: var(--color-primary-500) !important;
+}
+
+.sv_complete_btn {
+  background: var(--color-success) !important;
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3) !important;
+}
+
+.sv_complete_btn:hover {
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4) !important;
+}
+
+/* ========================================
+   COLLAPSIBLE PANELS
+   ======================================== */
+
+.sv_p_container {
+  margin-bottom: var(--space-10) !important;
+}
+
+.sv_p_title {
+  background: var(--color-bg-primary) !important;
+  border: 1px solid var(--color-border-light) !important;
+  border-radius: var(--radius-xl) !important;
+  padding: var(--space-7) var(--space-10) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-base) !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--color-text-primary) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.sv_p_title:hover {
+  background: var(--color-neutral-100) !important;
+  border-color: var(--color-primary-500) !important;
+}
+
+.sv_p_title_expanded {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+  background: var(--gradient-primary) !important;
+  color: white !important;
+}
+
+.sv_p_container_content {
+  border: 1px solid var(--color-border-light) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl) !important;
+  padding: var(--space-10) !important;
+  background: var(--color-bg-primary) !important;
+  animation: slideDown 0.3s var(--ease-in-out) !important;
+}
+
+/* ========================================
+   COMPLETION PAGE
+   ======================================== */
+
+.sv_completed_page {
+  background: var(--color-bg-primary) !important;
+  border-radius: var(--radius-2xl) !important;
+  padding: var(--space-14) !important;
+  text-align: center !important;
+  box-shadow: var(--shadow-lg) !important;
+  animation: messageSlideIn 0.5s var(--ease-in-out) !important;
+}
+
+.sv_completed_page h3 {
+  font-size: var(--font-size-3xl) !important;
+  font-weight: var(--font-weight-bold) !important;
+  color: var(--color-text-primary) !important;
+  margin-bottom: var(--space-5) !important;
+}
+
+.sv_completed_page p {
+  font-size: var(--font-size-lg) !important;
+  color: var(--color-text-secondary) !important;
+  line-height: var(--line-height-relaxed) !important;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+  .sv_container {
+    padding: var(--space-7) !important;
+  }
+
+  .sv_header {
+    padding: var(--space-10) var(--space-7) !important;
+  }
+
+  .sv_header__text h3 {
+    font-size: var(--font-size-2xl) !important;
+  }
+
+  .sv_qstn {
+    padding: var(--space-7) !important;
+  }
+
+  .sv_q_title {
+    font-size: var(--font-size-md) !important;
+  }
+
+  .sv_q_rating_item {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: var(--font-size-md) !important;
+  }
+
+  .sv_nav_btn,
+  .sv_complete_btn,
+  .sv_prev_btn {
+    padding: var(--space-5) var(--space-9) !important;
+    font-size: var(--font-size-base) !important;
+  }
+
+  .sv_nav {
+    flex-direction: column !important;
+    gap: var(--space-5) !important;
+  }
+
+  .sv_nav_btn,
+  .sv_complete_btn,
+  .sv_prev_btn {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sv_container {
+    padding: var(--space-5) !important;
+  }
+
+  .sv_qstn {
+    padding: var(--space-5) !important;
+  }
+
+  .sv_q_rating {
+    flex-wrap: wrap !important;
+  }
+
+  .sv_q_matrix {
+    font-size: var(--font-size-sm) !important;
+  }
+
+  .sv_completed_page {
+    padding: var(--space-10) !important;
+  }
+
+  .sv_completed_page h3 {
+    font-size: var(--font-size-xl) !important;
+  }
+}

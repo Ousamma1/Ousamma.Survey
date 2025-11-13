@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Survey Assistant - Digital Dubai</title>
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/css/design-system.css">
+</head>
+<body>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="portal-header">
+    <div class="header-left">
+      <img src="https://via.placeholder.com/150x48?text=Dubai+Logo" alt="Digital Dubai" class="header-logo">
+
+      <nav class="header-nav" aria-label="Main navigation">
+        <a href="/" class="nav-link">Home</a>
+        <a href="#" class="nav-link">Data and Statistics</a>
+        <a href="#" class="nav-link">Knowledge Hub</a>
+        <a href="#" class="nav-link">Tools and Services</a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-refresh" id="refresh-session" title="Start new conversation" aria-label="Start new conversation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+      </button>
+
+      <button class="btn-icon" title="Accessibility" aria-label="Accessibility options">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="29" viewBox="0 0 15 14" fill="none">
+          <path d="M7.48755 13.9922C3.665 13.9922 0.487549 10.8147 0.487549 6.99219C0.487549 3.16278 3.65814 -0.0078125 7.48069 -0.0078125C11.3101 -0.0078125 14.4875 3.16278 14.4875 6.99219C14.4875 10.8147 11.317 13.9922 7.48755 13.9922ZM7.48755 12.8255C10.7268 12.8255 13.3209 10.2314 13.3209 6.99219C13.3209 3.75297 10.7199 1.15885 7.48069 1.15885C4.24147 1.15885 1.66108 3.75297 1.66108 6.99219C1.66108 10.2314 4.24833 12.8255 7.48755 12.8255ZM7.48069 4.21964C6.98657 4.21964 6.58853 3.81474 6.58853 3.32748C6.58853 2.83336 6.98657 2.43532 7.48069 2.43532C7.9748 2.43532 8.37284 2.83336 8.37284 3.32748C8.37284 3.81474 7.9748 4.21964 7.48069 4.21964ZM7.48069 4.67258C8.46206 4.67258 9.84147 4.50787 10.5003 4.40493C10.5621 4.39807 10.6238 4.37748 10.6856 4.37748C10.8572 4.37748 11.0425 4.5216 11.0425 4.76866C11.0425 4.95395 10.9258 5.11179 10.7474 5.15983C10.5277 5.22846 8.96304 5.40689 8.77088 5.44121C8.57186 5.48238 8.46206 5.64709 8.46206 5.88042C8.46206 6.23729 8.46206 7.3765 8.53755 7.89807C8.6199 8.41278 9.22382 10.8902 9.24441 11C9.3199 11.2677 9.16206 11.501 8.89441 11.501C8.70225 11.501 8.565 11.3981 8.49637 11.1373C8.37971 10.6363 7.93363 8.92062 7.81696 8.50885C7.72088 8.20689 7.64539 8.10395 7.48069 8.10395C7.30912 8.10395 7.23363 8.20689 7.15127 8.50885C7.01402 8.92062 6.58167 10.6363 6.465 11.1373C6.38951 11.3981 6.25912 11.501 6.06696 11.501C5.79931 11.501 5.63461 11.2677 5.7101 11C5.73755 10.8902 6.33461 8.41278 6.41696 7.89807C6.50618 7.3765 6.51304 6.23729 6.50618 5.88042C6.49931 5.64709 6.38265 5.48238 6.19049 5.44121C5.99147 5.40689 4.43363 5.22846 4.20716 5.15983C4.03559 5.11179 3.91892 4.95395 3.91892 4.76866C3.91892 4.5216 4.09735 4.37748 4.26892 4.37748C4.33755 4.37748 4.39245 4.39807 4.45422 4.40493C5.1199 4.50787 6.50618 4.67258 7.48069 4.67258Z" fill="currentColor"></path>
+        </svg>
+      </button>
+
+      <button class="lang-btn">العربية</button>
+
+      <button class="login-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12.5 7H11.5V5C11.5 2.79 9.71 1 7.5 1C5.29 1 3.5 2.79 3.5 5V7H2.5C1.95 7 1.5 7.45 1.5 8V14C1.5 14.55 1.95 15 2.5 15H12.5C13.05 15 13.5 14.55 13.5 14V8C13.5 7.45 13.05 7 12.5 7ZM4.5 5C4.5 3.34 5.84 2 7.5 2C9.16 2 10.5 3.34 10.5 5V7H4.5V5Z" fill="white"/>
+        </svg>
+        Login
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content" class="content-wrapper">
+    <div class="chat-container">
+      <!-- Chat Messages Area -->
+      <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-atomic="false">
+        <!-- Welcome Message -->
+        <div class="message agent">
+          <div class="avatar avatar-agent">AI</div>
+          <div class="message-content">
+            <p>Hello! I'm your Data Collection Assistant. I can help you create professional surveys for any purpose.</p>
+            <p><strong>Tip:</strong> You can attach Excel files (.xlsx, .xls, .csv) to help me understand your requirements for data collection!</p>
+            <p>What kind of survey would you like to create today?</p>
+            <div class="message-time">Just now</div>
+
+            <!-- Suggestions -->
+            <div class="suggestions-container">
+              <button class="btn-suggestion">Customer Satisfaction Survey</button>
+              <button class="btn-suggestion">Employee Feedback Survey</button>
+              <button class="btn-suggestion">Market Research Survey</button>
+              <button class="btn-suggestion">Custom Survey</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Container -->
+      <div class="chat-input-container">
+        <!-- File Upload Area (hidden by default) -->
+        <div class="file-upload-area" id="file-upload-area" style="display: none;">
+          <div class="chip">
+            <svg class="chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+              <polyline points="13 2 13 9 20 9"/>
+            </svg>
+            <span class="chip-text" id="file-name">example.xlsx</span>
+            <button type="button" class="chip-remove" id="remove-file" aria-label="Remove file">×</button>
+          </div>
+        </div>
+
+        <!-- Attachment Popup -->
+        <div class="popup" id="attachment-popup">
+          <button class="popup-option" id="upload-responders">
+            <span class="popup-option-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-8.98 8.98a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </span>
+            <span>Upload responders list</span>
+          </button>
+        </div>
+
+        <!-- Chat Form -->
+        <form class="chat-input-form" id="chat-form">
+          <button type="button" class="btn-plus" id="plus-button" title="Attach file" aria-label="Attach file">+</button>
+
+          <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="position: absolute; left: -9999px; opacity: 0;" aria-label="File input">
+
+          <input type="text"
+                 class="input"
+                 id="chat-input"
+                 placeholder="Type your message here..."
+                 aria-label="Chat message"
+                 autocomplete="off">
+
+          <button type="submit" class="btn btn-primary btn-rounded" id="send-btn">
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- JavaScript -->
+  <script>
+    // Example JavaScript for demo purposes
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatForm = document.getElementById('chat-form');
+      const chatInput = document.getElementById('chat-input');
+      const chatMessages = document.getElementById('chat-messages');
+      const plusButton = document.getElementById('plus-button');
+      const attachmentPopup = document.getElementById('attachment-popup');
+      const fileInput = document.getElementById('file-input');
+      const fileUploadArea = document.getElementById('file-upload-area');
+      const fileName = document.getElementById('file-name');
+      const removeFileBtn = document.getElementById('remove-file');
+      const refreshBtn = document.getElementById('refresh-session');
+
+      let attachedFile = null;
+
+      // Suggestion buttons
+      document.querySelectorAll('.btn-suggestion').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const suggestion = this.textContent;
+          addUserMessage(suggestion);
+          simulateAgentResponse(suggestion);
+        });
+      });
+
+      // Chat form submission
+      chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = chatInput.value.trim();
+
+        if (!message && !attachedFile) return;
+
+        addUserMessage(message || 'Uploaded file');
+        chatInput.value = '';
+        simulateAgentResponse(message);
+      });
+
+      // Plus button - toggle attachment popup
+      plusButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        attachmentPopup.classList.toggle('show');
+      });
+
+      // Close popup when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!attachmentPopup.contains(e.target) && !plusButton.contains(e.target)) {
+          attachmentPopup.classList.remove('show');
+        }
+      });
+
+      // Upload responders button
+      document.getElementById('upload-responders').addEventListener('click', function() {
+        fileInput.click();
+        attachmentPopup.classList.remove('show');
+      });
+
+      // File input change
+      fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          attachedFile = file;
+          fileName.textContent = file.name;
+          fileUploadArea.style.display = 'flex';
+        }
+      });
+
+      // Remove file
+      removeFileBtn.addEventListener('click', function() {
+        attachedFile = null;
+        fileInput.value = '';
+        fileUploadArea.style.display = 'none';
+      });
+
+      // Refresh session
+      refreshBtn.addEventListener('click', function() {
+        if (confirm('Start a new conversation? This will clear the current chat history.')) {
+          chatMessages.innerHTML = '';
+          // Re-add welcome message
+          location.reload();
+        }
+      });
+
+      // Helper functions
+      function addUserMessage(text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message user';
+        messageDiv.innerHTML = `
+          <div class="avatar avatar-user">You</div>
+          <div class="message-content">
+            <p>${text}</p>
+            <div class="message-time">${getCurrentTime()}</div>
+          </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      function simulateAgentResponse(userMessage) {
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Simulate delay
+        setTimeout(() => {
+          hideTypingIndicator();
+
+          const responses = {
+            'Customer Satisfaction Survey': 'Great! I\'ll help you create a customer satisfaction survey. Let me draft some questions for you:\n\n1. How would you rate your overall experience?\n2. How likely are you to recommend us to others?\n3. What did you like most about our service?\n\nWould you like me to proceed with creating this survey?',
+            'Employee Feedback Survey': 'Perfect! An employee feedback survey is a great way to understand your team. Here are some key areas we should cover:\n\n• Work Environment\n• Management & Leadership\n• Career Development\n• Work-Life Balance\n\nShall I create a comprehensive survey covering these topics?',
+            'Market Research Survey': 'Excellent choice! For market research, we\'ll want to understand your target audience and goals. Let me know:\n\n• Who is your target audience?\n• What product/service are you researching?\n• What key insights are you looking for?\n\nI can help you design questions that will give you actionable insights.',
+            'Custom Survey': 'I\'d be happy to help create a custom survey! Please tell me:\n\n• What is the purpose of your survey?\n• Who will be taking it?\n• What topics do you want to cover?\n\nThe more details you provide, the better I can tailor the survey to your needs.'
+          };
+
+          const response = responses[userMessage] || 'Thank you for your message! I\'m here to help you create surveys. Could you tell me more about what you need?';
+
+          addAgentMessage(response);
+        }, 1500);
+      }
+
+      function addAgentMessage(text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message agent';
+        messageDiv.innerHTML = `
+          <div class="avatar avatar-agent">AI</div>
+          <div class="message-content">
+            <p>${text}</p>
+            <div class="message-time">${getCurrentTime()}</div>
+          </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typing-indicator';
+        typingDiv.innerHTML = `
+          <div class="avatar avatar-agent">AI</div>
+          <div class="message-content">
+            <div class="spinner-container">
+              <div class="spinner"></div>
+              <span class="spinner-text">Thinking...</span>
+            </div>
+          </div>
+        `;
+        chatMessages.appendChild(typingDiv);
+        scrollToBottom();
+      }
+
+      function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+      }
+
+      function getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+
+      function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // Drag and drop support
+      ['dragenter', 'dragover'].forEach(eventName => {
+        chatForm.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chatForm.classList.add('drag-over');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        chatForm.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chatForm.classList.remove('drag-over');
+        });
+      });
+
+      chatForm.addEventListener('drop', (e) => {
+        const file = e.dataTransfer?.files?.[0];
+        if (!file) return;
+
+        if (!/\.(csv|xlsx|xls)$/i.test(file.name)) {
+          alert('Only CSV or XLSX files are allowed.');
+          return;
+        }
+
+        attachedFile = file;
+        fileName.textContent = file.name;
+        fileUploadArea.style.display = 'flex';
+        fileInput.value = '';
+      });
+    });
+  </script>
+</body>
+</html>

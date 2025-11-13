@@ -1,14 +1,14 @@
 {
   "id": "survey-001",
-  "title": "Digital Dubai Customer Satisfaction Survey",
+  "title": "Customer Satisfaction Survey",
   "description": "Help us improve our digital services",
   "version": "1.0",
   "createdAt": "2025-11-12T00:00:00.000Z",
   "questions": [
     {
       "type": "multiple_choice",
-      "question_en": "How satisfied are you with Digital Dubai services?",
-      "question_ar": "ما مدى رضاك عن خدمات دبي الرقمية؟",
+      "question_en": "How satisfied are you with our services?",
+      "question_ar": "ما مدى رضاك عن خدماتنا؟",
       "options_en": [
         "Very Satisfied",
         "Satisfied",
@@ -27,8 +27,8 @@
     },
     {
       "type": "checkboxes",
-      "question_en": "Which Digital Dubai services have you used? (Select all that apply)",
-      "question_ar": "ما هي خدمات دبي الرقمية التي استخدمتها؟ (اختر كل ما ينطبق)",
+      "question_en": "Which services have you used? (Select all that apply)",
+      "question_ar": "ما هي الخدمات التي استخدمتها؟ (اختر كل ما ينطبق)",
       "options_en": [
         "Smart City Apps",
         "E-Government Services",
@@ -59,8 +59,8 @@
     },
     {
       "type": "scale",
-      "question_en": "How likely are you to recommend Digital Dubai to others?",
-      "question_ar": "ما مدى احتمالية توصيتك بدبي الرقمية للآخرين؟",
+      "question_en": "How likely are you to recommend our services to others?",
+      "question_ar": "ما مدى احتمالية توصيتك بخدماتنا للآخرين؟",
       "min": 0,
       "max": 10,
       "minLabel_en": "Not likely",
@@ -71,8 +71,8 @@
     },
     {
       "type": "dropdown",
-      "question_en": "How often do you use Digital Dubai services?",
-      "question_ar": "كم مرة تستخدم خدمات دبي الرقمية؟",
+      "question_en": "How often do you use our services?",
+      "question_ar": "كم مرة تستخدم خدماتنا؟",
       "options_en": [
         "Daily",
         "Weekly",

@@ -5,7 +5,7 @@
 
 ## Overview
 
-Sprint 15 focused on creating a comprehensive design system for the Digital Dubai Survey Application, extracting design tokens from a reference HTML file and building a complete, reusable component library with accessibility features.
+Sprint 15 focused on creating a comprehensive design system for the Survey Application, extracting design tokens from a reference HTML file and building a complete, reusable component library with accessibility features.
 
 ## 🎯 Objectives
 
@@ -276,14 +276,14 @@ Full example page demonstrating:
 ## 🎨 Design Tokens Summary
 
 ### Colors
-- **Primary**: Dubai blue (#2F60A5, #1E4A8C, #243D8B)
+- **Primary**: Primary blue (#2F60A5, #1E4A8C, #243D8B)
 - **Secondary**: Teal (#6DBCBA, #5AACA9, #55AADD)
 - **Text**: Dark blue (#1E2651), Gray (#6b7280)
 - **Semantic**: Success, Warning, Danger, Info
 - **Gradients**: 7 predefined gradients
 
 ### Typography
-- **Font**: Dubai (with fallbacks)
+- **Font**: System fonts (with fallbacks)
 - **Sizes**: 11px - 24px (8 sizes)
 - **Weights**: 400, 500, 600, 700
 - **Line Heights**: Tight, Normal, Relaxed

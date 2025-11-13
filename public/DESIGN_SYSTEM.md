@@ -1,4 +1,4 @@
-# Digital Dubai Survey System - Design System Documentation
+# Survey System - Design System Documentation
 
 Version: 1.0.0
 Last Updated: 2025-11-13
@@ -106,7 +106,7 @@ If you only need specific parts of the design system:
 
 #### Font Family
 ```css
---font-primary: 'Dubai', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
+--font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
 ```
 
 #### Font Sizes
@@ -492,7 +492,7 @@ All interactive elements have visible focus indicators that comply with WCAG 2.1
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Digital Dubai</title>
+  <title>Dashboard - Survey Platform</title>
   <link rel="stylesheet" href="/css/design-system.css">
 </head>
 <body>
@@ -502,7 +502,7 @@ All interactive elements have visible focus indicators that comply with WCAG 2.1
   <!-- Header -->
   <header class="portal-header">
     <div class="header-left">
-      <img src="logo.png" alt="Digital Dubai" class="header-logo">
+      <img src="logo.png" alt="Survey Platform" class="header-logo">
       <nav class="header-nav" aria-label="Main navigation">
         <a href="#" class="nav-link">Dashboard</a>
         <a href="#" class="nav-link">Surveys</a>

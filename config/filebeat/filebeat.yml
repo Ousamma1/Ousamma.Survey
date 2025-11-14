@@ -1,0 +1,60 @@
+filebeat.inputs:
+  # Collect Docker container logs
+  - type: container
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+
+  # Application log files
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/survey-platform/*.log
+    json.keys_under_root: true
+    json.add_error_key: true
+    fields:
+      type: application
+
+# Process and enrich logs
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+# Output configuration
+output.elasticsearch:
+  hosts: ['${ELASTICSEARCH_HOSTS:elasticsearch:9200}']
+  indices:
+    - index: "survey-logs-%{[agent.version]}-%{+yyyy.MM.dd}"
+      when.or:
+        - contains:
+            container.name: "survey"
+        - contains:
+            container.name: "service"
+
+# Kibana configuration
+setup.kibana:
+  host: "${KIBANA_HOST:kibana:5601}"
+
+# Setup index lifecycle management
+setup.ilm:
+  enabled: true
+  rollover_alias: "survey-logs"
+  pattern: "{now/d}-000001"
+
+# Logging configuration
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644

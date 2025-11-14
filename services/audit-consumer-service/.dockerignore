@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.env*
+*.test.js
+coverage
+.vscode
+*.md
+.git
+Dockerfile*
+*.log
+tmp

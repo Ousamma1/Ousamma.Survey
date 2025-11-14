@@ -1,0 +1,9 @@
+{
+  "name": "@survey-platform/logger",
+  "version": "1.0.0",
+  "description": "Centralized logger for Survey Platform",
+  "main": "index.js",
+  "dependencies": {
+    "winston": "^3.11.0"
+  }
+}

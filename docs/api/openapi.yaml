@@ -1,0 +1,1214 @@
+openapi: 3.0.3
+info:
+  title: Ousamma Survey System API
+  description: |
+    Comprehensive API documentation for the Ousamma Survey System - a microservices-based survey platform with AI capabilities, real-time analytics, and multi-channel notifications.
+
+    ## Features
+    - AI-powered survey generation and optimization
+    - Real-time analytics and reporting
+    - Multi-language support
+    - Geolocation tracking
+    - WebSocket real-time updates
+    - GDPR compliance
+    - Advanced security (JWT, 2FA, rate limiting)
+
+    ## Authentication
+    Most endpoints require JWT authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your_jwt_token>
+    ```
+
+    ## Rate Limiting
+    - Default: 100 requests per 15 minutes per IP
+    - Auth endpoints: 5 requests per 15 minutes
+    - File upload: 10 requests per hour
+
+    ## Base URLs
+    - Development: http://localhost:3000
+    - Production: https://api.yourcompany.com
+
+  version: 1.0.0
+  contact:
+    name: Ousamma Support
+    email: support@ousamma.com
+    url: https://ousamma.com
+  license:
+    name: Proprietary
+    url: https://ousamma.com/license
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: http://localhost:3000/api
+    description: Development API Gateway
+  - url: https://api.yourcompany.com
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: AI Services
+    description: AI-powered survey generation and optimization
+  - name: Surveys
+    description: Survey management (CRUD operations)
+  - name: Responses
+    description: Survey response collection and retrieval
+  - name: Context
+    description: Context file management for AI
+  - name: Surveyors
+    description: Surveyor management
+  - name: Analytics
+    description: Analytics and reporting
+  - name: Geolocation
+    description: Geolocation tracking
+  - name: Notifications
+    description: Notification management
+  - name: Projects
+    description: Project and survey group management
+  - name: Admin
+    description: System administration
+  - name: GDPR
+    description: GDPR compliance endpoints
+  - name: Health
+    description: Service health checks
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/auth/login
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service communication
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Error message"
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        details:
+          type: object
+      required:
+        - success
+        - error
+
+    Survey:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        surveyId:
+          type: string
+          example: "retail-satisfaction-2024"
+        title:
+          type: string
+          example: "Retail Customer Satisfaction Survey"
+        description:
+          type: string
+          example: "Measure customer satisfaction in retail stores"
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Section'
+        languages:
+          type: object
+          additionalProperties:
+            type: object
+        conditionalLogic:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConditionalRule'
+        calculations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Calculation'
+        metadata:
+          type: object
+          properties:
+            author:
+              type: string
+            version:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+        status:
+          type: string
+          enum: [draft, active, closed, archived]
+          default: draft
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "q1"
+        type:
+          type: string
+          enum: [text, textarea, number, email, tel, url, date, time, radio, checkbox, select, rating, matrix, file, slider, ranking, geolocation, signature]
+          example: "radio"
+        text:
+          type: string
+          example: "How satisfied are you with our service?"
+        description:
+          type: string
+          example: "Please rate your overall satisfaction"
+        required:
+          type: boolean
+          default: false
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              label:
+                type: string
+              score:
+                type: number
+        validation:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+            pattern:
+              type: string
+            minLength:
+              type: integer
+            maxLength:
+              type: integer
+        piping:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            template:
+              type: string
+      required:
+        - id
+        - type
+        - text
+
+    Section:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        questions:
+          type: array
+          items:
+            type: string
+
+    ConditionalRule:
+      type: object
+      properties:
+        id:
+          type: string
+        condition:
+          type: object
+          properties:
+            questionId:
+              type: string
+            operator:
+              type: string
+              enum: [equals, notEquals, contains, greaterThan, lessThan, in, notIn]
+            value:
+              oneOf:
+                - type: string
+                - type: number
+                - type: array
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [show, hide, require, skip, setValue]
+              target:
+                type: string
+              value:
+                type: string
+
+    Calculation:
+      type: object
+      properties:
+        id:
+          type: string
+        formula:
+          type: string
+        outputVariable:
+          type: string
+
+    SurveyResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+        surveyId:
+          type: string
+        respondentId:
+          type: string
+        surveyorId:
+          type: string
+        answers:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+              - type: array
+              - type: object
+        metadata:
+          type: object
+          properties:
+            ipAddress:
+              type: string
+            userAgent:
+              type: string
+            location:
+              $ref: '#/components/schemas/Location'
+            duration:
+              type: number
+              description: "Time to complete in seconds"
+        status:
+          type: string
+          enum: [draft, completed, validated, rejected]
+          default: draft
+        completedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    Location:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Point]
+          default: Point
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+          example: [55.2708, 25.2048]
+        accuracy:
+          type: number
+          example: 10
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            country:
+              type: string
+            postalCode:
+              type: string
+
+    Surveyor:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@company.com"
+        phone:
+          type: string
+          example: "+971501234567"
+        employeeId:
+          type: string
+          example: "EMP001"
+        region:
+          type: string
+          example: "Dubai"
+        territory:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+          default: active
+        assignments:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+
+    Analytics:
+      type: object
+      properties:
+        surveyId:
+          type: string
+        totalResponses:
+          type: integer
+          example: 1547
+        completionRate:
+          type: number
+          format: float
+          example: 87.5
+        averageTime:
+          type: number
+          example: 245
+        questionAnalytics:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionAnalytics'
+        demographics:
+          type: object
+        trends:
+          type: array
+          items:
+            type: object
+        lastUpdated:
+          type: string
+          format: date-time
+
+    QuestionAnalytics:
+      type: object
+      properties:
+        questionId:
+          type: string
+        questionText:
+          type: string
+        responseCount:
+          type: integer
+        distribution:
+          type: object
+          additionalProperties:
+            type: integer
+        average:
+          type: number
+        median:
+          type: number
+        mode:
+          type: string
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [admin, manager, surveyor, analyst]
+        twoFactorEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        expiresIn:
+          type: integer
+          example: 900
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Authentication required"
+            code: "UNAUTHORIZED"
+
+    ForbiddenError:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Insufficient permissions"
+            code: "FORBIDDEN"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Resource not found"
+            code: "NOT_FOUND"
+
+    ValidationError:
+      description: Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Validation failed"
+            code: "VALIDATION_ERROR"
+            details:
+              field: "email"
+              message: "Invalid email format"
+
+    RateLimitError:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Too many requests"
+            code: "RATE_LIMIT_EXCEEDED"
+
+paths:
+  # Authentication Endpoints
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      description: Create a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+                role:
+                  type: string
+                  enum: [admin, manager, surveyor, analyst]
+              required:
+                - email
+                - password
+                - name
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and receive JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+            example:
+              email: "admin@ousamma.com"
+              password: "SecurePassword123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get new access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+              required:
+                - refreshToken
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  expiresIn:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidate current session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  # AI Services
+  /api/ai/generate-survey:
+    post:
+      tags:
+        - AI Services
+      summary: Generate survey using AI
+      description: Create a complete survey based on text description using AI
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: "Create a customer satisfaction survey for a retail store with 10 questions covering product quality, service, and pricing"
+                language:
+                  type: string
+                  default: "en"
+                  example: "en"
+                questionCount:
+                  type: integer
+                  minimum: 5
+                  maximum: 50
+                  default: 10
+                includeAnalytics:
+                  type: boolean
+                  default: true
+              required:
+                - description
+      responses:
+        '200':
+          description: Survey generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  survey:
+                    $ref: '#/components/schemas/Survey'
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /api/ai/optimize-survey:
+    post:
+      tags:
+        - AI Services
+      summary: Get survey optimization suggestions
+      description: Analyze survey and get AI-powered improvement suggestions
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                survey:
+                  $ref: '#/components/schemas/Survey'
+              required:
+                - survey
+      responses:
+        '200':
+          description: Optimization suggestions generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  suggestions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [question, structure, wording, flow]
+                        questionId:
+                          type: string
+                        severity:
+                          type: string
+                          enum: [low, medium, high]
+                        description:
+                          type: string
+                        recommendation:
+                          type: string
+
+  # Survey Management
+  /api/surveys:
+    get:
+      tags:
+        - Surveys
+      summary: List all surveys
+      description: Get paginated list of surveys
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, active, closed, archived]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of surveys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  surveys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Survey'
+                  pagination:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      pages:
+                        type: integer
+                      limit:
+                        type: integer
+
+  /api/surveys/save:
+    post:
+      tags:
+        - Surveys
+      summary: Create or update survey
+      description: Save a new survey or update existing one
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Survey'
+      responses:
+        '200':
+          description: Survey saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  surveyId:
+                    type: string
+                  message:
+                    type: string
+
+  /api/surveys/{surveyId}:
+    get:
+      tags:
+        - Surveys
+      summary: Get survey by ID
+      description: Retrieve specific survey details
+      parameters:
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Survey details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  survey:
+                    $ref: '#/components/schemas/Survey'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - Surveys
+      summary: Delete survey
+      description: Permanently delete a survey
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Survey deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  # Response Management
+  /api/responses/save:
+    post:
+      tags:
+        - Responses
+      summary: Submit survey response
+      description: Save survey response (supports partial saves)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                surveyId:
+                  type: string
+                answers:
+                  type: object
+                status:
+                  type: string
+                  enum: [draft, completed]
+                  default: completed
+                metadata:
+                  type: object
+              required:
+                - surveyId
+                - answers
+      responses:
+        '200':
+          description: Response saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  responseId:
+                    type: string
+
+  /api/responses/{surveyId}:
+    get:
+      tags:
+        - Responses
+      summary: Get survey responses
+      description: Retrieve all responses for a survey
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, completed, validated, rejected]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of responses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  responses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SurveyResponse'
+
+  # Analytics
+  /api/analytics/survey/{surveyId}:
+    get:
+      tags:
+        - Analytics
+      summary: Get survey analytics
+      description: Retrieve comprehensive analytics for a survey
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: surveyId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Survey analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  analytics:
+                    $ref: '#/components/schemas/Analytics'
+
+  # Surveyor Management
+  /api/surveyors:
+    get:
+      tags:
+        - Surveyors
+      summary: List surveyors
+      description: Get all surveyors with filtering
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+        - name: region
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of surveyors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  surveyors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Surveyor'
+
+    post:
+      tags:
+        - Surveyors
+      summary: Create surveyor
+      description: Register a new surveyor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                employeeId:
+                  type: string
+                region:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+              required:
+                - name
+                - email
+                - password
+      responses:
+        '201':
+          description: Surveyor created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  surveyor:
+                    $ref: '#/components/schemas/Surveyor'
+
+  # Health Check
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check if service is running
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                  services:
+                    type: object
+                    properties:
+                      mongodb:
+                        type: string
+                      redis:
+                        type: string
+                      kafka:
+                        type: string
+
+  # GDPR Compliance
+  /api/gdpr/export:
+    post:
+      tags:
+        - GDPR
+      summary: Export user data
+      description: Export all data for a user (GDPR right to data portability)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+              required:
+                - userId
+      responses:
+        '200':
+          description: Data export ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                  exportDate:
+                    type: string
+                    format: date-time
+
+  /api/gdpr/delete:
+    post:
+      tags:
+        - GDPR
+      summary: Delete user data
+      description: Permanently delete all user data (GDPR right to be forgotten)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                confirmation:
+                  type: string
+                  example: "DELETE"
+              required:
+                - userId
+                - confirmation
+      responses:
+        '200':
+          description: Data deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  deletedAt:
+                    type: string
+                    format: date-time

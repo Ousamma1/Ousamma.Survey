@@ -10,43 +10,54 @@ class Database {
   }
 
   /**
-   * Connect to MongoDB
+   * Connect to MongoDB with retry logic
    */
   async connect() {
-    try {
-      const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/analytics';
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/analytics';
+    const maxRetries = 10;
+    const retryDelay = 5000; // 5 seconds
 
-      const options = {
-        maxPoolSize: 10,
-        minPoolSize: 2,
-        socketTimeoutMS: 45000,
-        serverSelectionTimeoutMS: 5000,
-        family: 4
-      };
+    const options = {
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 5000,
+      family: 4
+    };
 
-      console.log('Connecting to MongoDB...');
-      this.connection = await mongoose.connect(mongoUri, options);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Connecting to MongoDB... (attempt ${attempt}/${maxRetries})`);
+        this.connection = await mongoose.connect(mongoUri, options);
 
-      console.log('MongoDB connected successfully');
-      console.log(`Database: ${this.connection.connection.name}`);
+        console.log('MongoDB connected successfully');
+        console.log(`Database: ${this.connection.connection.name}`);
 
-      // Connection event handlers
-      mongoose.connection.on('error', (err) => {
-        console.error('MongoDB connection error:', err);
-      });
+        // Connection event handlers
+        mongoose.connection.on('error', (err) => {
+          console.error('MongoDB connection error:', err);
+        });
 
-      mongoose.connection.on('disconnected', () => {
-        console.warn('MongoDB disconnected');
-      });
+        mongoose.connection.on('disconnected', () => {
+          console.warn('MongoDB disconnected');
+        });
 
-      mongoose.connection.on('reconnected', () => {
-        console.log('MongoDB reconnected');
-      });
+        mongoose.connection.on('reconnected', () => {
+          console.log('MongoDB reconnected');
+        });
 
-      return this.connection;
-    } catch (error) {
-      console.error('Failed to connect to MongoDB:', error);
-      throw error;
+        return this.connection;
+      } catch (error) {
+        console.error(`MongoDB connection attempt ${attempt} failed:`, error.message);
+
+        if (attempt < maxRetries) {
+          console.log(`Retrying in ${retryDelay / 1000} seconds...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+        } else {
+          console.error('Failed to connect to MongoDB after all retries');
+          throw error;
+        }
+      }
     }
   }
 

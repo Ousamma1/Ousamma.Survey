@@ -1,0 +1,169 @@
+[
+  {
+    "surveyId": "retail-satisfaction-demo",
+    "title": "Retail Customer Satisfaction Survey",
+    "description": "Help us improve your shopping experience",
+    "status": "active",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "radio",
+        "text": "How satisfied are you with your overall shopping experience?",
+        "required": true,
+        "options": [
+          {"value": "5", "label": "Very Satisfied", "score": 5},
+          {"value": "4", "label": "Satisfied", "score": 4},
+          {"value": "3", "label": "Neutral", "score": 3},
+          {"value": "2", "label": "Dissatisfied", "score": 2},
+          {"value": "1", "label": "Very Dissatisfied", "score": 1}
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "checkbox",
+        "text": "Which aspects of our store did you like? (Select all that apply)",
+        "required": false,
+        "options": [
+          {"value": "product_quality", "label": "Product Quality"},
+          {"value": "pricing", "label": "Competitive Pricing"},
+          {"value": "staff", "label": "Helpful Staff"},
+          {"value": "cleanliness", "label": "Store Cleanliness"},
+          {"value": "location", "label": "Convenient Location"},
+          {"value": "variety", "label": "Product Variety"}
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "rating",
+        "text": "Please rate the following aspects:",
+        "required": true,
+        "scale": 5,
+        "aspects": [
+          {"id": "quality", "label": "Product Quality"},
+          {"id": "service", "label": "Customer Service"},
+          {"id": "value", "label": "Value for Money"},
+          {"id": "cleanliness", "label": "Store Cleanliness"}
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "number",
+        "text": "On a scale of 0-10, how likely are you to recommend us to a friend?",
+        "required": true,
+        "validation": {"min": 0, "max": 10}
+      },
+      {
+        "id": "q5",
+        "type": "textarea",
+        "text": "What can we do to improve your shopping experience?",
+        "required": false,
+        "placeholder": "Please share your suggestions..."
+      }
+    ],
+    "metadata": {
+      "author": "Demo Admin",
+      "category": "Customer Feedback",
+      "tags": ["retail", "satisfaction", "demo"]
+    }
+  },
+  {
+    "surveyId": "employee-engagement-demo",
+    "title": "Employee Engagement Survey 2024",
+    "description": "Your feedback helps us create a better workplace",
+    "status": "active",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "radio",
+        "text": "How engaged do you feel at work?",
+        "required": true,
+        "options": [
+          {"value": "highly", "label": "Highly Engaged"},
+          {"value": "engaged", "label": "Engaged"},
+          {"value": "somewhat", "label": "Somewhat Engaged"},
+          {"value": "not", "label": "Not Engaged"}
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "matrix",
+        "text": "Please rate your agreement with the following statements:",
+        "required": true,
+        "rows": [
+          {"id": "purpose", "label": "I understand the company's vision"},
+          {"id": "growth", "label": "I have opportunities to grow"},
+          {"id": "recognition", "label": "My work is recognized"},
+          {"id": "balance", "label": "I have good work-life balance"}
+        ],
+        "columns": [
+          {"value": "strongly_agree", "label": "Strongly Agree"},
+          {"value": "agree", "label": "Agree"},
+          {"value": "neutral", "label": "Neutral"},
+          {"value": "disagree", "label": "Disagree"},
+          {"value": "strongly_disagree", "label": "Strongly Disagree"}
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "checkbox",
+        "text": "What benefits are most important to you?",
+        "required": false,
+        "options": [
+          {"value": "health", "label": "Health Insurance"},
+          {"value": "retirement", "label": "Retirement Plan"},
+          {"value": "pto", "label": "Paid Time Off"},
+          {"value": "remote", "label": "Remote Work Options"},
+          {"value": "training", "label": "Professional Development"},
+          {"value": "wellness", "label": "Wellness Programs"}
+        ]
+      }
+    ]
+  },
+  {
+    "surveyId": "event-feedback-demo",
+    "title": "Conference 2024 - Feedback Survey",
+    "description": "Thank you for attending! Please share your experience.",
+    "status": "active",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "rating",
+        "text": "Overall, how would you rate the conference?",
+        "required": true,
+        "scale": 5
+      },
+      {
+        "id": "q2",
+        "type": "checkbox",
+        "text": "Which sessions did you attend? (Select all)",
+        "required": false,
+        "options": [
+          {"value": "keynote", "label": "Keynote Address"},
+          {"value": "ai_trends", "label": "AI Trends in 2024"},
+          {"value": "cloud_security", "label": "Cloud Security Best Practices"},
+          {"value": "panel", "label": "Expert Panel Discussion"},
+          {"value": "workshops", "label": "Hands-on Workshops"}
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "text",
+        "text": "What was the most valuable part of the conference?",
+        "required": false
+      },
+      {
+        "id": "q4",
+        "type": "radio",
+        "text": "Would you attend next year's conference?",
+        "required": true,
+        "options": [
+          {"value": "definitely", "label": "Definitely"},
+          {"value": "probably", "label": "Probably"},
+          {"value": "maybe", "label": "Maybe"},
+          {"value": "probably_not", "label": "Probably Not"},
+          {"value": "no", "label": "No"}
+        ]
+      }
+    ]
+  }
+]

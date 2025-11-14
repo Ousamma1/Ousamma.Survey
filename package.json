@@ -17,7 +17,9 @@
     "cors": "^2.8.5",
     "multer": "^1.4.5-lts.1",
     "dotenv": "^16.0.3",
-    "ws": "^8.14.2"
+    "ws": "^8.14.2",
+    "redis": "^4.6.7",
+    "compression": "^1.7.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey - Ousamma Survey Platform</title>
+    <link rel="stylesheet" href="css/survey-sections.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .survey-header {
+            background: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .survey-header h1 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+
+        .survey-header p {
+            color: #666;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover,
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .survey-container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+
+        .thank-you-page {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .thank-you-page.active {
+            display: block;
+        }
+
+        .thank-you-page h2 {
+            color: #4CAF50;
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .thank-you-page p {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 24px;
+        }
+
+        .checkmark-circle {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease;
+        }
+
+        .checkmark {
+            color: white;
+            font-size: 48px;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .offline-banner {
+            display: none;
+            background: #FF9800;
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .offline-banner.active {
+            display: block;
+        }
+
+        .access-code-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .access-code-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .error-message {
+            color: #f44336;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-banner" id="offline-banner">
+        📡 You're offline. Your responses will be saved and submitted when you're back online.
+    </div>
+
+    <div class="survey-header">
+        <div class="language-switcher" id="language-switcher">
+            <!-- Language buttons will be populated here -->
+        </div>
+        <h1 id="survey-title">Loading Survey...</h1>
+        <p id="survey-description"></p>
+    </div>
+
+    <div class="survey-container">
+        <div class="loading" id="loading">Loading survey...</div>
+
+        <div id="survey-form" style="display: none;">
+            <!-- Survey sections will be rendered here -->
+        </div>
+
+        <div class="thank-you-page" id="thank-you-page">
+            <div class="checkmark-circle">
+                <span class="checkmark">✓</span>
+            </div>
+            <h2>Thank You!</h2>
+            <p id="thank-you-message">Your response has been submitted successfully.</p>
+            <p id="redirect-message" style="display: none;">Redirecting in <span id="redirect-countdown">3</span> seconds...</p>
+        </div>
+    </div>
+
+    <!-- Access Code Modal -->
+    <div class="access-code-modal" id="access-code-modal">
+        <div class="modal-content">
+            <h3>🔒 Access Code Required</h3>
+            <p>This survey requires an access code to participate.</p>
+            <input type="text" id="access-code-input" placeholder="Enter access code">
+            <button onclick="submitAccessCode()">Submit</button>
+            <div class="error-message" id="access-code-error"></div>
+        </div>
+    </div>
+
+    <script src="js/survey-sections.js"></script>
+    <script>
+        const API_BASE = window.location.origin;
+        const SURVEY_SERVICE_URL = `${API_BASE}:3004/api/surveys`;
+
+        let currentSurvey = null;
+        let currentLanguage = 'en';
+        let saveToken = null;
+
+        // Get survey ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const surveyIdentifier = urlParams.get('id') || window.location.pathname.split('/').pop();
+        const linkCode = urlParams.get('link');
+        const resumeToken = urlParams.get('resume');
+
+        // PWA: Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered:', registration);
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+
+        // Check online/offline status
+        window.addEventListener('online', () => {
+            document.getElementById('offline-banner').classList.remove('active');
+            syncOfflineData();
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offline-banner').classList.add('active');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (resumeToken) {
+                await resumeSurvey();
+            } else {
+                await loadSurvey();
+            }
+        });
+
+        async function loadSurvey() {
+            try {
+                const response = await fetch(`${SURVEY_SERVICE_URL}/${surveyIdentifier}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Survey not found');
+                }
+
+                currentSurvey = data.data;
+
+                // Check if access code is required
+                if (currentSurvey.settings?.requireAccessCode && !linkCode) {
+                    showAccessCodeModal();
+                    return;
+                }
+
+                // Check if survey is active
+                if (!data.data.isActive) {
+                    showErrorMessage('This survey is currently not accepting responses.');
+                    return;
+                }
+
+                renderSurvey();
+            } catch (error) {
+                console.error('Error loading survey:', error);
+                showErrorMessage('Unable to load survey. Please try again later.');
+            }
+        }
+
+        async function resumeSurvey() {
+            try {
+                const response = await fetch(`${SURVEY_SERVICE_URL}/responses/resume/${resumeToken}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Unable to resume survey');
+                }
+
+                currentSurvey = data.data.survey;
+                const savedResponse = data.data.response;
+
+                saveToken = resumeToken;
+
+                renderSurvey(savedResponse);
+            } catch (error) {
+                console.error('Error resuming survey:', error);
+                showErrorMessage('Unable to resume saved survey. Starting a new response.');
+                await loadSurvey();
+            }
+        }
+
+        function renderSurvey(savedResponse = null) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('survey-form').style.display = 'block';
+
+            // Update header
+            document.getElementById('survey-title').textContent =
+                currentSurvey.title.get ? currentSurvey.title.get(currentLanguage) : currentSurvey.title;
+
+            if (currentSurvey.description) {
+                document.getElementById('survey-description').textContent =
+                    currentSurvey.description.get ? currentSurvey.description.get(currentLanguage) : currentSurvey.description;
+            }
+
+            // Render language switcher
+            renderLanguageSwitcher();
+
+            // Initialize survey sections component
+            const container = document.getElementById('survey-form');
+
+            window.surveySections = new SurveySections({
+                survey: currentSurvey,
+                container: container,
+                language: currentLanguage,
+                onProgressUpdate: handleProgressUpdate,
+                onComplete: handleSurveyComplete,
+                onSave: handleSaveProgress
+            });
+
+            // Restore saved responses if resuming
+            if (savedResponse && savedResponse.answers) {
+                savedResponse.answers.forEach(answer => {
+                    window.surveySections.responses[answer.questionId] = answer.value;
+                });
+                window.surveySections.currentSectionIndex = savedResponse.progress?.currentSectionIndex || 0;
+                window.surveySections.updateProgress();
+            }
+
+            // Cache survey for offline use
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'CACHE_SURVEY',
+                    surveyId: currentSurvey.surveyId
+                });
+            }
+        }
+
+        function renderLanguageSwitcher() {
+            const switcher = document.getElementById('language-switcher');
+            const languages = currentSurvey.languages?.available || ['en'];
+
+            switcher.innerHTML = languages.map(lang => `
+                <button class="lang-btn ${lang === currentLanguage ? 'active' : ''}"
+                        onclick="switchLanguage('${lang}')">
+                    ${getLanguageName(lang)}
+                </button>
+            `).join('');
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+
+            // Update HTML lang and dir attributes
+            document.documentElement.lang = lang;
+            document.documentElement.dir = currentSurvey.languages?.rtlLanguages?.includes(lang) ? 'rtl' : 'ltr';
+
+            // Re-render survey
+            renderSurvey();
+        }
+
+        function getLanguageName(code) {
+            const names = {
+                'en': 'English',
+                'ar': 'العربية',
+                'fr': 'Français',
+                'es': 'Español',
+                'de': 'Deutsch'
+            };
+            return names[code] || code.toUpperCase();
+        }
+
+        function handleProgressUpdate(progress, responses) {
+            console.log('Progress:', progress + '%', 'Responses:', Object.keys(responses).length);
+
+            // Auto-save every 10% progress if enabled
+            if (currentSurvey.settings?.allowSaveResume && progress % 10 === 0) {
+                handleSaveProgress(responses, { silent: true });
+            }
+        }
+
+        async function handleSaveProgress(responses, options = {}) {
+            try {
+                const payload = {
+                    surveyId: currentSurvey.surveyId,
+                    answers: Object.entries(responses).map(([questionId, value]) => ({
+                        questionId,
+                        value
+                    })),
+                    currentSectionId: window.surveySections?.currentSectionIndex,
+                    saveToken: saveToken
+                };
+
+                const response = await fetch(`${SURVEY_SERVICE_URL}/${currentSurvey.surveyId}/responses/save`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    saveToken = data.data.saveToken;
+
+                    if (!options.silent) {
+                        // Show save confirmation
+                        console.log('Progress saved!');
+                    }
+
+                    return saveToken;
+                }
+            } catch (error) {
+                console.error('Error saving progress:', error);
+                if (!options.silent) {
+                    throw error;
+                }
+            }
+        }
+
+        async function handleSurveyComplete(responses) {
+            try {
+                const payload = {
+                    surveyId: currentSurvey.surveyId,
+                    answers: Object.entries(responses).map(([questionId, value]) => ({
+                        questionId,
+                        value
+                    })),
+                    source: {
+                        linkId: linkCode,
+                        referrer: document.referrer
+                    },
+                    metadata: {
+                        device: getDeviceType(),
+                        browser: navigator.userAgent,
+                        language: currentLanguage,
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    },
+                    saveToken: saveToken
+                };
+
+                const response = await fetch(`${SURVEY_SERVICE_URL}/${currentSurvey.surveyId}/responses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showThankYouPage(data.data);
+                } else {
+                    throw new Error(data.error || 'Submission failed');
+                }
+            } catch (error) {
+                console.error('Error submitting survey:', error);
+                alert('Error submitting survey. Your responses have been saved offline and will be submitted when you\'re back online.');
+            }
+        }
+
+        function showThankYouPage(data) {
+            document.getElementById('survey-form').style.display = 'none';
+            const thankYouPage = document.getElementById('thank-you-page');
+            thankYouPage.classList.add('active');
+
+            // Update thank you message
+            const message = data.thankYouMessage?.get ?
+                data.thankYouMessage.get(currentLanguage) :
+                data.thankYouMessage || 'Thank you for completing our survey!';
+
+            document.getElementById('thank-you-message').textContent = message;
+
+            // Handle redirect if configured
+            if (data.redirectUrl && data.redirectDelay) {
+                const redirectMessage = document.getElementById('redirect-message');
+                const countdown = document.getElementById('redirect-countdown');
+
+                redirectMessage.style.display = 'block';
+
+                let timeLeft = data.redirectDelay;
+                countdown.textContent = timeLeft;
+
+                const interval = setInterval(() => {
+                    timeLeft--;
+                    countdown.textContent = timeLeft;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(interval);
+                        window.location.href = data.redirectUrl;
+                    }
+                }, 1000);
+            }
+        }
+
+        function showAccessCodeModal() {
+            document.getElementById('access-code-modal').classList.add('active');
+        }
+
+        async function submitAccessCode() {
+            const code = document.getElementById('access-code-input').value.trim();
+            const errorDiv = document.getElementById('access-code-error');
+
+            if (!code) {
+                errorDiv.textContent = 'Please enter an access code';
+                return;
+            }
+
+            // Validate code (check against survey settings)
+            if (currentSurvey.settings?.accessCodes?.includes(code)) {
+                document.getElementById('access-code-modal').classList.remove('active');
+                renderSurvey();
+            } else {
+                errorDiv.textContent = 'Invalid access code. Please try again.';
+            }
+        }
+
+        function showErrorMessage(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('survey-form').innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                    <h2 style="color: #f44336; margin-bottom: 16px;">Oops!</h2>
+                    <p style="color: #666;">${message}</p>
+                </div>
+            `;
+            document.getElementById('survey-form').style.display = 'block';
+        }
+
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+                return 'tablet';
+            }
+            if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+                return 'mobile';
+            }
+            return 'desktop';
+        }
+
+        async function syncOfflineData() {
+            // Trigger background sync if available
+            if ('serviceWorker' in navigator && 'sync' in navigator.serviceWorker) {
+                const registration = await navigator.serviceWorker.ready;
+                await registration.sync.register('sync-submissions');
+            }
+        }
+    </script>
+</body>
+</html>

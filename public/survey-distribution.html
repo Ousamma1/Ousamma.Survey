@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Distribution - Ousamma Survey Platform</title>
+    <link rel="stylesheet" href="css/survey-sections.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .distribution-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .link-list {
+            list-style: none;
+        }
+
+        .link-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-info {
+            flex: 1;
+        }
+
+        .link-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .link-url {
+            color: #667eea;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .link-stats {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .qr-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .qr-card img {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            margin: 12px auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .embed-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-top: 12px;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+
+        .email-template {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .share-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .share-btn-email { background: #EA4335; }
+        .share-btn-whatsapp { background: #25D366; }
+        .share-btn-telegram { background: #0088cc; }
+        .share-btn-sms { background: #6C757D; }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Survey Distribution</h1>
+        <p class="subtitle">Distribute your survey through multiple channels</p>
+
+        <div class="form-group">
+            <label>Select Survey:</label>
+            <select id="survey-select" onchange="loadSurvey()">
+                <option value="">-- Select a Survey --</option>
+            </select>
+        </div>
+
+        <div id="distribution-panel" style="display: none;">
+            <div class="distribution-tabs">
+                <button class="tab active" onclick="switchTab('links')">🔗 Unique Links</button>
+                <button class="tab" onclick="switchTab('qrcodes')">📱 QR Codes</button>
+                <button class="tab" onclick="switchTab('embed')">💻 Embed</button>
+                <button class="tab" onclick="switchTab('email')">✉️ Email</button>
+                <button class="tab" onclick="switchTab('social')">📢 Social Media</button>
+                <button class="tab" onclick="switchTab('settings')">⚙️ Settings</button>
+            </div>
+
+            <!-- Unique Links Tab -->
+            <div id="tab-links" class="tab-content active">
+                <div class="card">
+                    <h3>Create Unique Distribution Link</h3>
+                    <div class="form-group">
+                        <label>Link Label:</label>
+                        <input type="text" id="link-label" placeholder="e.g., Email Campaign, Social Media">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Uses (optional):</label>
+                        <input type="number" id="link-max-uses" placeholder="Leave empty for unlimited">
+                    </div>
+                    <div class="form-group">
+                        <label>Expiration Date (optional):</label>
+                        <input type="datetime-local" id="link-expires">
+                    </div>
+                    <button class="btn btn-primary" onclick="createLink()">Generate Link</button>
+                </div>
+
+                <div class="card">
+                    <h3>Active Links</h3>
+                    <ul class="link-list" id="links-list">
+                        <!-- Links will be populated here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- QR Codes Tab -->
+            <div id="tab-qrcodes" class="tab-content">
+                <div class="card">
+                    <h3>Generate QR Code</h3>
+                    <div class="form-group">
+                        <label>Link Source (optional):</label>
+                        <select id="qr-link-select">
+                            <option value="">Default Survey URL</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>QR Code Size:</label>
+                        <select id="qr-size">
+                            <option value="200">Small (200px)</option>
+                            <option value="300" selected>Medium (300px)</option>
+                            <option value="500">Large (500px)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateQRCode()">Generate QR Code</button>
+                </div>
+
+                <div class="card">
+                    <h3>Generated QR Codes</h3>
+                    <div class="qr-grid" id="qr-grid">
+                        <!-- QR codes will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Embed Tab -->
+            <div id="tab-embed" class="tab-content">
+                <div class="card">
+                    <h3>Embed Code Options</h3>
+                    <div class="form-group">
+                        <label>Width:</label>
+                        <input type="text" id="embed-width" value="100%" placeholder="e.g., 100% or 800px">
+                    </div>
+                    <div class="form-group">
+                        <label>Height:</label>
+                        <input type="text" id="embed-height" value="600px" placeholder="e.g., 600px">
+                    </div>
+                    <div class="form-group">
+                        <label>Theme:</label>
+                        <select id="embed-theme">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateEmbed()">Generate Embed Code</button>
+                </div>
+
+                <div class="card" id="embed-result" style="display: none;">
+                    <h3>Iframe Embed Code</h3>
+                    <div class="embed-code">
+                        <button class="copy-btn" onclick="copyToClipboard('iframe-code')">Copy</button>
+                        <pre id="iframe-code"></pre>
+                    </div>
+
+                    <h3 style="margin-top: 24px;">JavaScript Embed Code</h3>
+                    <div class="embed-code">
+                        <button class="copy-btn" onclick="copyToClipboard('script-code')">Copy</button>
+                        <pre id="script-code"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Tab -->
+            <div id="tab-email" class="tab-content">
+                <div class="card">
+                    <h3>Email Distribution</h3>
+                    <div class="form-group">
+                        <label>Recipients (comma-separated emails):</label>
+                        <textarea id="email-recipients" rows="3" placeholder="email1@example.com, email2@example.com"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject:</label>
+                        <input type="text" id="email-subject" value="You're invited to participate in our survey">
+                    </div>
+                    <div class="form-group">
+                        <label>Message:</label>
+                        <textarea id="email-message" rows="5" placeholder="Your personalized message here..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Link to include:</label>
+                        <select id="email-link-select">
+                            <option value="">Default Survey URL</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="sendEmail()">Send Email Invitations</button>
+
+                    <h3 style="margin-top: 24px;">Preview</h3>
+                    <div class="email-template" id="email-preview">
+                        <!-- Email preview will be shown here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Tab -->
+            <div id="tab-social" class="tab-content">
+                <div class="card">
+                    <h3>Share on Social Media</h3>
+                    <div class="alert alert-info">
+                        Click the buttons below to share your survey on different platforms
+                    </div>
+
+                    <div class="form-group">
+                        <label>Message:</label>
+                        <textarea id="social-message" rows="3" placeholder="Please participate in our survey!"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Survey Link:</label>
+                        <input type="text" id="social-url" readonly>
+                    </div>
+
+                    <div class="share-buttons" id="share-buttons">
+                        <!-- Share buttons will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content">
+                <div class="card">
+                    <h3>Advanced Distribution Settings</h3>
+                    <div class="form-group">
+                        <label>Access Code Protection:</label>
+                        <input type="checkbox" id="require-access-code" onchange="toggleAccessCode()">
+                        <label for="require-access-code">Require access code</label>
+                    </div>
+                    <div class="form-group" id="access-codes-group" style="display: none;">
+                        <label>Access Codes (one per line):</label>
+                        <textarea id="access-codes" rows="4" placeholder="CODE123&#10;CODE456"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Custom URL Slug:</label>
+                        <input type="text" id="custom-slug" placeholder="my-survey-name">
+                        <small style="color: #666;">Only lowercase letters, numbers, and hyphens</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date:</label>
+                        <input type="datetime-local" id="start-date">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date:</label>
+                        <input type="datetime-local" id="end-date">
+                    </div>
+                    <div class="form-group">
+                        <label>Maximum Responses:</label>
+                        <input type="number" id="max-responses" placeholder="Leave empty for unlimited">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Responses Per User:</label>
+                        <input type="number" id="max-responses-per-user" value="1">
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="allow-anonymous">
+                        <label for="allow-anonymous">Allow anonymous responses</label>
+                    </div>
+                    <button class="btn btn-success" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/survey-distribution.js"></script>
+</body>
+</html>

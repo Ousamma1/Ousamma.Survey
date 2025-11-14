@@ -1,11 +1,16 @@
 {
   "name": "ousamma-survey",
   "version": "2.0.0",
-  "description": "AI-Powered Survey Application",
+  "description": "AI-Powered Survey Application with Advanced Features",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start:survey-service": "cd services/survey-service && npm start",
+    "dev:survey-service": "cd services/survey-service && npm run dev",
+    "start:all": "concurrently \"npm start\" \"npm run start:survey-service\"",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:survey-service\"",
+    "install:all": "npm install && cd services/survey-service && npm install"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -15,7 +20,8 @@
     "ws": "^8.14.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "concurrently": "^8.2.1"
   },
   "engines": {
     "node": ">=16.0.0"

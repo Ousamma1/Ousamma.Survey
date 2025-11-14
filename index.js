@@ -12,15 +12,27 @@ require('dotenv').config();
 const cache = require('./services/shared/cache/redis-cache');
 const { cacheMiddleware, invalidateMiddleware, etagMiddleware } = require('./services/shared/cache/cache-middleware');
 
+// Import security middleware - SPRINT 18
+const { setupSecurity } = require('./middleware/security.middleware');
+const { globalLimiter } = require('./middleware/rateLimiter');
+
+// Import routes - SPRINT 18
+const authRoutes = require('./routes/auth.routes');
+const apiKeyRoutes = require('./routes/apiKey.routes');
+const gdprRoutes = require('./routes/gdpr.routes');
+
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server, path: '/ws' });
 const PORT = process.env.PORT || 3000;
 
-// Middleware - Order matters!
-app.use(cors());
+// ============================================
+// SECURITY MIDDLEWARE - SPRINT 18
+// Apply comprehensive security measures
+// ============================================
+setupSecurity(app);
 
-// Response compression (before other middleware)
+// Response compression (after security headers)
 app.use(compression({
   threshold: 1024, // Compress responses > 1KB
   level: 6,
@@ -32,9 +44,14 @@ app.use(compression({
   }
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing with size limits
+const securityConfig = require('./config/security.config');
+app.use(express.json({ limit: securityConfig.requestLimits.json }));
+app.use(express.urlencoded({ extended: true, limit: securityConfig.requestLimits.urlencoded }));
 app.use(express.static('public'));
+
+// Global rate limiting
+app.use(globalLimiter);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -551,6 +568,29 @@ app.get('/api/responses/:surveyId', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// ============================================
+// SECURITY ROUTES - SPRINT 18
+// Authentication, API Keys, and GDPR Compliance
+// ============================================
+app.use('/api/auth', authRoutes);
+app.use('/api/keys', apiKeyRoutes);
+app.use('/api/gdpr', gdprRoutes);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    security: {
+      rateLimiting: 'enabled',
+      encryption: 'enabled',
+      authentication: 'JWT',
+      gdprCompliant: true
+    }
+  });
 });
 
 // ============================================

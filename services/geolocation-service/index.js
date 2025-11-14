@@ -1,8 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const database = require('./config/database');
 const geolocationRoutes = require('./routes/geolocation');
+
+// Import cache utilities
+const cache = require('../shared/cache/redis-cache');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,6 +15,12 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   credentials: true
+}));
+
+// Response compression
+app.use(compression({
+  threshold: 1024,
+  level: 6
 }));
 
 app.use(express.json());
@@ -139,6 +149,14 @@ async function startServer() {
     // Connect to MongoDB
     await database.connect();
 
+    // Connect to Redis (optional, graceful degradation if fails)
+    try {
+      await cache.connect();
+      console.log('✅ Redis cache connected');
+    } catch (error) {
+      console.warn('⚠️  Redis connection failed, running without cache:', error.message);
+    }
+
     // Start Express server
     app.listen(PORT, () => {
       console.log('');
@@ -149,6 +167,8 @@ async function startServer() {
       console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`  API Docs:    http://localhost:${PORT}/api/geo/docs`);
       console.log(`  Health:      http://localhost:${PORT}/health`);
+      console.log(`  Cache:       ${cache.isConnected() ? 'Enabled' : 'Disabled'}`);
+      console.log(`  Compression: Enabled`);
       console.log('═══════════════════════════════════════════════');
       console.log('');
     });
@@ -159,17 +179,21 @@ async function startServer() {
 }
 
 // Handle graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully...');
-  await database.disconnect();
-  process.exit(0);
-});
+async function shutdown() {
+  console.log('\n🛑 Shutting down gracefully...');
+  try {
+    await cache.disconnect();
+    await database.disconnect();
+    console.log('✅ Cleanup completed');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+    process.exit(1);
+  }
+}
 
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, shutting down gracefully...');
-  await database.disconnect();
-  process.exit(0);
-});
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 // Start the server
 startServer();

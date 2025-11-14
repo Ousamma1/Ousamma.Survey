@@ -5,15 +5,33 @@ const path = require('path');
 const fs = require('fs').promises;
 const http = require('http');
 const WebSocket = require('ws');
+const compression = require('compression');
 require('dotenv').config();
+
+// Import cache utilities
+const cache = require('./services/shared/cache/redis-cache');
+const { cacheMiddleware, invalidateMiddleware, etagMiddleware } = require('./services/shared/cache/cache-middleware');
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server, path: '/ws' });
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware - Order matters!
 app.use(cors());
+
+// Response compression (before other middleware)
+app.use(compression({
+  threshold: 1024, // Compress responses > 1KB
+  level: 6,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
@@ -362,74 +380,96 @@ app.delete('/api/context/files/:filename', async (req, res) => {
 // SURVEY MANAGEMENT
 // ============================================
 
-// Save survey
-app.post('/api/surveys/save', async (req, res) => {
-  try {
-    const { surveyId, survey } = req.body;
+// Save survey (with cache invalidation)
+app.post('/api/surveys/save',
+  invalidateMiddleware({
+    namespace: 'survey',
+    pattern: '*'
+  }),
+  async (req, res) => {
+    try {
+      const { surveyId, survey } = req.body;
 
-    if (!surveyId || !survey) {
-      return res.status(400).json({ error: 'Survey ID and survey data are required' });
+      if (!surveyId || !survey) {
+        return res.status(400).json({ error: 'Survey ID and survey data are required' });
+      }
+
+      const surveysDir = path.join(__dirname, 'public', 'Surveys');
+      await fs.mkdir(surveysDir, { recursive: true });
+
+      const filePath = path.join(surveysDir, `${surveyId}.json`);
+      await fs.writeFile(filePath, JSON.stringify(survey, null, 2));
+
+      // Invalidate specific survey cache
+      await cache.del('survey', surveyId);
+      await cache.del('survey', 'list:all');
+
+      res.json({ success: true, surveyId });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-
-    const surveysDir = path.join(__dirname, 'public', 'Surveys');
-    await fs.mkdir(surveysDir, { recursive: true });
-
-    const filePath = path.join(surveysDir, `${surveyId}.json`);
-    await fs.writeFile(filePath, JSON.stringify(survey, null, 2));
-
-    res.json({ success: true, surveyId });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
-});
+);
 
-// Get survey
-app.get('/api/surveys/:surveyId', async (req, res) => {
-  try {
-    const { surveyId } = req.params;
-    const filePath = path.join(__dirname, 'public', 'Surveys', `${surveyId}.json`);
+// Get survey (with caching)
+app.get('/api/surveys/:surveyId',
+  cacheMiddleware('survey', {
+    namespace: 'survey',
+    keyGenerator: (req) => req.params.surveyId
+  }),
+  async (req, res) => {
+    try {
+      const { surveyId } = req.params;
+      const filePath = path.join(__dirname, 'public', 'Surveys', `${surveyId}.json`);
 
-    const data = await fs.readFile(filePath, 'utf8');
-    res.json(JSON.parse(data));
-  } catch (error) {
-    res.status(404).json({ error: 'Survey not found' });
+      const data = await fs.readFile(filePath, 'utf8');
+      res.json(JSON.parse(data));
+    } catch (error) {
+      res.status(404).json({ error: 'Survey not found' });
+    }
   }
-});
+);
 
-// List surveys
-app.get('/api/surveys', async (req, res) => {
-  try {
-    const surveysDir = path.join(__dirname, 'public', 'Surveys');
-    await fs.mkdir(surveysDir, { recursive: true });
+// List surveys (with caching)
+app.get('/api/surveys',
+  cacheMiddleware('medium', {
+    namespace: 'survey',
+    keyGenerator: (req) => 'list:all'
+  }),
+  async (req, res) => {
+    try {
+      const surveysDir = path.join(__dirname, 'public', 'Surveys');
+      await fs.mkdir(surveysDir, { recursive: true });
 
-    const files = await fs.readdir(surveysDir);
-    const surveys = [];
+      const files = await fs.readdir(surveysDir);
+      const surveys = [];
 
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        try {
-          const filePath = path.join(surveysDir, file);
-          const data = await fs.readFile(filePath, 'utf8');
-          const survey = JSON.parse(data);
-          surveys.push({
-            id: file.replace('.json', ''),
-            title: survey.title || survey.name || `Survey ${file.replace('.json', '')}`,
-            description: survey.description || '',
-            questions: survey.questions || [],
-            createdAt: survey.createdAt || new Date().toISOString(),
-            ...survey
-          });
-        } catch (error) {
-          console.error(`Error reading survey ${file}:`, error);
+      for (const file of files) {
+        if (file.endsWith('.json')) {
+          try {
+            const filePath = path.join(surveysDir, file);
+            const data = await fs.readFile(filePath, 'utf8');
+            const survey = JSON.parse(data);
+            surveys.push({
+              id: file.replace('.json', ''),
+              title: survey.title || survey.name || `Survey ${file.replace('.json', '')}`,
+              description: survey.description || '',
+              questions: survey.questions || [],
+              createdAt: survey.createdAt || new Date().toISOString(),
+              ...survey
+            });
+          } catch (error) {
+            console.error(`Error reading survey ${file}:`, error);
+          }
         }
       }
-    }
 
-    res.json(surveys);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+      res.json(surveys);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
-});
+);
 
 // Save survey responses
 app.post('/api/responses/save', async (req, res) => {
@@ -624,12 +664,69 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Start server
-server.listen(PORT, () => {
-  console.log(`🚀 Ousamma Survey Server running on port ${PORT}`);
-  console.log(`📊 AI Provider: ${AI_CONFIG.provider}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}`);
-  console.log(`🔌 WebSocket URL: ws://localhost:${PORT}/ws`);
-});
+// Start server with Redis initialization
+async function startServer() {
+  try {
+    // Connect to Redis
+    await cache.connect();
+    console.log('✅ Redis cache connected');
+
+    // Start HTTP server
+    server.listen(PORT, () => {
+      console.log(`🚀 Ousamma Survey Server running on port ${PORT}`);
+      console.log(`📊 AI Provider: ${AI_CONFIG.provider}`);
+      console.log(`🔗 API URL: http://localhost:${PORT}`);
+      console.log(`🔌 WebSocket URL: ws://localhost:${PORT}/ws`);
+      console.log(`💾 Cache: Enabled (Redis)`);
+      console.log(`📦 Compression: Enabled (gzip)`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    console.warn('⚠️  Starting server without cache (degraded mode)');
+
+    // Start server without cache
+    server.listen(PORT, () => {
+      console.log(`🚀 Ousamma Survey Server running on port ${PORT} (degraded mode)`);
+    });
+  }
+}
+
+// Graceful shutdown
+async function shutdown() {
+  console.log('\n🛑 Shutting down gracefully...');
+
+  try {
+    // Close WebSocket server
+    wss.close(() => {
+      console.log('✅ WebSocket server closed');
+    });
+
+    // Disconnect Redis
+    await cache.disconnect();
+    console.log('✅ Redis disconnected');
+
+    // Close HTTP server
+    server.close(() => {
+      console.log('✅ HTTP server closed');
+      process.exit(0);
+    });
+
+    // Force exit after 10 seconds
+    setTimeout(() => {
+      console.error('⚠️  Forced shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+    process.exit(1);
+  }
+}
+
+// Handle shutdown signals
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+// Start the server
+startServer();
 
 module.exports = { app, server, wss };

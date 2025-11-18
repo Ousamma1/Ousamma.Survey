@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+public/vendor/
+package-lock.json
+*.log
+data/
+uploads/
